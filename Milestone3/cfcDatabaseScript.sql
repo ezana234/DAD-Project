@@ -36,7 +36,14 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `cfc`.`Client` (
   `clientId` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`clientId`))
+  `Person_userId` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`clientId`, `Person_userId`),
+  INDEX `fk_Client_Person1_idx` (`Person_userId` ASC) VISIBLE,
+  CONSTRAINT `fk_Client_Person1`
+    FOREIGN KEY (`Person_userId`)
+    REFERENCES `cfc`.`Person` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -47,11 +54,18 @@ CREATE TABLE IF NOT EXISTS `cfc`.`Family_Member` (
   `familyId` INT UNSIGNED NOT NULL,
   `relationship` VARCHAR(45) NOT NULL,
   `Client_clientId` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`familyId`, `Client_clientId`),
+  `Person_userId` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`familyId`, `Client_clientId`, `Person_userId`),
   INDEX `fk_Family_Member_Client1_idx` (`Client_clientId` ASC) VISIBLE,
+  INDEX `fk_Family_Member_Person1_idx` (`Person_userId` ASC) VISIBLE,
   CONSTRAINT `fk_Family_Member_Client1`
     FOREIGN KEY (`Client_clientId`)
     REFERENCES `cfc`.`Client` (`clientId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Family_Member_Person1`
+    FOREIGN KEY (`Person_userId`)
+    REFERENCES `cfc`.`Person` (`userId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -62,7 +76,14 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `cfc`.`Clinician` (
   `clinicianId` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`clinicianId`))
+  `Person_userId` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`clinicianId`, `Person_userId`),
+  INDEX `fk_Clinician_Person1_idx` (`Person_userId` ASC) VISIBLE,
+  CONSTRAINT `fk_Clinician_Person1`
+    FOREIGN KEY (`Person_userId`)
+    REFERENCES `cfc`.`Person` (`userId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 

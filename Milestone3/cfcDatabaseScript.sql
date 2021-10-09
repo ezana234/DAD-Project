@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `cfc`.`Person` (
   `password` VARCHAR(45) NOT NULL,
   `firstName` VARCHAR(45) NOT NULL,
   `lastName` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
   `address` VARCHAR(45) NOT NULL,
   `phoneNumber` VARCHAR(45) NOT NULL,
   `role` VARCHAR(45) NOT NULL,

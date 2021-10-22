@@ -75,7 +75,6 @@ func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map
 		}
 
 		var rowlist = make([]string, len(cols))
-
 		for i, raw := range rawResult {
 			if raw == nil {
 				rowlist[i] = "\\N"

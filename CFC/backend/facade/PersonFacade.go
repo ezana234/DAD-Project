@@ -15,7 +15,7 @@ func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
 }
 
 func (pf *PersonFacade) GetPerson(userID int) *Model.Person {
-	var p = pf.personDao.GetByID(userID)
+	var p = pf.personDao.GetPerson(userID)
 	return p
 }
 

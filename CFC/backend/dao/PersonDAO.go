@@ -14,7 +14,7 @@ func NewPersonDao(db DB.DatabaseConnection) *PersonDao {
 	return &PersonDao{db: db}
 }
 
-func (pd *PersonDao) GetByID(userID int) *Model.Person {
+func (pd *PersonDao) GetPerson(userID int) *Model.Person {
 	query := DB.NewNamedParameterQuery("SELECT * FROM person WHERE person.UserId=:userID")
 	var parameterMap = map[string]interface{}{
 		"userID": userID,

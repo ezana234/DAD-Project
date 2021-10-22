@@ -7,7 +7,7 @@ function Login() {
     const history = useHistory();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
+    const [user, setUser] = useState('');
     const signIn = e => {
         e.preventDefault();
         auth
@@ -32,6 +32,14 @@ function Login() {
             .catch(error => alert(error.message))
     }
 
+    const onChangeValue = (event) =>{
+        // if()
+        console.log("HERE")
+        setUser(event.target.value)
+        console.log(event.target.value)
+        console.log(user)
+    }
+
     return (
         <div className='login'>
             <Link to='/'>
@@ -50,7 +58,14 @@ function Login() {
 
                     <h5>Password</h5>
                     <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
-
+                    <p>You are:</p>
+                    <div onChange={onChangeValue}>
+                        <input type="radio" id="client" name="radio" value="client"/>
+                        <label for="client">Client</label>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" id="clinician" name="radio" value="clinician"/>
+                        <label for="clinician">Clinician</label>
+                    </div>
                     <button type='submit' onClick={signIn} className='login__signInButton'>Sign In</button>
                 </form>
 

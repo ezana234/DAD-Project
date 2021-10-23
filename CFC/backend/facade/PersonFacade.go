@@ -15,16 +15,16 @@ func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
 }
 
 func (pf *PersonFacade) GetPerson(userID int) *Model.Person {
-	var p = pf.personDao.GetPerson(userID)
-	return p
+	return pf.personDao.GetByID(userID)
 }
 
-func (pf *PersonFacade) AddPerson(p Model.Person) interface{} {
-	_ = pf.personDao.AddPerson(p)
+func (pf *PersonFacade) AddPerson(p Model.Person) error {
+	//p.SetUserID(pf.personDao.)
+	//_ = pf.personDao.Add(p)
 	return nil
 }
 
-func (pf *PersonFacade) DeletePerson(userID int) interface{} {
-	_ = pf.personDao.DeletePersonByID(userID)
+func (pf *PersonFacade) DeletePerson(userID int) error {
+	_ = pf.personDao.Delete(userID)
 	return nil
 }

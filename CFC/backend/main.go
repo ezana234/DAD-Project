@@ -30,6 +30,9 @@ func main() {
 }
 
 func (db *Database) login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	type Login struct {
 		Email    string
 		Password string

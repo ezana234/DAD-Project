@@ -3,6 +3,7 @@ package dao
 import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
+	"fmt"
 	"strconv"
 )
 
@@ -24,6 +25,29 @@ func (pd *PersonDao) GetByID(userID int) *Model.Person {
 
 	result, err := pd.db.Select(query, parameterMap)
 	if err != nil {
+		return p
+	}
+
+	var res = result[0]
+
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	p = Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8])
+	p.SetUserID(int(uid))
+
+	return p
+}
+
+func (pd *PersonDao) GetByEmail(email string, password string) *Model.Person {
+	fmt.Println(email, password)
+	query := DB.NewNamedParameterQuery("SELECT * FROM person WHERE person.Email=:email AND person.Password=:password;")
+	var parameterMap = map[string]interface{}{
+		"email":    email,
+		"password": password}
+
+	var p = new(Model.Person)
+
+	result, err := pd.db.Select(query, parameterMap)
+	if err != nil || len(result) == 0 {
 		return p
 	}
 

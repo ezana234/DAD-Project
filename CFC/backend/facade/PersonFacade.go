@@ -18,6 +18,10 @@ func (pf *PersonFacade) GetPerson(userID int) *Model.Person {
 	return pf.personDao.GetByID(userID)
 }
 
+func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
+	return pf.personDao.GetByEmail(email, password)
+}
+
 func (pf *PersonFacade) AddPerson(p Model.Person) error {
 	//p.SetUserID(pf.personDao.)
 	//_ = pf.personDao.Add(p)

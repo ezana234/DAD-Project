@@ -3,37 +3,75 @@ package main
 import (
 	"CFC/backend/CFC/backend/DB"
 	Facade "CFC/backend/CFC/backend/facade"
-	Model "CFC/backend/CFC/backend/model"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type Database struct {
 	database DB.DatabaseConnection
 }
 
+func accessControlMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS,PUT")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	db := *DB.NewDatabaseConnection("sql5446146", "WUi5dvp7gj", "sql5.freemysqlhosting.net:3306", "sql5446146")
-	cf := *Facade.NewClinicianFacade(db)
-	newClinician := *Model.NewClinician(1002)
-	cf.AddClinician(newClinician)
-	mux := http.NewServeMux()
+	// cf := *Facade.NewClinicianFacade(db)
+	// newClinician := *Model.NewClinician(1002)
+	// cf.AddClinician(newClinician)
+	mux := mux.NewRouter()
 	dbHandler := &Database{database: db}
+	mux.Use(accessControlMiddleware)
 	// Routes
-	mux.HandleFunc("/login", dbHandler.login)
+	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
+		AllowedMethods: []string{
+			http.MethodGet, //http methods for your app
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+			http.MethodHead,
+		},
+
+		AllowedHeaders: []string{
+			"*", //or you can your header key values which you are using in your application
+
+		},
+	})
+
+	headersOK := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
+	originsOK := handlers.AllowedOrigins([]string{"*"})
+	methodsOK := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
+
+	router := c.Handler(mux)
 
 	log.Println("Starting server on :3000")
-	err := http.ListenAndServe(":3000", mux)
+	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
 }
 
 func (db *Database) login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 	type Login struct {
 		Email    string
 		Password string

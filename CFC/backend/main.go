@@ -67,7 +67,7 @@ func main() {
 	router := c.Handler(mux)
 
 	log.Println("Starting server on :3000")
-	err := http.ListenAndServeTLS(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
+	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
 }
 

@@ -43,7 +43,7 @@ func main() {
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
+		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
 		AllowedMethods: []string{
 			http.MethodGet, //http methods for your app
 			http.MethodPost,

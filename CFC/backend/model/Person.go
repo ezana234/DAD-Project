@@ -1,91 +1,91 @@
 package model
 
 type Person struct {
-	userID      int
-	userName    string
-	password    string
-	firstName   string
-	lastName    string
-	email       string
-	address     string
-	phoneNumber string
-	role        string
+	UserID      int
+	UserName    string
+	Password    string
+	FirstName   string
+	LastName    string
+	Email       string
+	Address     string
+	PhoneNumber string
+	Role        string
 }
 
 func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string) *Person {
-	return &Person{userName: userName, password: password, firstName: firstName, lastName: lastName, email: email, address: address, phoneNumber: phoneNumber, role: role}
+	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role}
 }
 
-func (p *Person) UserID() int {
-	return p.userID
+func (p *Person) GetUserID() int {
+	return p.UserID
 }
 
 func (p *Person) SetUserID(userID int) {
-	p.userID = userID
+	p.UserID = userID
 }
 
-func (p *Person) UserName() string {
-	return p.userName
+func (p *Person) GetUserName() string {
+	return p.UserName
 }
 
 func (p *Person) SetUserName(userName string) {
-	p.userName = userName
+	p.UserName = userName
 }
 
-func (p *Person) Password() string {
-	return p.password
+func (p *Person) GetPassword() string {
+	return p.Password
 }
 
 func (p *Person) SetPassword(password string) {
-	p.password = password
+	p.Password = password
 }
 
-func (p *Person) FirstName() string {
-	return p.firstName
+func (p *Person) GetFirstName() string {
+	return p.FirstName
 }
 
 func (p *Person) SetFirstName(firstName string) {
-	p.firstName = firstName
+	p.FirstName = firstName
 }
 
-func (p *Person) LastName() string {
-	return p.lastName
+func (p *Person) GetLastName() string {
+	return p.LastName
 }
 
 func (p *Person) SetLastName(lastName string) {
-	p.lastName = lastName
+	p.LastName = lastName
 }
 
-func (p *Person) Email() string {
-	return p.email
+func (p *Person) GetEmail() string {
+	return p.Email
 }
 
 func (p *Person) SetEmail(email string) {
-	p.email = email
+	p.Email = email
 }
 
-func (p *Person) Address() string {
-	return p.address
+func (p *Person) GetAddress() string {
+	return p.Address
 }
 
 func (p *Person) SetAddress(address string) {
-	p.address = address
+	p.Address = address
 }
 
-func (p *Person) PhoneNumber() string {
-	return p.phoneNumber
+func (p *Person) GetPhoneNumber() string {
+	return p.PhoneNumber
 }
 
 func (p *Person) SetPhoneNumber(phoneNumber string) {
-	p.phoneNumber = phoneNumber
+	p.PhoneNumber = phoneNumber
 }
 
-func (p *Person) Role() string {
-	return p.role
+func (p *Person) GetRole() string {
+	return p.Role
 }
 
 func (p *Person) SetRole(role string) {
-	p.role = role
+	p.Role = role
 }
 
 func (p Person) Error() string {

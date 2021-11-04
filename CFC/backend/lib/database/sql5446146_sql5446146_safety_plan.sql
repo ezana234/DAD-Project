@@ -1,0 +1,1 @@
+INSERT INTO sql5446146.safety_plan (safetyid, triggers, warningsigns, destructivebehaviors, internalstrategies, updateddatetime, updatedclinician, client_clientid, clinician_clinicianid) VALUES (1, 'Guns, and Parental Violence', 'Manic Behavior', 'N/A', 'Playing VideoGames', '2020-10-22 10:00:00.000000', 1, 1, 1);

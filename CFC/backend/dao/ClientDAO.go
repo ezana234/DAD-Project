@@ -27,12 +27,11 @@ func (cd *ClientDao) GetClient(clientID int) *Model.Client {
 	}
 
 	var res = result[0]
-
 	cuid, _ := strconv.ParseInt(res[0], 10, 64)
 	uid, _ := strconv.ParseInt(res[1], 10, 64)
-
 	c = Model.NewClient(int(uid))
 	c.SetClientID(int(cuid))
+
 	return c
 }
 
@@ -51,3 +50,15 @@ func (cd *ClientDao) DeleteClient(clientID int) error {
 func (cd *ClientDao) GetAllClients() error {
 	return nil
 }
+
+// TODO GetSafetyPlanByClientID()
+
+// TODO GetFamilyMemberByClientID()
+
+// TODO GetSupportNetworkByClientID()
+
+// TODO GetClinicianByClientID()
+
+// TODO GetAppointmentByClientID()
+
+// TODO GetPersonByClientID()

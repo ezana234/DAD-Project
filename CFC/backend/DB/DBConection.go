@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
-	- "github.com/go-sql-driver/mysql"
-	- "githib.com/lib/pq"
+	//_"github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"log"
 )
 
@@ -18,18 +17,24 @@ type DatabaseConnection struct {
 	username string
 	password string
 	hostname string
+	port     string
 	dbname   string
 	dsn      string
+	psqlInfo string
 }
 
-func NewDatabaseConnection(username string, password string, hostname string, dbname string) *DatabaseConnection {
+func NewDatabaseConnection(username string, password string, hostname string, port string, dbname string) *DatabaseConnection {
 	var dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, hostname, dbname)
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=require",
+		hostname, port, username, password, dbname)
 	return &DatabaseConnection{
 		username: username,
 		password: password,
 		hostname: hostname,
 		dbname:   dbname,
 		dsn:      dsn,
+		psqlInfo: psqlInfo,
 	}
 }
 
@@ -93,7 +98,7 @@ func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map
 	var rs [][]string
 
 	query.SetValuesFromMap(parameterMap)
-	db, err := sql.Open("pg", d.dsn)
+	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
 		return rs, errors.New("failed to connect to DB")
@@ -147,7 +152,7 @@ func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map
 
 func (d *DatabaseConnection) Update(query *NamedParameterQuery, parameterMap map[string]interface{}) error {
 	query.SetValuesFromMap(parameterMap)
-	db, err := sql.Open("mysql", d.dsn)
+	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
 		return errors.New("failed to connect to DB")

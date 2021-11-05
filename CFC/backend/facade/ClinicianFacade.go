@@ -10,11 +10,15 @@ import (
 
 type ClinicianFacade struct {
 	clinicianDao DAO.ClinicianDao
-	authManager  Auth.AuthenticationManager
+	authManager  *Auth.AuthenticationManager
 }
 
-func NewClinicianFacade(db DB.DatabaseConnection, authManager Auth.AuthenticationManager) *ClinicianFacade {
+func NewClinicianFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationManager) *ClinicianFacade {
 	return &ClinicianFacade{clinicianDao: *DAO.NewClinicianDao(db), authManager: authManager}
+}
+
+func (cf *ClinicianFacade) GetClinicianAuthManager() *Auth.AuthenticationManager {
+	return cf.authManager
 }
 
 func (cf *ClinicianFacade) GetClinician(clinicianID int) (*Model.Clinician, error) {

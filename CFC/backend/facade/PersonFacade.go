@@ -11,11 +11,15 @@ import (
 
 type PersonFacade struct {
 	personDao   DAO.PersonDao
-	authManager Auth.AuthenticationManager
+	authManager *Auth.AuthenticationManager
 }
 
-func NewPersonFacade(db DB.DatabaseConnection, authManager Auth.AuthenticationManager) *PersonFacade {
+func NewPersonFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationManager) *PersonFacade {
 	return &PersonFacade{personDao: *DAO.NewPersonDao(db), authManager: authManager}
+}
+
+func (pf *PersonFacade) GetAuthManager() *Auth.AuthenticationManager {
+	return pf.authManager
 }
 
 func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, error) {
@@ -44,14 +48,22 @@ func (pf *PersonFacade) GetPersons() ([]*Model.Person, error) {
 	return []*Model.Person{}, errors.New("user does not have permission")
 }
 
-func (pf *PersonFacade) AddPerson(p Model.Person) error {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		p.SetUserID(pf.personDao.GetNextUserID())
-
-		return pf.personDao.Add(p)
+func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, error) {
+	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetEmail() == email {
+		pList := pf.personDao.GetPersonsByEmail(email)
+		if len(pList) == 0 {
+			return new(Model.Person), errors.New("no person found")
+		}
+		return pList[0], nil
 	}
 
-	return errors.New("unable to add person: incorrect permissions")
+	return new(Model.Person), errors.New("user does not have permission")
+}
+
+func (pf *PersonFacade) AddPerson(p Model.Person) error {
+	p.SetUserID(pf.personDao.GetNextUserID())
+	return pf.personDao.Add(p)
+	//return errors.New("unable to add person: incorrect permissions")
 }
 
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) error {

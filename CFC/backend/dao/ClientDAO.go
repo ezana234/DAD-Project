@@ -15,9 +15,9 @@ func NewClientDao(db DB.DatabaseConnection) *ClientDao {
 }
 
 func (cd *ClientDao) GetClient(clientID int) *Model.Client {
-	query := DB.NewNamedParameterQuery("SELECT * FROM client WHERE person.clientId=:clientID")
-	var parameterMap = map[string]interface{}{
-		"clientID": clientID,
+	var query = "SELECT * FROM client WHERE person.clientId=$1"
+	var parameterMap = []interface{}{
+		clientID,
 	}
 	var c = new(Model.Client)
 

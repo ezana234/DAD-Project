@@ -15,9 +15,9 @@ func NewClinicianDao(db DB.DatabaseConnection) *ClinicianDao {
 }
 
 func (cd *ClinicianDao) GetClinician(clinicianID int) *Model.Clinician {
-	query := DB.NewNamedParameterQuery("SELECT * FROM clinician WHERE person.clinicianId=:clinicianID")
-	var parameterMap = map[string]interface{}{
-		"clinicianID": clinicianID,
+	var query = "SELECT * FROM clinician WHERE person.clinicianId=$1"
+	var parameterMap = []interface{}{
+		clinicianID,
 	}
 	var c = new(Model.Clinician)
 
@@ -37,10 +37,10 @@ func (cd *ClinicianDao) GetClinician(clinicianID int) *Model.Clinician {
 }
 
 func (cd *ClinicianDao) GetAllClinicians() []*Model.Clinician {
-	query := DB.NewNamedParameterQuery("SELECT * FROM clinician")
+	var query = "SELECT * FROM clinician"
 	var cList []*Model.Clinician
 
-	result, err := cd.db.Select(query, map[string]interface{}{})
+	result, err := cd.db.Select(query, []interface{}{})
 	if err != nil {
 		return cList
 	}
@@ -57,43 +57,43 @@ func (cd *ClinicianDao) GetAllClinicians() []*Model.Clinician {
 }
 
 func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
-	query := DB.NewNamedParameterQuery("INSERT INTO clinician(Person_userId) VALUES(:userID)")
-	var parameterMap = map[string]interface{}{
-		"userID": c.GetUserID(),
+	var query = "INSERT INTO clinician(Person_userId) VALUES($1)"
+	var parameters = []interface{}{
+		c.GetUserID(),
 	}
 
-	err := cd.db.Update(query, parameterMap)
+	err := cd.db.Insert(query, parameters)
 
 	return err
 }
 
 func (cd *ClinicianDao) UpdateClinician(clinicianID int, c *Model.Clinician) error {
-	query := DB.NewNamedParameterQuery("UPDATE clinician SET Person_userId=:userID WHERE clinicianId=:clinicianID")
-	var parameterMap = map[string]interface{}{
-		"userID":      c.GetUserID(),
-		"clinicianID": clinicianID,
+	var query = "UPDATE clinician SET Person_userId=$1 WHERE clinicianId=$2"
+	var parameters = []interface{}{
+		c.GetUserID(),
+		clinicianID,
 	}
 
-	err := cd.db.Update(query, parameterMap)
+	err := cd.db.Update(query, parameters)
 
 	return err
 }
 
 func (cd *ClinicianDao) DeleteClinician(clinicianID int) error {
-	query := DB.NewNamedParameterQuery("DELETE FROM clinician WHERE clinicianId=:clinicianID")
-	var parameterMap = map[string]interface{}{
-		"clinicianID": clinicianID,
+	var query = "DELETE FROM clinician WHERE clinicianId=$1"
+	var parameters = []interface{}{
+		clinicianID,
 	}
 
-	err := cd.db.Update(query, parameterMap)
+	err := cd.db.Delete(query, parameters)
 
 	return err
 }
 
 func (cd *ClinicianDao) GetClientsByClinicianID(clinicianID int) []*Model.Client {
-	query := DB.NewNamedParameterQuery("SELECT * FROM client WHERE clientId IN (SELECT Client_clientId FROM client_has_clinician WHERE Clinician_clinicianId=:clinicianID)")
-	var parameterMap = map[string]interface{}{
-		"clinicianID": clinicianID,
+	var query = "SELECT * FROM client WHERE clientId IN (SELECT Client_clientId FROM client_has_clinician WHERE Clinician_clinicianId=$1)"
+	var parameterMap = []interface{}{
+		clinicianID,
 	}
 
 	var cList []*Model.Client
@@ -115,9 +115,9 @@ func (cd *ClinicianDao) GetClientsByClinicianID(clinicianID int) []*Model.Client
 }
 
 func (cd *ClinicianDao) GetAppointmentsByClinicianID(clinicianID int) []*Model.Appointment {
-	query := DB.NewNamedParameterQuery("SELECT * FROM appointments WHERE Clinician_clinicianId=:clinicianID")
-	var parameterMap = map[string]interface{}{
-		"clinicianID": clinicianID,
+	var query = "SELECT * FROM appointments WHERE Clinician_clinicianId=$1"
+	var parameterMap = []interface{}{
+		clinicianID,
 	}
 
 	var aList []*Model.Appointment
@@ -141,9 +141,9 @@ func (cd *ClinicianDao) GetAppointmentsByClinicianID(clinicianID int) []*Model.A
 }
 
 func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) []*Model.SafetyPlan {
-	query := DB.NewNamedParameterQuery("SELECT * FROM safety_plan WHERE Clinician_clinicianId=:clinicianID")
-	var parameterMap = map[string]interface{}{
-		"clinicianID": clinicianID,
+	var query = "SELECT * FROM safety_plan WHERE Clinician_clinicianId=$1"
+	var parameterMap = []interface{}{
+		clinicianID,
 	}
 
 	var spList []*Model.SafetyPlan
@@ -167,9 +167,9 @@ func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) []*Model.Sa
 }
 
 func (cd *ClinicianDao) GetNextClinicianID() int {
-	query := DB.NewNamedParameterQuery("SELECT MAX(clinicianId) FROM clinician")
+	var query = "SELECT MAX(clinicianId) FROM clinician"
 
-	result, err := cd.db.Select(query, map[string]interface{}{})
+	result, err := cd.db.Select(query, []interface{}{})
 	if err != nil {
 		return -1
 	}

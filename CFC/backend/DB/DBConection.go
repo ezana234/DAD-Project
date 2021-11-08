@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	_ "github.com/jmoiron/sqlx"
 	//_"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"log"
@@ -38,88 +39,22 @@ func NewDatabaseConnection(username string, password string, hostname string, po
 	}
 }
 
-//func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map[string]interface{}) ([][]string, error) {
-//	var rs [][]string
-//
-//	query.SetValuesFromMap(parameterMap)
-//	db, err := sql.Open("mysql", d.dsn)
-//	if err != nil {
-//		log.Printf("Error %s when opening DB\n", err)
-//		return rs, errors.New("failed to connect to DB")
-//	}
-//
-//	rows, err := db.Query(query.GetParsedQuery(), query.GetParsedParameters()...)
-//	if err != nil {
-//		log.Printf("Error %s when querying DB\n", err)
-//		return rs, errors.New("failed to query database")
-//	}
-//	defer func(db *sql.DB) {
-//		err := db.Close()
-//		if err != nil {
-//			log.Printf("Error %s when closing DB\n", err)
-//		}
-//	}(db)
-//
-//	cols, err := rows.Columns()
-//	if err != nil {
-//		log.Printf("Error %s when calculating column count", err)
-//		return rs, errors.New("failed to get columns")
-//	}
-//
-//	rawResult := make([][]byte, len(cols))
-//	dest := make([]interface{}, len(cols))
-//
-//	for i, _ := range rawResult {
-//		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
-//	}
-//
-//	for rows.Next() {
-//		err = rows.Scan(dest...)
-//		if err != nil {
-//			log.Printf("Error %s when scanning row\n", err)
-//			return rs, errors.New("failed to scan row")
-//		}
-//
-//		var rowlist = make([]string, len(cols))
-//		for i, raw := range rawResult {
-//			if raw == nil {
-//				rowlist[i] = "\\N"
-//			} else {
-//				rowlist[i] = string(raw)
-//			}
-//		}
-//		rs = append(rs, rowlist)
-//	}
-//
-//	return rs, nil
-//}
-
-func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map[string]interface{}) ([][]string, error) {
+func (d *DatabaseConnection) Select(query string, parameters []interface{}) ([][]string, error) {
 	var rs [][]string
 
-	query.SetValuesFromMap(parameterMap)
 	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return rs, errors.New("failed to connect to DB")
+		println("oof")
 	}
 
-	rows, err := db.Query(query.GetParsedQuery(), query.GetParsedParameters()...)
+	rows, err := db.Query(query, parameters...)
 	if err != nil {
-		log.Printf("Error %s when querying DB\n", err)
-		return rs, errors.New("failed to query database")
+		log.Printf("Error: %s when running query", err)
 	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Printf("Error %s when closing DB\n", err)
-		}
-	}(db)
 
 	cols, err := rows.Columns()
 	if err != nil {
 		log.Printf("Error %s when calculating column count", err)
-		return rs, errors.New("failed to get columns")
 	}
 
 	rawResult := make([][]byte, len(cols))
@@ -150,18 +85,63 @@ func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map
 	return rs, nil
 }
 
-func (d *DatabaseConnection) Update(query *NamedParameterQuery, parameterMap map[string]interface{}) error {
-	query.SetValuesFromMap(parameterMap)
+func (d *DatabaseConnection) Insert(query string, parameters []interface{}) error {
 	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
 		return errors.New("failed to connect to DB")
 	}
 
-	_, err = db.Exec(query.GetParsedQuery(), query.GetParsedParameters()...)
+	_, err = db.Exec(query, parameters...)
+	if err != nil {
+		log.Printf("Error %s when inserting into DB\n", err)
+		return errors.New("failed to insert into database")
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Printf("Error %s when closing DB\n", err)
+		}
+	}(db)
+
+	return nil
+}
+
+func (d *DatabaseConnection) Update(query string, parameters []interface{}) error {
+	db, err := sql.Open("postgres", d.psqlInfo)
+	if err != nil {
+		log.Printf("Error %s when opening DB\n", err)
+		return errors.New("failed to connect to DB")
+	}
+
+	_, err = db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when updating DB\n", err)
 		return errors.New("failed to update database")
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Printf("Error %s when closing DB\n", err)
+		}
+	}(db)
+
+	return nil
+}
+
+func (d *DatabaseConnection) Delete(query string, parameters []interface{}) error {
+	db, err := sql.Open("postgres", d.psqlInfo)
+	if err != nil {
+		log.Printf("Error %s when opening DB\n", err)
+		return errors.New("failed to connect to DB")
+	}
+
+	_, err = db.Exec(query, parameters...)
+	if err != nil {
+		log.Printf("Error %s when deleting from DB\n", err)
+		return errors.New("failed to delete from database")
 	}
 
 	defer func(db *sql.DB) {

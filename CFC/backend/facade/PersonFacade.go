@@ -5,7 +5,6 @@ import (
 	Auth "CFC/backend/CFC/backend/auth"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
-	"errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,69 +21,109 @@ func (pf *PersonFacade) GetAuthManager() *Auth.AuthenticationManager {
 	return pf.authManager
 }
 
-func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, error) {
+func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
 		p := pf.personDao.GetByID(userID)
 		p.SetPassword("null")
-		return p, nil
+
+		return p, 1
 	}
 
-	return new(Model.Person), errors.New("user does not have permission")
+	return new(Model.Person), -1
 }
 
-func (pf *PersonFacade) GetPersons() ([]*Model.Person, error) {
+func (pf *PersonFacade) GetPersons() ([]*Model.Person, int) {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
 		var pList []*Model.Person
-		tmp := pf.personDao.GetAll()
 
+		tmp := pf.personDao.GetAll()
 		for _, res := range tmp {
 			res.SetPassword("null")
 			pList = append(pList, res)
 		}
 
-		return pList, nil
+		return pList, 1
 	}
 
-	return []*Model.Person{}, errors.New("user does not have permission")
+	return []*Model.Person{}, -1
 }
 
-func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, error) {
+func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, int) {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetEmail() == email {
 		pList := pf.personDao.GetPersonsByEmail(email)
 		if len(pList) == 0 {
-			return new(Model.Person), errors.New("no person found")
+			return new(Model.Person), 0
 		}
-		return pList[0], nil
+
+		return pList[0], 1
 	}
 
-	return new(Model.Person), errors.New("user does not have permission")
+	return new(Model.Person), -1
 }
 
-func (pf *PersonFacade) AddPerson(p Model.Person) error {
-	p.SetUserID(pf.personDao.GetNextUserID())
-	return pf.personDao.Add(p)
-	//return errors.New("unable to add person: incorrect permissions")
+func (pf *PersonFacade) AddPerson(p Model.Person) int {
+	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
+		p.SetUserID(pf.personDao.GetNextUserID())
+
+		err := pf.personDao.Add(p)
+		if err != nil {
+			return 0
+		}
+
+		return 1
+	}
+
+	return -1
 }
 
-func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) error {
+func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
 		var pOld = pf.personDao.GetByID(userID)
 		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole())
 
-		return pf.personDao.Update(userID, pNew)
+		err := pf.personDao.Update(userID, pNew)
+		if err != nil {
+			return 0
+		}
+
+		return 1
 	}
 
-	return errors.New("unable to update person: incorrect permissions")
+	return -1
 }
 
-func (pf *PersonFacade) DeletePerson(userID int) error {
+// DeletePerson
+// function will delete a person from the database
+// returns -1 if user is not authorized to delete
+// returns 0 if deletion failed
+// returns 1 if deletion was successful
+func (pf *PersonFacade) DeletePerson(userID int) int {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		_ = pf.personDao.Delete(userID)
+		err := pf.personDao.Delete(userID)
+		if err != nil {
 
-		return nil
+			return 0
+		}
+
+		return 1
 	}
 
-	return errors.New("unable to delete user: Incorrect permissions")
+	return -1
+}
+
+// CreateNewPerson
+// this functions adds a new user to the db when they create their account for the first time
+// returns 0 if creation was unsuccessful, 1 if it was successful
+func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
+	p.SetUserID(pf.personDao.GetNextUserID())
+	p.SetPassword(HashPassword(p.GetPassword()))
+
+	err := pf.personDao.Add(p)
+	if err != nil {
+		return 0
+	}
+
+	return 1
 }
 
 // LoginPersonByUserName
@@ -132,23 +171,32 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) int {
 	return -1
 }
 
-func (pf PersonFacade) UpdatePassword(password string) error {
+func (pf PersonFacade) UpdatePassword(password string) int {
 	p := pf.authManager.GetCurrentUser()
 	p.SetPassword(HashPassword(password))
 
-	return pf.personDao.Update(p.GetUserID(), p)
+	err := pf.personDao.Update(p.GetUserID(), p)
+	if err != nil {
+		return 0
+	}
+
+	return 1
 }
 
-func (pf PersonFacade) ResetPassword(email string) error {
+func (pf PersonFacade) ResetPassword(email string) int {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetEmail() == email {
 		p := pf.personDao.GetPersonsByEmail(email)[0]
 		p.SetPassword("temp")
+
 		err := pf.personDao.Update(p.GetUserID(), p)
 		if err != nil {
-			return err
+			return 0
 		}
+
+		return 1
 	}
-	return errors.New("user does not have permission")
+
+	return -1
 }
 
 func HashPassword(password string) string {

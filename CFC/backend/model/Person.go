@@ -1,15 +1,15 @@
 package model
 
 type Person struct {
-	UserID      int
-	UserName    string
-	Password    string
-	FirstName   string
-	LastName    string
-	Email       string
-	Address     string
-	PhoneNumber string
-	Role        string
+	UserID      int    `db:"userID"`
+	UserName    string `db:"username"`
+	Password    string `db:"password"`
+	FirstName   string `db:"firstname"`
+	LastName    string `db:"lastname"`
+	Email       string `db:"email"`
+	Address     string `db:"address"`
+	PhoneNumber string `db:"phonenumber"`
+	Role        string `db:"role"`
 }
 
 func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string) *Person {

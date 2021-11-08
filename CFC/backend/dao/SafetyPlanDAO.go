@@ -15,12 +15,12 @@ func NewSafetyPlanDao(db DB.DatabaseConnection) *SafetyPlanDao {
 }
 
 func (spd *SafetyPlanDao) GetByID(safetyID int) *Model.SafetyPlan {
-	query := DB.NewNamedParameterQuery("SELECT * FROM safety_plan WHERE safetyId=:safetyID")
-	var parameterMap = map[string]interface{}{
-		"safetyID": safetyID,
+	var query = "SELECT * FROM safety_plan WHERE safetyId=$1"
+	var parameters = []interface{}{
+		safetyID,
 	}
 
-	result, err := spd.db.Select(query, parameterMap)
+	result, err := spd.db.Select(query, parameters)
 	if err != nil {
 		return new(Model.SafetyPlan)
 	}
@@ -36,10 +36,10 @@ func (spd *SafetyPlanDao) GetByID(safetyID int) *Model.SafetyPlan {
 }
 
 func (spd *SafetyPlanDao) GetAll() []*Model.SafetyPlan {
-	query := DB.NewNamedParameterQuery("SELECT * FROM safety_plan")
+	var query = "SELECT * FROM safety_plan"
 	var spList []*Model.SafetyPlan
 
-	result, err := spd.db.Select(query, map[string]interface{}{})
+	result, err := spd.db.Select(query, []interface{}{})
 	if err != nil || len(result) == 0 {
 		return spList
 	}
@@ -58,46 +58,46 @@ func (spd *SafetyPlanDao) GetAll() []*Model.SafetyPlan {
 }
 
 func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) error {
-	query := DB.NewNamedParameterQuery("INSERT INTO safety_plan(safetyId,triggers,warningSigns,destructiveBehaviors,internalStrategies,updatedDatetime,updatedClinician,Client_clientId,Clinician_clinicianId) VALUES(:safetyId,:triggers,:warningSigns,:destructiveBehaviors,:internalStrategies,:updatedDatetime,:updatedClinician,:Client_clientId,:Clinician_clinicianId)")
-	var parameterMap = map[string]interface{}{
-		"safetyId":              sp.GetSafetyID(),
-		"triggers":              sp.GetTriggers(),
-		"warningSigns":          sp.GetWarningSigns(),
-		"destructiveBehaviors":  sp.GetDestructiveBehaviors(),
-		"internalStrategies":    sp.GetInternalStrategies(),
-		"updatedDatetime":       sp.GetUpdatedDatetime(),
-		"updatedClinician":      sp.GetUpdatedClinician(),
-		"Client_clientId":       sp.GetClientID(),
-		"Clinician_clinicianId": sp.GetClinicianID(),
+	var query = "INSERT INTO safety_plan(safetyId,triggers,warningSigns,destructiveBehaviors,internalStrategies,updatedDatetime,updatedClinician,Client_clientId,Clinician_clinicianId) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)"
+	var parameters = []interface{}{
+		sp.GetSafetyID(),
+		sp.GetTriggers(),
+		sp.GetWarningSigns(),
+		sp.GetDestructiveBehaviors(),
+		sp.GetInternalStrategies(),
+		sp.GetUpdatedDatetime(),
+		sp.GetUpdatedClinician(),
+		sp.GetClientID(),
+		sp.GetClinicianID(),
 	}
 
-	return spd.db.Update(query, parameterMap)
+	return spd.db.Insert(query, parameters)
 }
 
 func (spd *SafetyPlanDao) Update(userID int, sp *Model.SafetyPlan) error {
-	query := DB.NewNamedParameterQuery("UPDATE safety_plan SET triggers=:triggers,warningSigns=:warningSigns,destructiveBehaviors=:destructiveBehaviors,internalStrategies=:internalStrategies,updatedDatetime=:updatedDateTime,updatedClinician=:updatedClinician,Client_clientId=:Client_ClientId,Clinician_clinicianId=:Clinician_clinicianId WHERE safetyId=:safetyId")
-	var parameterMap = map[string]interface{}{
-		"triggers":              sp.GetTriggers(),
-		"warningSigns":          sp.GetWarningSigns(),
-		"destructiveBehaviors":  sp.GetDestructiveBehaviors(),
-		"internalStrategies":    sp.GetInternalStrategies(),
-		"updatedDatetime":       sp.GetUpdatedDatetime(),
-		"updatedClinician":      sp.GetUpdatedClinician(),
-		"Client_clientId":       sp.GetClientID(),
-		"Clinician_clinicianId": sp.GetClinicianID(),
-		"safetyId":              userID,
+	var query = "UPDATE safety_plan SET triggers=$1,warningSigns=$2,destructiveBehaviors=$3,internalStrategies=$4,updatedDatetime=$5,updatedClinician=$6,Client_clientId=$7,Clinician_clinicianId=$8 WHERE safetyId=$9"
+	var parameters = []interface{}{
+		sp.GetTriggers(),
+		sp.GetWarningSigns(),
+		sp.GetDestructiveBehaviors(),
+		sp.GetInternalStrategies(),
+		sp.GetUpdatedDatetime(),
+		sp.GetUpdatedClinician(),
+		sp.GetClientID(),
+		sp.GetClinicianID(),
+		userID,
 	}
 
-	return spd.db.Update(query, parameterMap)
+	return spd.db.Update(query, parameters)
 }
 
 func (spd *SafetyPlanDao) Delete(safetyId int) error {
-	query := DB.NewNamedParameterQuery("DELETE FROM safety_plan WHERE safetyId=:safetyId")
-	var parameterMap = map[string]interface{}{
-		"safetyId": safetyId,
+	var query = "DELETE FROM safety_plan WHERE safetyId=$1"
+	var parameters = []interface{}{
+		safetyId,
 	}
 
-	return spd.db.Update(query, parameterMap)
+	return spd.db.Update(query, parameters)
 }
 
 // TODO GetClientBySafetyPlanID()

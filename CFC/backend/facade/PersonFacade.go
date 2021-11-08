@@ -17,6 +17,8 @@ func NewPersonFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationM
 	return &PersonFacade{personDao: *DAO.NewPersonDao(db), authManager: authManager}
 }
 
+// GetAuthManager
+// TEMPORARY FUNCTION
 func (pf *PersonFacade) GetAuthManager() *Auth.AuthenticationManager {
 	return pf.authManager
 }
@@ -54,8 +56,10 @@ func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, int) {
 		if len(pList) == 0 {
 			return new(Model.Person), 0
 		}
+		p := pList[0]
+		p.SetPassword("null")
 
-		return pList[0], 1
+		return p, 1
 	}
 
 	return new(Model.Person), -1
@@ -129,18 +133,14 @@ func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
 // LoginPersonByUserName
 // this function will query all persons with a matching username and then check if the passwords match.
 // if there are no persons that have the desired username, then this function will return 0.
-// if there are persons with the desired username, but the password does not match, then this function will return -1.
-// if there are persons with the desired username, and the password matches, then this function will return 1.
+// if the password does not match, this function will return 0.
+// if there is a password match, this function will return 1.
 // TODO Check if password has expired and if so, prompt user to reset password
 func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) int {
 	pList := pf.personDao.GetPersonsByUserName(userName)
-	if len(pList) == 0 {
-		return 0
-	}
-
 	for _, p := range pList {
 		if p.GetPassword() == "temp" {
-			return -3
+			return -1
 		}
 		if CheckPasswords(p.GetPassword(), password) {
 			pf.authManager.LoginUser(p)
@@ -149,17 +149,13 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 		}
 	}
 
-	return -1
+	return 0
 }
 
 // LoginPersonByEmail
 // TODO Check if password has expired and if so, prompt user to reset password
 func (pf *PersonFacade) LoginPersonByEmail(email string, password string) int {
 	pList := pf.personDao.GetPersonsByEmail(email)
-	if len(pList) == 0 {
-		return 0
-	}
-
 	for _, p := range pList {
 		if CheckPasswords(p.GetPassword(), password) {
 			pf.authManager.LoginUser(p)
@@ -168,7 +164,7 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) int {
 		}
 	}
 
-	return -1
+	return 0
 }
 
 func (pf PersonFacade) UpdatePassword(password string) int {

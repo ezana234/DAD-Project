@@ -5,14 +5,9 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/jmoiron/sqlx"
-	//_"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"log"
 )
-
-//func init() {
-//	sql.Register("mysql", &MySQLDriver{})
-//}
 
 type DatabaseConnection struct {
 	username string

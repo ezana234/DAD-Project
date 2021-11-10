@@ -1,7 +1,10 @@
 package model
 
+import "fmt"
+
 type Person struct {
-	UserID      int    `db:"userID"`
+	UserID int `db:"userID"`
+	//UserID		int 	`db"UserID"`
 	UserName    string `db:"username"`
 	Password    string `db:"password"`
 	FirstName   string `db:"firstname"`
@@ -10,10 +13,11 @@ type Person struct {
 	Address     string `db:"address"`
 	PhoneNumber string `db:"phonenumber"`
 	Role        string `db:"role"`
+	Expiration  string `db:"expiration"`
 }
 
-func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string) *Person {
-	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role}
+func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string, expiration string) *Person {
+	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role, Expiration: expiration}
 }
 
 func (p *Person) GetUserID() int {
@@ -88,6 +92,19 @@ func (p *Person) SetRole(role string) {
 	p.Role = role
 }
 
+func (p *Person) GetExpiration() string {
+	return p.Expiration
+}
+
+func (p *Person) SetExpiration(expiration string) {
+	p.Expiration = expiration
+}
+
 func (p Person) Error() string {
 	panic("implement me")
+}
+
+func (p *Person) Print() string {
+	var pString = fmt.Sprintf("UserID: %d\nUsername: %s\nPassword: %s\nFirst Name: %s\nLast Name: %s\nEmail: %s\nAddress: %s\nPhone Number: %s\nRole: %s\nExpiration: %s\n", p.GetUserID(), p.GetUserName(), p.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration())
+	return pString
 }

@@ -1,26 +1,26 @@
 package model
 
 type Clinician struct {
-	clinicianID int
-	userID      int
+	ClinicianID int
+	UserID      int
 }
 
 func NewClinician(userID int) *Clinician {
-	return &Clinician{userID: userID}
+	return &Clinician{UserID: userID}
 }
 
-func (c *Clinician) ClinicianID() int {
-	return c.clinicianID
+func (c *Clinician) GetClinicianID() int {
+	return c.ClinicianID
 }
 
 func (c *Clinician) SetClinicianID(clinicianID int) {
-	c.clinicianID = clinicianID
+	c.ClinicianID = clinicianID
 }
 
-func (c *Clinician) UserID() int {
-	return c.userID
+func (c *Clinician) GetUserID() int {
+	return c.UserID
 }
 
 func (c *Clinician) SetUserID(userID int) {
-	c.userID = userID
+	c.UserID = userID
 }

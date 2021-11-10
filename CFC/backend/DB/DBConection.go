@@ -4,60 +4,52 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"log"
 )
-
-//func init() {
-//	sql.Register("mysql", &MySQLDriver{})
-//}
 
 type DatabaseConnection struct {
 	username string
 	password string
 	hostname string
+	port     string
 	dbname   string
 	dsn      string
+	psqlInfo string
 }
 
-func NewDatabaseConnection(username string, password string, hostname string, dbname string) *DatabaseConnection {
+func NewDatabaseConnection(username string, password string, hostname string, port string, dbname string) *DatabaseConnection {
 	var dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, hostname, dbname)
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=require",
+		hostname, port, username, password, dbname)
 	return &DatabaseConnection{
 		username: username,
 		password: password,
 		hostname: hostname,
 		dbname:   dbname,
 		dsn:      dsn,
+		psqlInfo: psqlInfo,
 	}
 }
 
-func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map[string]interface{}) ([][]string, error) {
+func (d *DatabaseConnection) Select(query string, parameters []interface{}) ([][]string, error) {
 	var rs [][]string
 
-	query.SetValuesFromMap(parameterMap)
-	db, err := sql.Open("mysql", d.dsn)
+	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return rs, errors.New("failed to connect to DB")
+		println("oof")
 	}
 
-	rows, err := db.Query(query.GetParsedQuery(), query.GetParsedParameters()...)
+	rows, err := db.Query(query, parameters...)
 	if err != nil {
-		log.Printf("Error %s when querying DB\n", err)
-		return rs, errors.New("failed to query database")
+		log.Printf("Error: %s when running query", err)
 	}
-
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Printf("Error %s when closing DB\n", err)
-		}
-	}(db)
 
 	cols, err := rows.Columns()
 	if err != nil {
 		log.Printf("Error %s when calculating column count", err)
-		return rs, errors.New("failed to get columns")
 	}
 
 	rawResult := make([][]byte, len(cols))
@@ -88,18 +80,63 @@ func (d *DatabaseConnection) Select(query *NamedParameterQuery, parameterMap map
 	return rs, nil
 }
 
-func (d *DatabaseConnection) Update(query *NamedParameterQuery, parameterMap map[string]interface{}) error {
-	query.SetValuesFromMap(parameterMap)
-	db, err := sql.Open("mysql", d.dsn)
+func (d *DatabaseConnection) Insert(query string, parameters []interface{}) error {
+	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
 		return errors.New("failed to connect to DB")
 	}
 
-	_, err = db.Exec(query.GetParsedQuery(), query.GetParsedParameters()...)
+	_, err = db.Exec(query, parameters...)
+	if err != nil {
+		log.Printf("Error %s when inserting into DB\n", err)
+		return errors.New("failed to insert into database")
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Printf("Error %s when closing DB\n", err)
+		}
+	}(db)
+
+	return nil
+}
+
+func (d *DatabaseConnection) Update(query string, parameters []interface{}) error {
+	db, err := sql.Open("postgres", d.psqlInfo)
+	if err != nil {
+		log.Printf("Error %s when opening DB\n", err)
+		return errors.New("failed to connect to DB")
+	}
+
+	_, err = db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when updating DB\n", err)
 		return errors.New("failed to update database")
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Printf("Error %s when closing DB\n", err)
+		}
+	}(db)
+
+	return nil
+}
+
+func (d *DatabaseConnection) Delete(query string, parameters []interface{}) error {
+	db, err := sql.Open("postgres", d.psqlInfo)
+	if err != nil {
+		log.Printf("Error %s when opening DB\n", err)
+		return errors.New("failed to connect to DB")
+	}
+
+	_, err = db.Exec(query, parameters...)
+	if err != nil {
+		log.Printf("Error %s when deleting from DB\n", err)
+		return errors.New("failed to delete from database")
 	}
 
 	defer func(db *sql.DB) {

@@ -90,7 +90,7 @@ func NewNamedParameterQuery(queryText string) *NamedParameterQuery {
 
 	var ret *NamedParameterQuery
 
-	// TODO: I don't like using a map for such a small amount of elements.
+	// I don't like using a map for such a small amount of elements.
 	// If this becomes a bottleneck for anyone, the first thing to do would
 	// be to make a slice and search routine for parameter positions.
 	ret = new(NamedParameterQuery)

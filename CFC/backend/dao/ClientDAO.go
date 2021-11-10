@@ -15,9 +15,9 @@ func NewClientDao(db DB.DatabaseConnection) *ClientDao {
 }
 
 func (cd *ClientDao) GetClient(clientID int) *Model.Client {
-	query := DB.NewNamedParameterQuery("SELECT * FROM client WHERE person.clientId=:clientID")
-	var parameterMap = map[string]interface{}{
-		"clientID": clientID,
+	var query = "SELECT * FROM client WHERE person.clientId=$1"
+	var parameterMap = []interface{}{
+		clientID,
 	}
 	var c = new(Model.Client)
 
@@ -27,12 +27,11 @@ func (cd *ClientDao) GetClient(clientID int) *Model.Client {
 	}
 
 	var res = result[0]
-
 	cuid, _ := strconv.ParseInt(res[0], 10, 64)
 	uid, _ := strconv.ParseInt(res[1], 10, 64)
-
 	c = Model.NewClient(int(uid))
 	c.SetClientID(int(cuid))
+
 	return c
 }
 
@@ -51,3 +50,15 @@ func (cd *ClientDao) DeleteClient(clientID int) error {
 func (cd *ClientDao) GetAllClients() error {
 	return nil
 }
+
+// TODO GetSafetyPlanByClientID()
+
+// TODO GetFamilyMemberByClientID()
+
+// TODO GetSupportNetworkByClientID()
+
+// TODO GetClinicianByClientID()
+
+// TODO GetAppointmentByClientID()
+
+// TODO GetPersonByClientID()

@@ -1,80 +1,89 @@
 package model
 
 type SafetyPlan struct {
-	safetyID             int
-	triggers             string
-	warningSigns         string
-	destructiveBehaviors string
-	internalStrategies   string
-	updatedDatetime      string
-	clientID             int
-	clinicianID          int
+	SafetyID             int
+	Triggers             string
+	WarningSigns         string
+	DestructiveBehaviors string
+	InternalStrategies   string
+	UpdatedClinician     int
+	UpdatedDatetime      string
+	ClientID             int
+	ClinicianID          int
 }
 
-func NewSafetyPlan(triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, clientID int, clinicianID int) *SafetyPlan {
-	return &SafetyPlan{triggers: triggers, warningSigns: warningSigns, destructiveBehaviors: destructiveBehaviors, internalStrategies: internalStrategies, updatedDatetime: updatedDatetime, clientID: clientID, clinicianID: clinicianID}
+func NewSafetyPlan(triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, updatedClinician int, clientID int, clinicianID int) *SafetyPlan {
+	return &SafetyPlan{Triggers: triggers, WarningSigns: warningSigns, DestructiveBehaviors: destructiveBehaviors, InternalStrategies: internalStrategies, UpdatedDatetime: updatedDatetime, UpdatedClinician: updatedClinician, ClientID: clientID, ClinicianID: clinicianID}
 }
 
-func (s *SafetyPlan) SafetyID() int {
-	return s.safetyID
+func (sp *SafetyPlan) GetSafetyID() int {
+	return sp.SafetyID
 }
 
-func (s *SafetyPlan) SetSafetyID(safetyID int) {
-	s.safetyID = safetyID
+func (sp *SafetyPlan) SetSafetyID(safetyID int) {
+	sp.SafetyID = safetyID
 }
 
-func (s *SafetyPlan) Triggers() string {
-	return s.triggers
+func (sp *SafetyPlan) GetTriggers() string {
+	return sp.Triggers
 }
 
-func (s *SafetyPlan) SetTriggers(triggers string) {
-	s.triggers = triggers
+func (sp *SafetyPlan) SetTriggers(triggers string) {
+	sp.Triggers = triggers
 }
 
-func (s *SafetyPlan) WarningSigns() string {
-	return s.warningSigns
+func (sp *SafetyPlan) GetWarningSigns() string {
+	return sp.WarningSigns
 }
 
-func (s *SafetyPlan) SetWarningSigns(warningSigns string) {
-	s.warningSigns = warningSigns
+func (sp *SafetyPlan) SetWarningSigns(warningSigns string) {
+	sp.WarningSigns = warningSigns
 }
 
-func (s *SafetyPlan) DestructiveBehaviors() string {
-	return s.destructiveBehaviors
+func (sp *SafetyPlan) GetDestructiveBehaviors() string {
+	return sp.DestructiveBehaviors
 }
 
-func (s *SafetyPlan) SetDestructiveBehaviors(destructiveBehaviors string) {
-	s.destructiveBehaviors = destructiveBehaviors
+func (sp *SafetyPlan) SetDestructiveBehaviors(destructiveBehaviors string) {
+	sp.DestructiveBehaviors = destructiveBehaviors
 }
 
-func (s *SafetyPlan) InternalStrategies() string {
-	return s.internalStrategies
+func (sp *SafetyPlan) GetInternalStrategies() string {
+	return sp.InternalStrategies
 }
 
-func (s *SafetyPlan) SetInternalStrategies(internalStrategies string) {
-	s.internalStrategies = internalStrategies
+func (sp *SafetyPlan) SetInternalStrategies(internalStrategies string) {
+	sp.InternalStrategies = internalStrategies
 }
 
-func (s *SafetyPlan) UpdatedDatetime() string {
-	return s.updatedDatetime
+func (sp *SafetyPlan) GetUpdatedDatetime() string {
+	return sp.UpdatedDatetime
 }
 
-func (s *SafetyPlan) SetUpdatedDatetime(updatedDatetime string) {
-	s.updatedDatetime = updatedDatetime
+func (sp *SafetyPlan) SetUpdatedDatetime(updatedDatetime string) {
+	sp.UpdatedDatetime = updatedDatetime
 }
 
-func (s *SafetyPlan) ClientID() int {
-	return s.clientID
+func (sp *SafetyPlan) GetUpdatedClinician() int {
+	return sp.UpdatedClinician
 }
 
-func (s *SafetyPlan) SetClientID(clientID int) {
-	s.clientID = clientID
+func (sp *SafetyPlan) SetUpdatedClinician(updatedClinician int) {
+	sp.UpdatedClinician = updatedClinician
 }
 
-func (s *SafetyPlan) ClinicianID() int {
-	return s.clinicianID
+func (sp *SafetyPlan) GetClientID() int {
+	return sp.ClientID
 }
 
-func (s *SafetyPlan) SetClinicianID(clinicianID int) {
-	s.clinicianID = clinicianID
+func (sp *SafetyPlan) SetClientID(clientID int) {
+	sp.ClientID = clientID
+}
+
+func (sp *SafetyPlan) GetClinicianID() int {
+	return sp.ClinicianID
+}
+
+func (sp *SafetyPlan) SetClinicianID(clinicianID int) {
+	sp.ClinicianID = clinicianID
 }

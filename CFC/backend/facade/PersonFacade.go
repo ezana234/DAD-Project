@@ -62,6 +62,7 @@ func (pf *PersonFacade) GetAllPersons() ([]*Model.Person, int) {
 
 	log.Printf("Error: user is not authorized to get persons")
 	return []*Model.Person{}, -1
+
 }
 
 func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {

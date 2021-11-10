@@ -1,67 +1,62 @@
-.login {
-    background-color: white;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .login__logo {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    object-fit: contain;
-    width: 100px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-  
-  .login__container {
-    width: 300px;
+
+  .container {
+    width: 320px;
     height: fit-content;
     display: flex;
     flex-direction: column;
-    border-radius: 5px;
-    border: 1px solid lightgray;
-    padding: 20px;
+    border-radius: 4.5px;
+    border: 1px solid;
+    border-color: lightgray;
+    padding: 22px;
   }
-  
-  .login__container > h1 {
-    font-weight: 500;
-    margin-bottom: 20px;
-  }
-  
-  .login__container > form > h5 {
-    margin-bottom: 5px;
-  }
-  
-  .login__container > form > input {
-    height: 30px;
-    margin-bottom: 10px;
+  .container > form > input {
+    height: 32px;
+    width: 97%;
+    margin-bottom: 12px;
     background-color: white;
-    width: 98%;
   }
   
-  .login__container > p {
-    margin-top: 15px;
+  .container > p {
     font-size: 12px;
+    margin-top: 17px;
+  }
+  .container > h1 {
+    font-weight: 520;
+    margin-bottom: 22px;
   }
   
-  .login__signInButton {
+  .container > form > h5 {
+    margin-bottom: 6px;
+  }
+  
+  
+  .loginForm {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    height: 105vh;
+    align-items: center; 
+    }
+    
+    .logo {
+      margin: 20 auto;
+      object-fit: contain;
+      width: 105px;
+    }
+  .signInButton {
     background: #a1c0b6;
-    border-radius: 2px;
+    border-radius: 1.75px;
     width: 100%;
-    height: 30px;
-    border: 1px solid;
-    margin-top: 10px;
-    border-color: #a88734 #9c7e31 #846a29;
+    height: 32px;
+    border: 1px solid #bb973b;
+    margin-top: 12px;
   }
   
-  .login__registerButton {
-    border-radius: 2px;
+  .signUpButton {
+    border-radius: 1.75px;
+    border: 1px solid rgb(145, 144, 144);
     width: 100%;
-    height: 30px;
-    border: 1px solid;
-    margin-top: 10px;
-    border-color: darkgray;
+    height: 32px;
+    margin-top: 12px;
   }
   

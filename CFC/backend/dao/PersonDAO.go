@@ -3,8 +3,7 @@ package dao
 import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
-	_ "github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"fmt"
 	"strconv"
 )
 
@@ -34,6 +33,7 @@ func (pd *PersonDao) GetByID(userID int) (*Model.Person, error) {
 
 	return p, nil
 }
+
 
 func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person"

@@ -8,6 +8,9 @@ import (
 	"log"
 	"net/http"
 
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -32,7 +35,7 @@ func accessControlMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	db := *DB.NewDatabaseConnection("sql5446146", "WUi5dvp7gj", "sql5.freemysqlhosting.net:3306", "sql5446146")
+	db := *DB.NewDatabaseConnection("ydmscaoenbipqz", "f9ac329ae1c957bdd5015e4f91bb7968850dd6eb2773105ff6f2b4efb036de47", "ec2-52-54-237-144.compute-1.amazonaws.com", "5432", "d85fspl6bklvdv")
 	// cf := *Facade.NewClinicianFacade(db)
 	// newClinician := *Model.NewClinician(1002)
 	// cf.AddClinician(newClinician)
@@ -84,36 +87,63 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 	}
 	person := Facade.NewPersonFacade(db.database)
 	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
-	if pers.UserID() == 0 {
+	if pers.GetUserID() == 0 {
 		http.Error(w, "Bad Login", http.StatusUnauthorized)
 		return
 	} else {
-		type PersonMessage struct {
-			UserID      int
-			UserName    string
-			FirstName   string
-			LastName    string
-			Email       string
-			Address     string
-			PhoneNumber string
-			Role        string
-		}
-		persJson := PersonMessage{
-			UserID:      pers.UserID(),
-			UserName:    pers.UserName(),
-			FirstName:   pers.FirstName(),
-			LastName:    pers.LastName(),
-			Email:       pers.Email(),
-			Address:     pers.Address(),
-			PhoneNumber: pers.PhoneNumber(),
-			Role:        pers.Role()}
-		b, err := json.Marshal(persJson)
-		if err != nil {
-			fmt.Println("error:", err)
-		}
+		// type PersonMessage struct {
+		// 	UserID      int
+		// 	UserName    string
+		// 	FirstName   string
+		// 	LastName    string
+		// 	Email       string
+		// 	Address     string
+		// 	PhoneNumber string
+		// 	Role        string
+		// }
+		// persJson := PersonMessage{
+		// 	UserID:      pers.GetUserID(),
+		// 	UserName:    pers.GetUserName(),
+		// 	FirstName:   pers.GetFirstName(),
+		// 	LastName:    pers.GetLastName(),
+		// 	Email:       pers.GetEmail(),
+		// 	Address:     pers.GetAddress(),
+		// 	PhoneNumber: pers.GetPhoneNumber(),
+		// 	Role:        pers.GetRole()}
 
-		fmt.Println(pers.Role())
+		tokenString, erro := GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
+		if erro != nil {
+			http.Error(w, erro.Error(), http.StatusInternalServerError)
+			return
+		}
+		resp := make(map[string]string)
+		resp["token"] = tokenString
+		b, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	}
+}
+func GenerateJWT(userID int, email string, role string) (string, error) {
+	var mySigningKey = []byte("CFC-Secret8")
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["authorized"] = true
+	claims["userID"] = userID
+	claims["email"] = email
+	claims["role"] = role
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+
+	tokenString, err := token.SignedString(mySigningKey)
+
+	if err != nil {
+		fmt.Errorf("Something Went Wrong: %s", err.Error())
+		return "", err
+	}
+
+	return tokenString, nil
 }

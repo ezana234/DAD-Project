@@ -44,7 +44,7 @@ func main() {
 	mux.Use(accessControlMiddleware)
 	// Routes
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
-	mux.HandleFunc("/client", isAuthorized(dbHandler.client)).Methods("GET")
+	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
@@ -109,19 +109,20 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Database) client(w http.ResponseWriter, r *http.Request) {
-	type Client struct {
-		UserID int
-	}
-	var clientStruct Client
-	body := json.NewDecoder(r.Body).Decode(&clientStruct)
-	if body != nil {
-		http.Error(w, body.Error(), http.StatusBadRequest)
+	claims, er := isAuthorized(w, r)
+	if er == false {
 		return
 	}
+	// body := json.NewDecoder(r.Body).Decode(&clientStruct)
+	// if body != nil {
+	// 	http.Error(w, body.Error(), http.StatusBadRequest)
+	// 	return
+	// }
 	person := Facade.NewPersonFacade(db.database)
-	pers, err := person.GetPerson(clientStruct.UserID)
+	var i int = int(claims["userID"].(float64))
+	pers, err := person.GetPerson(i)
 	if err == 0 {
-		http.Error(w, body.Error(), http.StatusNotFound)
+		http.Error(w, pers.Error(), http.StatusNotFound)
 		return
 	}
 	type PersonMessage struct {
@@ -174,50 +175,48 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 	return tokenString, nil
 }
 
-func isAuthorized(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Header)
-		if r.Header["Authorization"] == nil {
-			resp := make(map[string]string)
-			resp["error"] = "No Token Found"
-			json.NewEncoder(w).Encode(resp)
-			return
-		}
-
-		var mySigningKey = []byte("CFC-Secret8")
-
-		token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("There was an error in parsing")
-			}
-			return mySigningKey, nil
-		})
-
-		if err != nil {
-			resp := make(map[string]string)
-			resp["error"] = "Your Token has been expired"
-			json.NewEncoder(w).Encode(resp)
-			return
-		}
-
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Println(claims)
-			// if claims["role"] == "admin" {
-
-			// 	r.Header.Set("Role", "admin")
-			// 	handler.ServeHTTP(w, r)
-			// 	return
-
-			// } else if claims["role"] == "user" {
-
-			// 	r.Header.Set("Role", "user")
-			// 	handler.ServeHTTP(w, r)
-			// 	return
-			// }
-			handler.ServeHTTP(w, r)
-			return
-		}
-		http.Error(w, "Bad Login", http.StatusUnauthorized)
-		return
+func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
+	fmt.Println(r.Header)
+	if r.Header["Authorization"] == nil {
+		resp := make(map[string]string)
+		resp["error"] = "No Token Found"
+		json.NewEncoder(w).Encode(resp)
+		return nil, false
 	}
+
+	var mySigningKey = []byte("CFC-Secret8")
+
+	token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("There was an error in parsing")
+		}
+		return mySigningKey, nil
+	})
+
+	if err != nil {
+		resp := make(map[string]string)
+		resp["error"] = "Your Token is invalid."
+		json.NewEncoder(w).Encode(resp)
+		return nil, false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		fmt.Println(claims)
+		// if claims["role"] == "admin" {
+
+		// 	r.Header.Set("Role", "admin")
+		// 	handler.ServeHTTP(w, r)
+		// 	return
+
+		// } else if claims["role"] == "user" {
+
+		// 	r.Header.Set("Role", "user")
+		// 	handler.ServeHTTP(w, r)
+		// 	return
+		// }
+		return claims, true
+	} else {
+		return nil, false
+	}
+
 }

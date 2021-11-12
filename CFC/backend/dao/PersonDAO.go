@@ -3,7 +3,6 @@ package dao
 import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
-	"fmt"
 	"strconv"
 )
 
@@ -33,7 +32,6 @@ func (pd *PersonDao) GetByID(userID int) (*Model.Person, error) {
 
 	return p, nil
 }
-
 
 func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person"
@@ -116,9 +114,9 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 	return p, nil
 }
 
-func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
-	var query = "SELECT * FROM cfc.person WHERE email=$1 LIMIT 1"
-	var parameterMap = []interface{}{email}
+func (pd *PersonDao) GetPersonByEmail(email string, password string) (*Model.Person, error) {
+	var query = "SELECT * FROM cfc.person WHERE email=$1 AND password=$2 LIMIT 1"
+	var parameterMap = []interface{}{email, password}
 
 	result, err := pd.db.Select(query, parameterMap)
 	if err != nil || len(result) == 0 {

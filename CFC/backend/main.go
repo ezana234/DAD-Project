@@ -32,7 +32,7 @@ func accessControlMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	db := *DB.NewDatabaseConnection("sql5446146", "WUi5dvp7gj", "sql5.freemysqlhosting.net:3306", "sql5446146")
+	db := *DB.NewDatabaseConnection("ydmscaoenbipqz", "f9ac329ae1c957bdd5015e4f91bb7968850dd6eb2773105ff6f2b4efb036de47", "ec2-52-54-237-144.compute-1.amazonaws.com", "5432", "d85fspl6bklvdv")
 	// cf := *Facade.NewClinicianFacade(db)
 	// newClinician := *Model.NewClinician(1002)
 	// cf.AddClinician(newClinician)

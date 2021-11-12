@@ -6,9 +6,10 @@ import (
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type PersonFacade struct {
@@ -87,9 +88,9 @@ func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
 	return []*Model.Person{}, -1
 }
 
-func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, int) {
+func (pf *PersonFacade) GetPersonByEmail(email string, password string) (*Model.Person, int) {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetEmail() == email {
-		p, err := pf.personDao.GetPersonByEmail(email)
+		p, err := pf.personDao.GetPersonByEmail(email, password)
 		if err != nil {
 			log.Printf("Error: %s when getting person by email", err)
 			return new(Model.Person), 0

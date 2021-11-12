@@ -3,10 +3,11 @@ package model
 type Clinician struct {
 	ClinicianID int
 	UserID      int
+	Referral    string
 }
 
-func NewClinician(userID int) *Clinician {
-	return &Clinician{UserID: userID}
+func NewClinician(userID int, referral string) *Clinician {
+	return &Clinician{UserID: userID, Referral: referral}
 }
 
 func (c *Clinician) GetClinicianID() int {
@@ -23,4 +24,12 @@ func (c *Clinician) GetUserID() int {
 
 func (c *Clinician) SetUserID(userID int) {
 	c.UserID = userID
+}
+
+func (c *Clinician) GetReferral() string {
+	return c.Referral
+}
+
+func (c *Clinician) SetReferral(referral string) {
+	c.Referral = referral
 }

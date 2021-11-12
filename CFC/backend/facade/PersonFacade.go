@@ -117,12 +117,12 @@ func (pf *PersonFacade) AddPerson(p Model.Person) int {
 
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
-		pOld, err := pf.personDao.GetByID(userID)
+		pOld, err := pf.personDao.GetUserByID(userID)
 		if err != nil {
 			log.Printf("Error: %s when getting person")
 			return 0
 		}
-		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration())
+		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
 
 		err = pf.personDao.Update(userID, pNew)
 		if err != nil {

@@ -23,7 +23,8 @@ func (cf *ClinicianFacade) GetClinicianAuthManager() *Auth.AuthenticationManager
 
 func (cf *ClinicianFacade) GetClinician(clinicianID int) (*Model.Clinician, error) {
 	if cf.authManager.IsCurrentUserAdmin() || cf.authManager.IsCurrentUserClinician() {
-		return cf.clinicianDao.GetClinician(clinicianID), nil
+		c, _ := cf.clinicianDao.GetClinicianByID(clinicianID)
+		return c, nil
 	}
 
 	return new(Model.Clinician), errors.New("unable to get clinician: user has incorrect permissions")
@@ -31,7 +32,7 @@ func (cf *ClinicianFacade) GetClinician(clinicianID int) (*Model.Clinician, erro
 
 func (cf *ClinicianFacade) GetClinicians() ([]*Model.Clinician, error) {
 	if cf.authManager.IsCurrentUserAdmin() || cf.authManager.IsCurrentUserClinician() {
-		return cf.clinicianDao.GetAllClinicians(), nil
+		return cf.clinicianDao.GetAll(), nil
 	}
 
 	return []*Model.Clinician{}, errors.New("unable to get clinicians: user has incorrect permissions")

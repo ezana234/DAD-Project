@@ -14,29 +14,25 @@ func NewClinicianDao(db DB.DatabaseConnection) *ClinicianDao {
 	return &ClinicianDao{db: db}
 }
 
-func (cd *ClinicianDao) GetClinician(clinicianID int) *Model.Clinician {
+func (cd *ClinicianDao) GetClinicianByID(clinicianID int) (*Model.Clinician, error) {
 	var query = "SELECT * FROM clinician WHERE person.clinicianId=$1"
-	var parameterMap = []interface{}{
-		clinicianID,
-	}
-	var c = new(Model.Clinician)
+	var parameters = []interface{}{clinicianID}
 
-	result, err := cd.db.Select(query, parameterMap)
+	result, err := cd.db.Select(query, parameters)
 	if err != nil {
-		return c
+		return new(Model.Clinician), err
 	}
 
 	var res = result[0]
-
 	cuid, _ := strconv.ParseInt(res[0], 10, 64)
 	uid, _ := strconv.ParseInt(res[1], 10, 64)
-	c = Model.NewClinician(int(uid))
+	c := Model.NewClinician(int(uid), res[2])
 	c.SetClinicianID(int(cuid))
 
-	return c
+	return c, nil
 }
 
-func (cd *ClinicianDao) GetAllClinicians() []*Model.Clinician {
+func (cd *ClinicianDao) GetAll() []*Model.Clinician {
 	var query = "SELECT * FROM clinician"
 	var cList []*Model.Clinician
 
@@ -48,7 +44,7 @@ func (cd *ClinicianDao) GetAllClinicians() []*Model.Clinician {
 	for _, res := range result {
 		cuid, _ := strconv.ParseInt(res[0], 10, 64)
 		uid, _ := strconv.ParseInt(res[1], 10, 64)
-		tmpC := Model.NewClinician(int(uid))
+		tmpC := Model.NewClinician(int(uid), res[2])
 		tmpC.SetClinicianID(int(cuid))
 		cList = append(cList, tmpC)
 	}
@@ -57,9 +53,11 @@ func (cd *ClinicianDao) GetAllClinicians() []*Model.Clinician {
 }
 
 func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
-	var query = "INSERT INTO clinician(Person_userId) VALUES($1)"
+	var query = "INSERT INTO clinician(clinicianid,Person_userId,referral) VALUES($1,$2,$3)"
 	var parameters = []interface{}{
+		cd.GetNextClinicianID(),
 		c.GetUserID(),
+		c.GetReferral(),
 	}
 
 	err := cd.db.Insert(query, parameters)
@@ -68,9 +66,10 @@ func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
 }
 
 func (cd *ClinicianDao) UpdateClinician(clinicianID int, c *Model.Clinician) error {
-	var query = "UPDATE clinician SET Person_userId=$1 WHERE clinicianId=$2"
+	var query = "UPDATE clinician SET Person_userId=$1, referral=$2 WHERE clinicianId=$3"
 	var parameters = []interface{}{
 		c.GetUserID(),
+		c.GetReferral(),
 		clinicianID,
 	}
 
@@ -178,3 +177,47 @@ func (cd *ClinicianDao) GetNextClinicianID() int {
 
 	return int(res) + 1
 }
+
+func (cd *ClinicianDao) GetClinicianByUserID(userID int) (*Model.Clinician, error) {
+	var query = "SELECT * FROM cfc.clinician WHERE Person_userId=:$1"
+	var parameters = []interface{}{userID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil || len(result) == 0 {
+		return new(Model.Clinician), err
+	}
+
+	var res = result[0]
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	cuid, _ := strconv.ParseInt(res[1], 10, 64)
+	clinician := Model.NewClinician(int(uid), res[2])
+	clinician.SetClinicianID(int(cuid))
+
+	return clinician, nil
+}
+
+func (cd *ClinicianDao) GetClinicianByReferral(referral string) (*Model.Clinician, error) {
+	var query = "SELECT * FROM cfc.clinician WHERE referral=:$1"
+	var parameters = []interface{}{referral}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil || len(result) == 0 {
+		return new(Model.Clinician), err
+	}
+
+	var res = result[0]
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	cuid, _ := strconv.ParseInt(res[1], 10, 64)
+	clinician := Model.NewClinician(int(uid), res[2])
+	clinician.SetClinicianID(int(cuid))
+
+	return clinician, nil
+}
+
+// TODO GetUserByClinicianID()
+
+// TODO GetClientsByClinicianID()
+
+// TODO GetAppointmentsByClinicianID()
+
+// TODO GetSafetyPlansByClinicianID()

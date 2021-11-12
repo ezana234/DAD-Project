@@ -33,7 +33,7 @@ func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
 		log.Printf("Error: %s when getting person\n", err)
 		return new(Model.Person), 0
 	}
-	p.SetPassword("null")
+	//p.SetPassword("null")
 
 	return p, 1
 }

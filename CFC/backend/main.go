@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -44,7 +44,8 @@ func main() {
 	mux.Use(accessControlMiddleware)
 	// Routes
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
-
+	mux.HandleFunc("/client", isAuthorized(dbHandler.client)).Methods("GET")
+	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
 		AllowedMethods: []string{
@@ -59,7 +60,6 @@ func main() {
 
 		AllowedHeaders: []string{
 			"*", //or you can your header key values which you are using in your application
-
 		},
 	})
 
@@ -67,8 +67,8 @@ func main() {
 	originsOK := handlers.AllowedOrigins([]string{"*"})
 	methodsOK := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
 
+	// Server Configurations
 	router := c.Handler(mux)
-
 	log.Println("Starting server on :3000")
 	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
@@ -91,26 +91,6 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad Login", http.StatusUnauthorized)
 		return
 	} else {
-		// type PersonMessage struct {
-		// 	UserID      int
-		// 	UserName    string
-		// 	FirstName   string
-		// 	LastName    string
-		// 	Email       string
-		// 	Address     string
-		// 	PhoneNumber string
-		// 	Role        string
-		// }
-		// persJson := PersonMessage{
-		// 	UserID:      pers.GetUserID(),
-		// 	UserName:    pers.GetUserName(),
-		// 	FirstName:   pers.GetFirstName(),
-		// 	LastName:    pers.GetLastName(),
-		// 	Email:       pers.GetEmail(),
-		// 	Address:     pers.GetAddress(),
-		// 	PhoneNumber: pers.GetPhoneNumber(),
-		// 	Role:        pers.GetRole()}
-
 		tokenString, erro := GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
 		if erro != nil {
 			http.Error(w, erro.Error(), http.StatusInternalServerError)
@@ -127,6 +107,52 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 		w.Write(b)
 	}
 }
+
+func (db *Database) client(w http.ResponseWriter, r *http.Request) {
+	type Client struct {
+		UserID int
+	}
+	var clientStruct Client
+	body := json.NewDecoder(r.Body).Decode(&clientStruct)
+	if body != nil {
+		http.Error(w, body.Error(), http.StatusBadRequest)
+		return
+	}
+	person := Facade.NewPersonFacade(db.database)
+	pers, err := person.GetPerson(clientStruct.UserID)
+	if err == 0 {
+		http.Error(w, body.Error(), http.StatusNotFound)
+		return
+	}
+	type PersonMessage struct {
+		UserID      int
+		UserName    string
+		FirstName   string
+		LastName    string
+		Email       string
+		Address     string
+		PhoneNumber string
+		Role        string
+	}
+	persJson := PersonMessage{
+		UserID:      pers.GetUserID(),
+		UserName:    pers.GetUserName(),
+		FirstName:   pers.GetFirstName(),
+		LastName:    pers.GetLastName(),
+		Email:       pers.GetEmail(),
+		Address:     pers.GetAddress(),
+		PhoneNumber: pers.GetPhoneNumber(),
+		Role:        pers.GetRole()}
+
+	b, erro := json.Marshal(persJson)
+	if erro != nil {
+		http.Error(w, erro.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+}
+
 func GenerateJWT(userID int, email string, role string) (string, error) {
 	var mySigningKey = []byte("CFC-Secret8")
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -146,4 +172,52 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func isAuthorized(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.Header)
+		if r.Header["Authorization"] == nil {
+			resp := make(map[string]string)
+			resp["error"] = "No Token Found"
+			json.NewEncoder(w).Encode(resp)
+			return
+		}
+
+		var mySigningKey = []byte("CFC-Secret8")
+
+		token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("There was an error in parsing")
+			}
+			return mySigningKey, nil
+		})
+
+		if err != nil {
+			resp := make(map[string]string)
+			resp["error"] = "Your Token has been expired"
+			json.NewEncoder(w).Encode(resp)
+			return
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			fmt.Println(claims)
+			// if claims["role"] == "admin" {
+
+			// 	r.Header.Set("Role", "admin")
+			// 	handler.ServeHTTP(w, r)
+			// 	return
+
+			// } else if claims["role"] == "user" {
+
+			// 	r.Header.Set("Role", "user")
+			// 	handler.ServeHTTP(w, r)
+			// 	return
+			// }
+			handler.ServeHTTP(w, r)
+			return
+		}
+		http.Error(w, "Bad Login", http.StatusUnauthorized)
+		return
+	}
 }

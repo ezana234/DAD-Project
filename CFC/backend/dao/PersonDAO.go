@@ -3,7 +3,6 @@ package dao
 import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
-	"fmt"
 	"strconv"
 )
 
@@ -15,7 +14,7 @@ func NewPersonDao(db DB.DatabaseConnection) *PersonDao {
 	return &PersonDao{db: db}
 }
 
-func (pd *PersonDao) GetByID(userID int) (*Model.Person, error) {
+func (pd *PersonDao) GetUserByID(userID int) (*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person WHERE userid=$1 LIMIT 1"
 	var parameterMap = []interface{}{
 		userID,
@@ -28,12 +27,11 @@ func (pd *PersonDao) GetByID(userID int) (*Model.Person, error) {
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil
 }
-
 
 func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person"
@@ -46,7 +44,7 @@ func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 
 	for _, res := range result {
 		uid, _ := strconv.ParseInt(res[0], 10, 64)
-		tmpP := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+		tmpP := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 		tmpP.SetUserID(int(uid))
 		pList = append(pList, tmpP)
 	}
@@ -55,7 +53,7 @@ func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 }
 
 func (pd *PersonDao) Add(p Model.Person) error {
-	var query = "INSERT INTO cfc.person(userid,username,password,firstname,lastname,email,address,phonenumber,role,expiration) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)"
+	var query = "INSERT INTO cfc.person(userid,username,password,firstname,lastname,email,address,phonenumber,role,expiration,dob) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)"
 	var parameters = []interface{}{
 		p.GetUserID(),
 		p.GetUserName(),
@@ -67,13 +65,14 @@ func (pd *PersonDao) Add(p Model.Person) error {
 		p.GetPhoneNumber(),
 		p.GetRole(),
 		p.GetExpiration(),
+		p.GetDOB(),
 	}
 
 	return pd.db.Insert(query, parameters)
 }
 
 func (pd *PersonDao) Update(userID int, p *Model.Person) error {
-	var query = "UPDATE cfc.person SET userName=$1, password=$2, firstName=$3, lastName=$4, email=$5, address=$6, phoneNumber=$7, role=$8, expiration=$9 WHERE userId=$10"
+	var query = "UPDATE cfc.person SET userName=$1, password=$2, firstName=$3, lastName=$4, email=$5, address=$6, phoneNumber=$7, role=$8, expiration=$9, dob=$10 WHERE userId=$11"
 	var parameters = []interface{}{
 		p.GetUserName(),
 		p.GetPassword(),
@@ -84,6 +83,7 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) error {
 		p.GetPhoneNumber(),
 		p.GetRole(),
 		p.GetExpiration(),
+		p.GetDOB(),
 		userID,
 	}
 
@@ -110,7 +110,7 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil
@@ -127,48 +127,10 @@ func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil
-}
-
-func (pd *PersonDao) GetClinicianByUserID(userID int) (*Model.Clinician, error) {
-	var query = "SELECT * FROM cfc.clinician WHERE Person_userId=:$1"
-	var parameterMap = []interface{}{
-		userID,
-	}
-
-	result, err := pd.db.Select(query, parameterMap)
-	if err != nil || len(result) == 0 {
-		return new(Model.Clinician), err
-	}
-
-	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
-	cuid, _ := strconv.ParseInt(result[0][1], 10, 64)
-	clinician := Model.NewClinician(int(cuid))
-	clinician.SetClinicianID(int(uid))
-
-	return clinician, nil
-}
-
-func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
-	var query = "SELECT * FROM cfc.client WHERE Person_userId=$1"
-	var parameterMap = []interface{}{
-		userID,
-	}
-
-	result, err := pd.db.Select(query, parameterMap)
-	if err != nil || len(result) == 0 {
-		return new(Model.Client), err
-	}
-
-	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
-	cuid, _ := strconv.ParseInt(result[0][1], 10, 64)
-	c := Model.NewClient(int(cuid))
-	c.SetClientID(int(uid))
-
-	return c, nil
 }
 
 func (pd *PersonDao) GetNextUserID() int {
@@ -194,4 +156,25 @@ func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// TODO GetClinicianByUserID()
+
+// TODO GetClientByUserID()
+func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
+	var query = "SELECT * FROM cfc.client WHERE userID=$1 LIMIT 1"
+	var parameters = []interface{}{userID}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Client), err
+	}
+
+	var res = result[0]
+	cuid, _ := strconv.ParseInt(res[0], 10, 64)
+	uid, _ := strconv.ParseInt(res[1], 10, 64)
+	c := Model.NewClient(int(uid))
+	c.SetClientID(int(cuid))
+
+	return c, nil
 }

@@ -2,11 +2,11 @@ package model
 
 type Client struct {
 	ClientID int
-	userID   int
+	UserID   int
 }
 
 func NewClient(userID int) *Client {
-	return &Client{userID: userID}
+	return &Client{UserID: userID}
 }
 
 func (c *Client) GetClientID() int {
@@ -17,10 +17,10 @@ func (c *Client) SetClientID(clientID int) {
 	c.ClientID = clientID
 }
 
-func (c *Client) UserID() int {
-	return c.userID
+func (c *Client) GetUserID() int {
+	return c.UserID
 }
 
 func (c *Client) SetUserID(userID int) {
-	c.userID = userID
+	c.UserID = userID
 }

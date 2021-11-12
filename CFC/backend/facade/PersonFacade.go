@@ -6,9 +6,10 @@ import (
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type PersonFacade struct {
@@ -16,8 +17,8 @@ type PersonFacade struct {
 	authManager *Auth.AuthenticationManager
 }
 
-func NewPersonFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationManager) *PersonFacade {
-	return &PersonFacade{personDao: *DAO.NewPersonDao(db), authManager: authManager}
+func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
+	return &PersonFacade{personDao: *DAO.NewPersonDao(db)}
 }
 
 //// GetAuthManager
@@ -27,19 +28,14 @@ func NewPersonFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationM
 //}
 
 func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
-		p, err := pf.personDao.GetUserByID(userID)
-		if err != nil {
-			log.Printf("Error: %s when getting person\n", err)
-			return new(Model.Person), 0
-		}
-		p.SetPassword("null")
-
-		return p, 1
+	p, err := pf.personDao.GetByID(userID)
+	if err != nil {
+		log.Printf("Error: %s when getting person\n", err)
+		return new(Model.Person), 0
 	}
+	//p.SetPassword("null")
 
-	log.Printf("Error: user is not authorized to get person")
-	return new(Model.Person), -1
+	return p, 1
 }
 
 func (pf *PersonFacade) GetAllPersons() ([]*Model.Person, int) {
@@ -87,21 +83,19 @@ func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
 	return []*Model.Person{}, -1
 }
 
-func (pf *PersonFacade) GetPersonByEmail(email string) (*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetEmail() == email {
-		p, err := pf.personDao.GetPersonByEmail(email)
-		if err != nil {
-			log.Printf("Error: %s when getting person by email", err)
-			return new(Model.Person), 0
-		}
-
-		p.SetPassword("null")
-
-		return p, 1
+func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
+	p, err := pf.personDao.GetPersonByEmail(email)
+	if err != nil {
+		log.Printf("Error: %s when getting person by email", err)
+		return new(Model.Person)
 	}
 
-	log.Printf("Error: User is not authorized to get person by email")
-	return new(Model.Person), -1
+	//p.SetPassword("null")
+
+	return p
+
+	// log.Printf("Error: User is not authorized to get person by email")
+	// return new(Model.Person), -1
 }
 
 func (pf *PersonFacade) AddPerson(p Model.Person) int {

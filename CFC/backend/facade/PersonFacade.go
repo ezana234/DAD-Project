@@ -28,7 +28,7 @@ func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
 //}
 
 func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
-	p, err := pf.personDao.GetByID(userID)
+	p, err := pf.personDao.GetUserByID(userID)
 	if err != nil {
 		log.Printf("Error: %s when getting person\n", err)
 		return new(Model.Person), 0

@@ -4,14 +4,11 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	Auth "CFC/backend/CFC/backend/auth"
 	Facade "CFC/backend/CFC/backend/facade"
+	Handlers "CFC/backend/CFC/backend/handlers"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
-	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -44,8 +41,10 @@ func main() {
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 	// Routes
-	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
+	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
+	mux.HandleFunc("/login", (&Handlers.LoginHandler{Database: db}).Login).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
+	mux.HandleFunc("/person", (&Handlers.PersonHandler{Database: db}).GetPerson).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
@@ -75,40 +74,40 @@ func main() {
 	log.Fatal(err)
 }
 
-func (db *Database) login(w http.ResponseWriter, r *http.Request) {
-	type Login struct {
-		Email    string
-		Password string
-	}
-	var logStruct Login
-	body := json.NewDecoder(r.Body).Decode(&logStruct)
-	if body != nil {
-		http.Error(w, body.Error(), http.StatusBadRequest)
-		return
-	}
-	person := Facade.NewPersonFacade(db.database)
-	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
-	if pers.GetUserID() == 0 {
-		http.Error(w, "Bad Login", http.StatusUnauthorized)
-		return
-	} else {
-		tokenString, err := Auth.GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
-		println(tokenString)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		resp := make(map[string]string)
-		resp["token"] = tokenString
-		b, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-	}
-}
+// func (db *Database) login(w http.ResponseWriter, r *http.Request) {
+// 	type Login struct {
+// 		Email    string
+// 		Password string
+// 	}
+// 	var logStruct Login
+// 	body := json.NewDecoder(r.Body).Decode(&logStruct)
+// 	if body != nil {
+// 		http.Error(w, body.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+// 	person := Facade.NewPersonFacade(db.database)
+// 	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
+// 	if pers.GetUserID() == 0 {
+// 		http.Error(w, "Bad Login", http.StatusUnauthorized)
+// 		return
+// 	} else {
+// 		tokenString, err := Auth.GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
+// 		println(tokenString)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		resp := make(map[string]string)
+// 		resp["token"] = tokenString
+// 		b, err := json.Marshal(resp)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("Content-Type", "application/json")
+// 		w.Write(b)
+// 	}
+// }
 
 func (db *Database) client(w http.ResponseWriter, r *http.Request) {
 	claims, er := Auth.IsAuthorized(w, r)

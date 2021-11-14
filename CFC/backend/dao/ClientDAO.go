@@ -81,4 +81,19 @@ func (cd *ClientDao) Delete(clientID int) error {
 
 // TODO GetAppointmentsByClientID()
 
-// TODO GetUserByClientID()
+func (cd *ClientDao) GetUserByClientID(clientID int) (*Model.Person, error) {
+	var query = "SELECT * FROM cfc.person WHERE person.userid IN (SELECT person_userid FROM cfc.client WHERE clientid=$1);"
+	var parameters = []interface{}{clientID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	var res = result[0]
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
+	p.SetUserID(int(uid))
+
+	return p, nil
+}

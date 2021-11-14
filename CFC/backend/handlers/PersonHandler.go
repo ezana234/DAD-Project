@@ -1,14 +1,26 @@
 package handlers
 
 import (
+	DB "CFC/backend/CFC/backend/DB"
+	Auth "CFC/backend/CFC/backend/auth"
 	Facade "CFC/backend/CFC/backend/facade"
 	"encoding/json"
 	"net/http"
 )
 
-func (db Database) client(w http.ResponseWriter, r *http.Request) {
-	claims, er := isAuthorized(w, r)
-	if er == false {
+type PersonHandler struct {
+	Database DB.DatabaseConnection
+}
+
+
+func NewPersonHandler(db DB.DatabaseConnection) *PersonHandler {
+	return &PersonHandler{Database: db}
+}
+
+
+func (ph *PersonHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
+	claims, er := Auth.IsAuthorized(w, r)
+	if !er {
 		return
 	}
 	// body := json.NewDecoder(r.Body).Decode(&clientStruct)
@@ -16,7 +28,7 @@ func (db Database) client(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, body.Error(), http.StatusBadRequest)
 	// 	return
 	// }
-	person := Facade.NewPersonFacade(db.database)
+	person := Facade.NewPersonFacade(ph.Database)
 	var i int = int(claims["userID"].(float64))
 	pers, err := person.GetPerson(i)
 	if err == 0 {

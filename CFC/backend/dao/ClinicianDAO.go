@@ -89,6 +89,23 @@ func (cd *ClinicianDao) DeleteClinician(clinicianID int) error {
 	return err
 }
 
+func (cd *ClinicianDao) GetUserByClinicianID(clinicianID int) (*Model.Person, error) {
+	var query = "SELECT * FROM cfc.person WHERE person.userid IN (SELECT person_userid FROM cfc.clinician WHERE clinician.clinicianid = $1)"
+	var parameters = []interface{}{clinicianID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	var res = result[0]
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
+	p.SetUserID(int(uid))
+
+	return p, nil
+}
+
 func (cd *ClinicianDao) GetClientsByClinicianID(clinicianID int) []*Model.Client {
 	var query = "SELECT * FROM client WHERE clientId IN (SELECT Client_clientId FROM client_has_clinician WHERE Clinician_clinicianId=$1)"
 	var parameterMap = []interface{}{
@@ -139,7 +156,7 @@ func (cd *ClinicianDao) GetAppointmentsByClinicianID(clinicianID int) []*Model.A
 	return aList
 }
 
-func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) []*Model.SafetyPlan {
+func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) ([]*Model.SafetyPlan, error) {
 	var query = "SELECT * FROM safety_plan WHERE Clinician_clinicianId=$1"
 	var parameterMap = []interface{}{
 		clinicianID,
@@ -149,7 +166,7 @@ func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) []*Model.Sa
 
 	result, err := cd.db.Select(query, parameterMap)
 	if err != nil || len(result) == 0 {
-		return spList
+		return spList, err
 	}
 
 	for _, res := range result {
@@ -162,7 +179,7 @@ func (cd *ClinicianDao) GetSafetyPlansByClinicianID(clinicianID int) []*Model.Sa
 		spList = append(spList, sp)
 	}
 
-	return spList
+	return spList, nil
 }
 
 func (cd *ClinicianDao) GetNextClinicianID() int {

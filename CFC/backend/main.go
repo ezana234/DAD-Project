@@ -73,6 +73,12 @@ func main() {
 }
 
 // This returns a jwt upon a successful login
+func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
+	type SignUp struct {
+	}
+}
+
+// This returns a jwt upon a successful login
 func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 	type Login struct {
 		Email    string

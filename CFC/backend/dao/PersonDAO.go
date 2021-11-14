@@ -27,7 +27,7 @@ func (pd *PersonDao) GetUserByID(userID int) (*Model.Person, error) {
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil
@@ -44,7 +44,7 @@ func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 
 	for _, res := range result {
 		uid, _ := strconv.ParseInt(res[0], 10, 64)
-		tmpP := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+		tmpP := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 		tmpP.SetUserID(int(uid))
 		pList = append(pList, tmpP)
 	}
@@ -108,7 +108,7 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil
@@ -125,7 +125,7 @@ func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil

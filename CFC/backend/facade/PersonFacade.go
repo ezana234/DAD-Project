@@ -122,7 +122,7 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 			log.Printf("Error: %s when getting person")
 			return 0
 		}
-		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration())
+		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
 
 		err = pf.personDao.Update(userID, pNew)
 		if err != nil {

@@ -14,11 +14,11 @@ type Person struct {
 	PhoneNumber string `db:"phonenumber"`
 	Role        string `db:"role"`
 	Expiration  string `db:"expiration"`
-	//DOB         string `db:"dob"`
+	DOB         string `db:"dob"`
 }
 
-func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string, expiration string) *Person {
-	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role, Expiration: expiration}
+func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string, expiration string, dob string) *Person {
+	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role, Expiration: expiration, DOB: dob}
 }
 
 func (p *Person) GetUserID() int {
@@ -101,13 +101,13 @@ func (p *Person) SetExpiration(expiration string) {
 	p.Expiration = expiration
 }
 
-// func (p *Person) GetDOB() string {
-// 	return p.DOB
-// }
+func (p *Person) GetDOB() string {
+	return p.DOB
+}
 
-// func (p *Person) SetDOB(dob string) {
-// 	p.DOB = dob
-// }
+func (p *Person) SetDOB(dob string) {
+	p.DOB = dob
+}
 
 func (p Person) Error() string {
 	panic("implement me")

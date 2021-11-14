@@ -14,11 +14,11 @@ func NewClientFacade(db DB.DatabaseConnection) *ClientFacade {
 	return &ClientFacade{clientDao: *DAO.NewClientDao(db)}
 }
 
-func (cf *ClientFacade) GetClient(clientID int) *Model.Client {
-	return cf.clientDao.GetClient(clientID)
+func (cf *ClientFacade) GetClient(clientID int) (*Model.Client, error) {
+	return cf.clientDao.GetClientByID(clientID)
 }
 
 func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
-	_ = cf.clientDao.AddClient(c)
+	_ = cf.clientDao.Add(c)
 	return nil
 }

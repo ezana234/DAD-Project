@@ -52,6 +52,25 @@ func (cd *ClinicianDao) GetAll() []*Model.Clinician {
 	return cList
 }
 
+func (cd *ClinicianDao) GetAllClients() []*Model.Person {
+	var query = "select * from client join person on person.userid = client.person_userid;"
+	var pList []*Model.Person
+
+	result, err := cd.db.Select(query, []interface{}{})
+	if err != nil || len(result) == 0 {
+		return pList
+	}
+
+	for _, res := range result {
+		uid, _ := strconv.ParseInt(res[2], 10, 64)
+		tmpP := Model.NewPerson(res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10], res[11], res[12])
+		tmpP.SetUserID(int(uid))
+		pList = append(pList, tmpP)
+	}
+
+	return pList
+}
+
 func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
 	var query = "INSERT INTO clinician(clinicianid,Person_userId,referral) VALUES($1,$2,$3)"
 	var parameters = []interface{}{

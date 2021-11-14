@@ -13,8 +13,8 @@ type ClinicianFacade struct {
 	authManager  *Auth.AuthenticationManager
 }
 
-func NewClinicianFacade(db DB.DatabaseConnection, authManager *Auth.AuthenticationManager) *ClinicianFacade {
-	return &ClinicianFacade{clinicianDao: *DAO.NewClinicianDao(db), authManager: authManager}
+func NewClinicianFacade(db DB.DatabaseConnection) *ClinicianFacade {
+	return &ClinicianFacade{clinicianDao: *DAO.NewClinicianDao(db)}
 }
 
 func (cf *ClinicianFacade) GetClinicianAuthManager() *Auth.AuthenticationManager {
@@ -36,6 +36,10 @@ func (cf *ClinicianFacade) GetClinicians() ([]*Model.Clinician, error) {
 	}
 
 	return []*Model.Clinician{}, errors.New("unable to get clinicians: user has incorrect permissions")
+}
+
+func (cf *ClinicianFacade) GetAllClients() []*Model.Person {
+	return cf.clinicianDao.GetAllClients()
 }
 
 func (cf *ClinicianFacade) AddClinician(c Model.Clinician) error {

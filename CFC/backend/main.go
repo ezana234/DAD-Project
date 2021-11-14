@@ -44,7 +44,7 @@ func main() {
 	mux.Use(accessControlMiddleware)
 	// Routes
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
-	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
+	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
@@ -108,19 +108,15 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (db *Database) client(w http.ResponseWriter, r *http.Request) {
+// This function gets the client from the JWT
+func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
 	claims, er := isAuthorized(w, r)
 	if er == false {
 		return
 	}
-	// body := json.NewDecoder(r.Body).Decode(&clientStruct)
-	// if body != nil {
-	// 	http.Error(w, body.Error(), http.StatusBadRequest)
-	// 	return
-	// }
 	person := Facade.NewPersonFacade(db.database)
-	var i int = int(claims["userID"].(float64))
-	pers, err := person.GetPerson(i)
+	var userID int = int(claims["userID"].(float64))
+	pers, err := person.GetPerson(userID)
 	if err == 0 {
 		http.Error(w, pers.Error(), http.StatusNotFound)
 		return
@@ -152,6 +148,25 @@ func (db *Database) client(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
+}
+
+// This function gets clients only if you are a clinician
+func (db *Database) getClients(w http.ResponseWriter, r *http.Request) {
+	claims, er := isAuthorized(w, r)
+	if er == false {
+		return
+	}
+	clinician := Facade.NewClinicianFacade(db.database)
+	var role int = int(claims["role"].(float64))
+	// Check if the person is a clinician
+	if role == 2 {
+		clients := clinician.GetAllClients()
+		fmt.Println(clients)
+		w.Header().Set("Content-Type", "application/json")
+	} else {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func GenerateJWT(userID int, email string, role string) (string, error) {

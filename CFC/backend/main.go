@@ -36,15 +36,13 @@ func accessControlMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	db := *DB.NewDatabaseConnection("ydmscaoenbipqz", "f9ac329ae1c957bdd5015e4f91bb7968850dd6eb2773105ff6f2b4efb036de47", "ec2-52-54-237-144.compute-1.amazonaws.com", "5432", "d85fspl6bklvdv")
-	// cf := *Facade.NewClinicianFacade(db)
-	// newClinician := *Model.NewClinician(1002)
-	// cf.AddClinician(newClinician)
 	mux := mux.NewRouter()
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 	// Routes
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
+	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
@@ -74,6 +72,7 @@ func main() {
 	log.Fatal(err)
 }
 
+// This returns a jwt upon a successful login
 func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 	type Login struct {
 		Email    string
@@ -156,19 +155,25 @@ func (db *Database) getClients(w http.ResponseWriter, r *http.Request) {
 	if er == false {
 		return
 	}
-	clinician := Facade.NewClinicianFacade(db.database)
-	var role int = int(claims["role"].(float64))
+	var role string = fmt.Sprintf("%v", claims["role"])
 	// Check if the person is a clinician
-	if role == 2 {
+	if role == "2" {
+		clinician := Facade.NewClinicianFacade(db.database)
 		clients := clinician.GetAllClients()
-		fmt.Println(clients)
+		b, erro := json.Marshal(clients)
+		if erro != nil {
+			http.Error(w, erro.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 	} else {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 }
 
+// Generates a JWT
 func GenerateJWT(userID int, email string, role string) (string, error) {
 	var mySigningKey = []byte("CFC-Secret8")
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -190,8 +195,8 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 	return tokenString, nil
 }
 
+// Checks if the JWT is valid
 func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
-	fmt.Println(r.Header)
 	if r.Header["Authorization"] == nil {
 		resp := make(map[string]string)
 		resp["error"] = "No Token Found"
@@ -216,19 +221,6 @@ func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) 
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims)
-		// if claims["role"] == "admin" {
-
-		// 	r.Header.Set("Role", "admin")
-		// 	handler.ServeHTTP(w, r)
-		// 	return
-
-		// } else if claims["role"] == "user" {
-
-		// 	r.Header.Set("Role", "user")
-		// 	handler.ServeHTTP(w, r)
-		// 	return
-		// }
 		return claims, true
 	} else {
 		return nil, false

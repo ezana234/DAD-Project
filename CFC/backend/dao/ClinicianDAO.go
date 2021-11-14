@@ -62,8 +62,9 @@ func (cd *ClinicianDao) GetAllClients() []*Model.Person {
 	}
 
 	for _, res := range result {
+		//fmt.Println(res[8])
 		uid, _ := strconv.ParseInt(res[2], 10, 64)
-		tmpP := Model.NewPerson(res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10], res[11], res[12])
+		tmpP := Model.NewPerson(res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10], " ")
 		tmpP.SetUserID(int(uid))
 		pList = append(pList, tmpP)
 	}

@@ -109,9 +109,8 @@ func (db *Database) login(w http.ResponseWriter, r *http.Request) {
 
 // This function gets the client from the JWT
 func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	claims, er := isAuthorized(w, r)
 	if er == false {
 		return

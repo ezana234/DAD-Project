@@ -41,6 +41,7 @@ func main() {
 	mux.Use(accessControlMiddleware)
 	// Routes
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
+	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	// Allow CORS
@@ -61,7 +62,7 @@ func main() {
 		},
 	})
 
-	headersOK := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
+	headersOK := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	originsOK := handlers.AllowedOrigins([]string{"*"})
 	methodsOK := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
 
@@ -75,7 +76,23 @@ func main() {
 // This returns a jwt upon a successful login
 func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
 	type SignUp struct {
+		Username    string
+		FirstName   string
+		LastName    string
+		Email       string
+		Address     string
+		Password    string
+		PhoneNumber string
+		Code        string
+		DOB         string
 	}
+	var signStruct SignUp
+	body := json.NewDecoder(r.Body).Decode(&signStruct)
+	if body != nil {
+		http.Error(w, body.Error(), http.StatusBadRequest)
+		return
+	}
+
 }
 
 // This returns a jwt upon a successful login

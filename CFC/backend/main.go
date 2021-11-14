@@ -45,7 +45,7 @@ func main() {
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://34.227.30.182:3000"}, //you service is available and allowed for this base url
+		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
 		AllowedMethods: []string{
 			http.MethodGet, //http methods for your app
 			http.MethodPost,
@@ -197,6 +197,7 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 
 // Checks if the JWT is valid
 func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
+	fmt.Println(r.Header)
 	if r.Header["Authorization"] == nil {
 		resp := make(map[string]string)
 		resp["error"] = "No Token Found"

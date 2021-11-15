@@ -9,6 +9,14 @@ import (
 	"log"
 )
 
+type Database struct {
+	database DatabaseConnection
+}
+
+func NewDatabase(connection DatabaseConnection) *Database {
+	return &Database{database: connection}
+}
+
 type DatabaseConnection struct {
 	username string
 	password string

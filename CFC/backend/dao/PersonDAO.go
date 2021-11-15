@@ -159,7 +159,8 @@ func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 
 // TODO GetClinicianByUserID()
 
-// TODO GetClientByUserID()
+
+
 func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
 	var query = "SELECT * FROM cfc.client WHERE userID=$1 LIMIT 1"
 	var parameters = []interface{}{userID}

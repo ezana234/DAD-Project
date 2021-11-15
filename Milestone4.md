@@ -1,0 +1,3 @@
+# Milestone 4
+
+For this milestone, we were given the task of switching to postgres from mysql. While the code to do so isnt difficult thanks to the design, we ran into problems with the remote hosting platform, so upgreades to the project were a little minimal. The DBConnection just had to have a few parameters updated and the sql statements modified. But the program does connect to the database, it just doesn't work fully. For changes, see the updates-facades branch

@@ -67,3 +67,15 @@ func (cf *ClinicianFacade) DeleteClinician(clinicianID int) error {
 
 	return errors.New("unable to delete clinician: user has incorrect permissions")
 }
+
+func (cf *ClinicianFacade) GetUserByClinicianID(clinicianID int) (*Model.Person, error) {
+	return cf.clinicianDao.GetUserByClinicianID(clinicianID)
+} 
+
+func (cf *ClinicianFacade) GetClinicianByReferral(referral string) (*Model.Clinician, error) {
+	return cf.clinicianDao.GetClinicianByReferral(referral)
+}
+
+func (cf *ClinicianFacade) GetSafetyPlansByClinicianID(clinicianID int) ([]*Model.SafetyPlan, error) {
+	return cf.clinicianDao.GetSafetyPlansByClinicianID(clinicianID)
+}

@@ -2,17 +2,18 @@ package main
 
 import (
 	"CFC/backend/CFC/backend/DB"
+
+// 	Auth "CFC/backend/CFC/backend/auth"
+// 	Facade "CFC/backend/CFC/backend/facade"
+// 	Handlers "CFC/backend/CFC/backend/handlers"
+
 	"CFC/backend/CFC/backend/facade"
 	Facade "CFC/backend/CFC/backend/facade"
 	"CFC/backend/CFC/backend/model"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
-	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -42,10 +43,15 @@ func main() {
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 	// Routes
+	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
+// 	mux.HandleFunc("/login", (&Handlers.LoginHandler{Database: db}).Login).Methods("POST")
+// 	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
+// 	mux.HandleFunc("/person", (&Handlers.PersonHandler{Database: db}).GetPerson).Methods("GET")
 	mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
+
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
@@ -74,6 +80,44 @@ func main() {
 	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
 }
+
+// func (db *Database) login(w http.ResponseWriter, r *http.Request) {
+// 	type Login struct {
+// 		Email    string
+// 		Password string
+// 	}
+// 	var logStruct Login
+// 	body := json.NewDecoder(r.Body).Decode(&logStruct)
+// 	if body != nil {
+// 		http.Error(w, body.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+// 	person := Facade.NewPersonFacade(db.database)
+// 	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
+// 	if pers.GetUserID() == 0 {
+// 		http.Error(w, "Bad Login", http.StatusUnauthorized)
+// 		return
+// 	} else {
+// 		tokenString, err := Auth.GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
+// 		println(tokenString)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		resp := make(map[string]string)
+// 		resp["token"] = tokenString
+// 		b, err := json.Marshal(resp)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("Content-Type", "application/json")
+// 		w.Write(b)
+// 	}
+// }
+
+// func (db *Database) client(w http.ResponseWriter, r *http.Request) {
+// 	claims, er := Auth.IsAuthorized(w, r)
 
 // This returns a jwt upon a successful login
 func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
@@ -205,6 +249,73 @@ func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
+
+//func GenerateJWT(userID int, email string, role string) (string, error) {
+//	var mySigningKey = []byte("CFC-Secret8")
+//	token := jwt.New(jwt.SigningMethodHS256)
+//	claims := token.Claims.(jwt.MapClaims)
+//
+//	claims["authorized"] = true
+//	claims["userID"] = userID
+//	claims["email"] = email
+//	claims["role"] = role
+//	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+//
+//	tokenString, err := token.SignedString(mySigningKey)
+//
+//	if err != nil {
+//		fmt.Errorf("Something Went Wrong: %s", err.Error())
+//		return "", err
+//	}
+//
+//	return tokenString, nil
+//}
+
+//func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
+//	fmt.Println(r.Header)
+//	if r.Header["Authorization"] == nil {
+//		resp := make(map[string]string)
+//		resp["error"] = "No Token Found"
+//		json.NewEncoder(w).Encode(resp)
+//		return nil, false
+//	}
+//
+//	var mySigningKey = []byte("CFC-Secret8")
+//
+//	token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
+//		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+//			return nil, fmt.Errorf("There was an error in parsing")
+//		}
+//		return mySigningKey, nil
+//	})
+//
+//	if err != nil {
+//		resp := make(map[string]string)
+//		resp["error"] = "Your Token is invalid."
+//		json.NewEncoder(w).Encode(resp)
+//		return nil, false
+//	}
+//
+//	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+//		fmt.Println(claims)
+//		// if claims["role"] == "admin" {
+//
+//		// 	r.Header.Set("Role", "admin")
+//		// 	handler.ServeHTTP(w, r)
+//		// 	return
+//
+//		// } else if claims["role"] == "user" {
+//
+//		// 	r.Header.Set("Role", "user")
+//		// 	handler.ServeHTTP(w, r)
+//		// 	return
+//		// }
+//		return claims, true
+//	} else {
+//		return nil, false
+//	}
+//
+//}
 
 // This function gets clients only if you are a clinician
 func (db *Database) getClients(w http.ResponseWriter, r *http.Request) {

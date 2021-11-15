@@ -1,0 +1,13 @@
+
+.menuButton{
+    marginRight: 20px;
+}
+.title{
+    flexGrow: 1
+}
+.customColor{
+    backgroundColor: green;
+}
+.customHeight{
+    minHeight: 200
+}

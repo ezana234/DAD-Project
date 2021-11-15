@@ -1,43 +1,60 @@
+//Clinician's homepage
+
 import React from 'react';
 import {Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Header from './Header';
+import './Home2.css';
+import {useHistory} from 'react-router-dom';
+import axios from 'axios';
 
-function Home2() {
+function Home2(props) {
+    console.log(props);
+    console.log(props.location.state);
+    const token = props.location.state;
+    const history = useHistory();
+    var firstname = props.location.state.FirstName;
+    const viewProfile = event => {
+        event.preventDefault();
+        // history.push({
+        //     pathname: '/profile',
+        //     state: props.location.state
+        // })
+    }
+    const viewClients = event => {
+        event.preventDefault();
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/clinician/clients', headers: { 'Authorization': 'Bearer ' + token } })
+                    .then((response) => {
+                    console.log("FINAL", response)
+                    if(response.status  == 200){
+                        history.push({
+                            pathname: '/users',
+                            state: response.data
+                        })
+                    }
+                }, (error) => {
+                    console.log(error)
+                }
+            );
+
+    }
     return (
-        <div style={{textAlign:"center"}}>
+        <>
+        <Header header="Clinician's Homepage"/>
             <br></br>
-            <h1>Users</h1>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Steve Rogers</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Tony Stark</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Bruce Banner</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Peter Parker</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Clint Barton</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-        </div>
+            <br></br>
+            <br></br>
+            <br></br>
+            <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
+                <h4>Welcome {firstname}</h4>
+                <br></br>
+                <h5>What would you like to do today?</h5>
+                <button onClick={viewProfile} class="myButton">View my profile</button>
+                <br></br>
+                <button onClick={viewClients} class="myButton">View my clients</button>
+
+            </div>
+        </>
     )
 }
 

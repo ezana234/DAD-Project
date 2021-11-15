@@ -1,43 +1,44 @@
-import React from 'react';
+//Client's homepage
+
+import React, {useState} from 'react';
 import {Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Header from './Header';
+import './Home.css';
+import { Link, useHistory} from 'react-router-dom';
 
-function Home() {
+
+
+function Home(props) {
+    const history = useHistory();
+    console.log("props: ", props)
+    var firstname = props.location.state.FirstName;
+    const viewProfile = event => {
+        event.preventDefault();
+        history.push({
+            pathname: '/profile',
+            state: props.location.state
+        })
+    }
     return (
-        <div style={{textAlign:"center"}}>
+        <>
+            <Header header="Client's Homepage"/>
             <br></br>
-            <h1>My Safety Plan</h1>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Warning Signs</Card.Title>
-                    <Card.Link href="#">Link</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Internal Coping Stratergies</Card.Title>
-                    <Card.Link href="#">Link</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>External Coping Stratergies</Card.Title>
-                    <Card.Link href="#">Link</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Emergency Contacts</Card.Title>
-                    <Card.Link href="#">Link</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Request Immediate Help</Card.Title>
-                    <Card.Link href="#">Link</Card.Link>
-                </Card.Body>
-            </Card>
-        </div>
+            <br></br>
+            <br></br>
+            <br></br>
+            <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
+                <h4>Welcome {firstname}</h4>
+                <br></br>
+                <h5>What would you like to do today?</h5>
+                <button onClick={viewProfile} class="myButton">View my profile</button>
+                <br></br>
+                <button class="myButton">View my safety plan</button>
+                <br></br>
+                <button class="myButton">Add emergency contact</button>
+            </div>
+            
+        </>
     )
 }
 

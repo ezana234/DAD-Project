@@ -1,95 +1,9 @@
 import React, { useState } from 'react';
-import './Login.css'
-import { Link, useHistory } from "react-router-dom";
-import { auth } from "./firebase";
+import './SignUp.css';
 import axios from 'axios';
 import $ from 'jquery';
-import jwt from 'jwt-decode'
 
-function Login() {
-    const history = useHistory();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [user, setUser] = useState('');
-    const [token, setToken] = useState('');
-    const signIn = event => {
-        event.preventDefault();
-        
-        const credentials = { 'email': email, 'password':password};
-
-        console.log('AJAX')
-        
-        console.log(credentials)
-        $.ajax({
-            type: 'post',
-            url: 'http://localhost:3000/login',
-            data: JSON.stringify(credentials),
-            contentType: "application/json; charset=utf-8",
-            traditional: true,  
-            success: function (data) {
-                console.log(data);
-                console.log(data['token'])
-                setToken(data['token'])
-                
-                const tokenData = jwt(data['token']);
-                console.log(tokenData);
-
-                if(tokenData.authorized && tokenData.role =='1'){
-                    console.log("Yes");
-                    console.log(token);
-                    console.log(data['token'])
-                    console.log("Second request")
-
-                    console.log("Bearer "+data['token'])
-
-                    let url = "http://127.0.0.1:3000/client"
-
-                    
-                    const AuthStr = 'Bearer '.concat(data['token']);
-
-                    axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
-                    .then((response) => {
-                                    console.log("FINAL", response)
-                                    if(response.status  == 200){
-                                        history.push({
-                                            pathname: '/home',
-                                            state: response.data
-                                        })
-                                    }
-                                }, (error) => {
-                                    console.log(error)
-                                }
-                            );
-                }
-                else if (tokenData.authorized && tokenData.role =='2'){
-                    console.log("Clinician data", data)
-                    history.push({
-                        pathname: '/clinicianHome',
-                        state: data['token']
-                    })
-                }
-                else{
-                    alert("You are not an authorized user");
-                }
-
-                }
-            });
-
-            
-    }
-
-    const signUp = event => {
-        event.preventDefault();
-
-        
-    }
-
-    const onChangeValue = (event) =>{
-        console.log("HERE")
-        setUser(event.target.value)
-        //console.log(event.target.value)
-    }
-
+function SignUp() {
     return (
         <div className='loginForm'>
                 <img
@@ -98,7 +12,7 @@ function Login() {
                 />
 
             <div className='container'>
-                <h1>SignIn</h1>
+                <h1>SignUp</h1>
 
                 <form>
                     <h5>Username:</h5>
@@ -106,18 +20,8 @@ function Login() {
 
                     <h5>Password:</h5>
                     <input type='password' value={password} onChange={event => setPassword(event.target.value)} />
-                    {/* <p>You are:</p>
-                    <div onChange={onChangeValue}>
-                        <input type="radio" id="client" name="radio" value="client"/>
-                        <label for="client">Client</label>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" id="clinician" name="radio" value="clinician"/>
-                        <label for="clinician">Clinician</label>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" id="Other" name="radio" value="Other"/>
-                        <label for="Other">Other</label>
-                    </div> */}
-                    <button type='submit' onClick={signIn} className='signInButton'>Sign In</button>
+                    <p>You are:</p>
+                    <button type='submit' onClick={signIn} className='signInButton'>Sign n</button>
                 </form>
 
                 <p>
@@ -131,4 +35,4 @@ function Login() {
     )
 }
 
-export default Login
+export default SignUp;

@@ -8,6 +8,9 @@ type Client struct {
 func NewClient(userID int) *Client {
 	return &Client{UserID: userID}
 }
+func NewClientBoth(clientID int, userID int) *Client {
+	return &Client{ClientID: clientID, UserID: userID}
+}
 
 func (c *Client) GetClientID() int {
 	return c.ClientID

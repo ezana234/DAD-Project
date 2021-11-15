@@ -44,18 +44,6 @@ func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
 	return cList, 1
 }
 
-func (cf *ClientFacade) AddClient(c Model.Client) int {
-	c.SetClientID(cf.clientDao.GetNextClientID())
-
-	err := cf.clientDao.Add(c)
-	if err != nil {
-		log.Printf("Error: %s when adding person", err)
-		return 0
-	}
-
-	return 1
-}
-
 func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, int) {
 	sp, err := cf.clientDao.GetSafetyPlanByClientID(clientID)
 	if err != nil {
@@ -63,4 +51,13 @@ func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan
 	}
 
 	return sp, 1
+}
+
+func (cf *ClientFacade) GetClient(clientID int) (*Model.Client, error) {
+	return cf.clientDao.GetClientByID(clientID)
+}
+
+func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
+	_ = cf.clientDao.Add(c)
+	return nil
 }

@@ -6,6 +6,7 @@ import (
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -99,20 +100,13 @@ func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.P
 }
 
 func (pf *PersonFacade) AddPerson(p Model.Person) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		p.SetUserID(pf.personDao.GetNextUserID())
-
-		err := pf.personDao.Add(p)
-		if err != nil {
-			log.Printf("Error: %s when adding person")
-			return 0
-		}
-
-		return 1
+	p.SetUserID(pf.personDao.GetNextUserID())
+	err := pf.personDao.Add(p)
+	if err != nil {
+		log.Printf("Error: %s when adding person")
+		return 0
 	}
-
-	log.Printf("Error: User is not authorized to add person")
-	return -1
+	return 1
 }
 
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
@@ -160,16 +154,17 @@ func (pf *PersonFacade) DeletePerson(userID int) int {
 // CreateNewPerson
 // this functions adds a new user to the db when they create their account for the first time
 // returns 0 if creation was unsuccessful, 1 if it was successful
-func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
+func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
 	usernameIsPresent, err := pf.personDao.UsernameExists(p.UserName)
 	println(usernameIsPresent)
 	if err != nil {
+		fmt.Println("User")
 		log.Printf("Error: %s when creating new person", err)
-		return 0
+		return -1, 0
 	}
 
-	if !usernameIsPresent {
-		return -1
+	if usernameIsPresent {
+		return -1, -1
 	}
 
 	p.SetUserID(pf.personDao.GetNextUserID())
@@ -177,11 +172,12 @@ func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
 
 	err = pf.personDao.Add(p)
 	if err != nil {
+		fmt.Println("person")
 		log.Printf("Error: %s when creating new person", err)
-		return 0
+		return -1, 0
 	}
-
-	return 1
+	fmt.Println("success")
+	return pf.personDao.GetNextUserID(), 1
 }
 
 // LoginPersonByUserName

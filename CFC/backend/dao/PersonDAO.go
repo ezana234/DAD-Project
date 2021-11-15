@@ -82,8 +82,7 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) error {
 		p.GetAddress(),
 		p.GetPhoneNumber(),
 		p.GetRole(),
-		p.GetExpiration(),
-		p.GetDOB(),
+		//p.GetExpiration(),
 		userID,
 	}
 

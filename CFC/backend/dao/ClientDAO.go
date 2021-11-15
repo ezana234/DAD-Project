@@ -53,8 +53,8 @@ func (cd *ClientDao) GetAll() ([]*Model.Client, error) {
 }
 
 func (cd *ClientDao) Add(c Model.Client) error {
-	var query = "INSERT INTO cfc.client(clientid,userid) VALUES($1,$2);"
-	var parameters = []interface{}{c.GetClientID(), c.GetUserID()}
+	var query = "INSERT INTO cfc.client(clientid,person_userid) VALUES($1,$2);"
+	var parameters = []interface{}{cd.GetNextUserID(), c.GetUserID()}
 
 	return cd.db.Insert(query, parameters)
 }
@@ -71,6 +71,19 @@ func (cd *ClientDao) Delete(clientID int) error {
 	var parameters = []interface{}{clientID}
 
 	return cd.db.Delete(query, parameters)
+}
+
+func (cd *ClientDao) GetNextUserID() int {
+	var query = "SELECT MAX(clientId) FROM cfc.client"
+
+	result, err := cd.db.Select(query, []interface{}{})
+	if err != nil {
+		return -1
+	}
+
+	res, _ := strconv.ParseInt(result[0][0], 10, 64)
+
+	return int(res) + 1
 }
 
 // TODO GetSafetyPlanByClientID()

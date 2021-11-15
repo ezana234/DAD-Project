@@ -14,16 +14,7 @@ func NewClientFacade(db DB.DatabaseConnection) *ClientFacade {
 	return &ClientFacade{clientDao: *DAO.NewClientDao(db)}
 }
 
-//func (cf *ClientFacade) GetClient(clientID int) *Model.Client {
-//	return cf.clientDao.GetClient(clientID)
-//}
-//
-//func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
-//	_ = cf.clientDao.AddClient(c)
-//	return nil
-//}
-
-func (cf *ClientFacade) GetClientByID(clientID int) (*Model.Client, int) {
+func (cf *ClientFacade) GetClientByClientID(clientID int) (*Model.Client, int) {
 	c, err := cf.clientDao.GetClientByID(clientID)
 
 	if err != nil {
@@ -43,6 +34,38 @@ func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
 	return cList, 1
 }
 
+func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
+	_ = cf.clientDao.Add(c)
+	return nil
+}
+
+func (cf *ClientFacade) DeleteClient(clientID int) int {
+	err := cf.clientDao.Delete(clientID)
+	if err != nil {
+		return 0
+	}
+
+	return 1
+}
+
+func (cf *ClientFacade) UpdateClient(clientID int, c *Model.Client) int {
+	err := cf.clientDao.Update(clientID, c)
+	if err != nil {
+		return 0
+	}
+
+	return 1
+}
+
+func (cf *ClientFacade) GetUserByClientID(clientID int) (*Model.Person, int) {
+	p, err := cf.clientDao.GetUserByClientID(clientID)
+	if err != nil {
+		return new(Model.Person), 0
+	}
+
+	return p, 1
+}
+
 func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, int) {
 	sp, err := cf.clientDao.GetSafetyPlanByClientID(clientID)
 	if err != nil {
@@ -52,11 +75,21 @@ func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan
 	return sp, 1
 }
 
-func (cf *ClientFacade) GetClient(clientID int) (*Model.Client, error) {
-	return cf.clientDao.GetClientByID(clientID)
+func (cf *ClientFacade) GetClinicianByClientID(clientID int) (*Model.Clinician, int) {
+	clinician, err := cf.clientDao.GetClinicianByClientID(clientID)
+	if err != nil {
+		return new(Model.Clinician), 0
+	}
+
+	return clinician, 1
 }
 
-func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
-	_ = cf.clientDao.Add(c)
-	return nil
+func (cf *ClientFacade) GetUserClinicianByClientID(clientID int) (*Model.Person, int) {
+	p, err := cf.clientDao.GetClinicianUserByClientID(clientID)
+	if err != nil {
+		return new(Model.Person), 0
+	}
+
+	return p, 1
 }
+

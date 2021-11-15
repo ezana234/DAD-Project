@@ -1,53 +1,53 @@
 package model
 
 type Appointment struct {
-	appointmentID     int
-	appointmentTime   string
-	appointmentMedium string
-	clientID          int
-	clinicianID       int
+	AppointmentID     int
+	AppointmentTime   string
+	AppointmentMedium string
+	ClientID          int
+	ClinicianID       int
 }
 
 func NewAppointment(appointmentTime string, appointmentMedium string, clientID int, clinicianID int) *Appointment {
-	return &Appointment{appointmentTime: appointmentTime, appointmentMedium: appointmentMedium, clientID: clientID, clinicianID: clinicianID}
+	return &Appointment{AppointmentTime: appointmentTime, AppointmentMedium: appointmentMedium, ClientID: clientID, ClinicianID: clinicianID}
 }
 
-func (a *Appointment) AppointmentID() int {
-	return a.appointmentID
+func (a *Appointment) GetAppointmentID() int {
+	return a.AppointmentID
 }
 
 func (a *Appointment) SetAppointmentID(appointmentID int) {
-	a.appointmentID = appointmentID
+	a.AppointmentID = appointmentID
 }
 
-func (a *Appointment) AppointmentTime() string {
-	return a.appointmentTime
+func (a *Appointment) GetAppointmentTime() string {
+	return a.AppointmentTime
 }
 
 func (a *Appointment) SetAppointmentTime(appointmentTime string) {
-	a.appointmentTime = appointmentTime
+	a.AppointmentTime = appointmentTime
 }
 
-func (a *Appointment) AppointmentMedium() string {
-	return a.appointmentMedium
+func (a *Appointment) GetAppointmentMedium() string {
+	return a.AppointmentMedium
 }
 
 func (a *Appointment) SetAppointmentMedium(appointmentMedium string) {
-	a.appointmentMedium = appointmentMedium
+	a.AppointmentMedium = appointmentMedium
 }
 
-func (a *Appointment) ClientID() int {
-	return a.clientID
+func (a *Appointment) GetClientID() int {
+	return a.ClientID
 }
 
 func (a *Appointment) SetClientID(clientID int) {
-	a.clientID = clientID
+	a.ClientID = clientID
 }
 
-func (a *Appointment) ClinicianID() int {
-	return a.clinicianID
+func (a *Appointment) GetClinicianID() int {
+	return a.ClinicianID
 }
 
 func (a *Appointment) SetClinicianID(clinicianID int) {
-	a.clinicianID = clinicianID
+	a.ClinicianID = clinicianID
 }

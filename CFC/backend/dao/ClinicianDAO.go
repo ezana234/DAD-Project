@@ -32,13 +32,13 @@ func (cd *ClinicianDao) GetClinicianByID(clinicianID int) (*Model.Clinician, err
 	return c, nil
 }
 
-func (cd *ClinicianDao) GetAll() []*Model.Clinician {
+func (cd *ClinicianDao) GetAllClinicians() ([]*Model.Clinician, error) {
 	var query = "SELECT * FROM clinician"
 	var cList []*Model.Clinician
 
 	result, err := cd.db.Select(query, []interface{}{})
 	if err != nil {
-		return cList
+		return cList, err
 	}
 
 	for _, res := range result {
@@ -49,16 +49,16 @@ func (cd *ClinicianDao) GetAll() []*Model.Clinician {
 		cList = append(cList, tmpC)
 	}
 
-	return cList
+	return cList, nil
 }
 
-func (cd *ClinicianDao) GetAllClients() []*Model.Person {
+func (cd *ClinicianDao) GetAllClients() ([]*Model.Person, error) {
 	var query = "select * from cfc.client join cfc.person on person.userid = client.person_userid;"
 	var pList []*Model.Person
 
 	result, err := cd.db.Select(query, []interface{}{})
 	if err != nil || len(result) == 0 {
-		return pList
+		return pList, err
 	}
 
 	for _, res := range result {
@@ -69,11 +69,11 @@ func (cd *ClinicianDao) GetAllClients() []*Model.Person {
 		pList = append(pList, tmpP)
 	}
 
-	return pList
+	return pList, nil
 }
 
 func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
-	var query = "INSERT INTO clinician(clinicianid,Person_userId,referral) VALUES($1,$2,$3)"
+	var query = "INSERT INTO cfc.clinician(clinicianid,Person_userId,referral) VALUES($1,$2,$3)"
 	var parameters = []interface{}{
 		cd.GetNextClinicianID(),
 		c.GetUserID(),
@@ -86,7 +86,7 @@ func (cd *ClinicianDao) AddClinician(c Model.Clinician) error {
 }
 
 func (cd *ClinicianDao) UpdateClinician(clinicianID int, c *Model.Clinician) error {
-	var query = "UPDATE clinician SET Person_userId=$1, referral=$2 WHERE clinicianId=$3"
+	var query = "UPDATE cfc.clinician SET Person_userId=$1, referral=$2 WHERE clinicianId=$3"
 	var parameters = []interface{}{
 		c.GetUserID(),
 		c.GetReferral(),
@@ -99,7 +99,7 @@ func (cd *ClinicianDao) UpdateClinician(clinicianID int, c *Model.Clinician) err
 }
 
 func (cd *ClinicianDao) DeleteClinician(clinicianID int) error {
-	var query = "DELETE FROM clinician WHERE clinicianId=$1"
+	var query = "DELETE FROM cfc.clinician WHERE clinicianId=$1"
 	var parameters = []interface{}{
 		clinicianID,
 	}
@@ -127,7 +127,7 @@ func (cd *ClinicianDao) GetUserByClinicianID(clinicianID int) (*Model.Person, er
 }
 
 func (cd *ClinicianDao) GetClientsByClinicianID(clinicianID int) []*Model.Client {
-	var query = "SELECT * FROM client WHERE clientId IN (SELECT Client_clientId FROM client_has_clinician WHERE Clinician_clinicianId=$1)"
+	var query = "SELECT * FROM cfc.client WHERE clientId IN (SELECT Client_clientId FROM cfc.client_has_clinician WHERE Clinician_clinicianId=$1) ORDER BY client.clientID"
 	var parameterMap = []interface{}{
 		clinicianID,
 	}
@@ -148,6 +148,26 @@ func (cd *ClinicianDao) GetClientsByClinicianID(clinicianID int) []*Model.Client
 	}
 
 	return cList
+}
+
+func (cd *ClinicianDao) GetClientUsersByClinicianID(clinicianID int) ([]*Model.Person, error) {
+	var pList []*Model.Person
+	var query = "SELECT * FROM cfc.person WHERE person.userid IN (SELECT person_userID FROM cfc.client INNER JOIN cfc.client_has_clinician ON client.clientid=client_has_clinician.client_clientid AND client_has_clinician.clinician_clinicianid=$1) ORDER BY person.userid"
+	var parameters = []interface{}{clinicianID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return pList, err
+	}
+
+	for _, res := range result {
+		uid, _ := strconv.ParseInt(res[0], 10, 64)
+		p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
+		p.SetUserID(int(uid))
+		pList = append(pList, p)
+	}
+	
+	return pList, nil
 }
 
 func (cd *ClinicianDao) GetAppointmentsByClinicianID(clinicianID int) []*Model.Appointment {

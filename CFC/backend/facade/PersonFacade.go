@@ -5,7 +5,7 @@ import (
 	Auth "CFC/backend/CFC/backend/auth"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -103,7 +103,7 @@ func (pf *PersonFacade) AddPerson(p Model.Person) int {
 	p.SetUserID(pf.personDao.GetNextUserID())
 	err := pf.personDao.Add(p)
 	if err != nil {
-		log.Printf("Error: %s when adding person")
+		log.Printf("Error: %s when adding person", err)
 		return 0
 	}
 	return 1
@@ -113,7 +113,7 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
 		pOld, err := pf.personDao.GetUserByID(userID)
 		if err != nil {
-			log.Printf("Error: %s when getting person")
+			log.Printf("Error: %s when getting person", err)
 			return 0
 		}
 		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
@@ -292,33 +292,55 @@ func IsExpired(expiration string) bool {
 	return true
 }
 
-func PersonFromJSON(pJson []byte) Model.Person {
-	var p = Model.Person{}
+// func PersonFromJSON(pJson []byte) Model.Person {
+// 	var p = Model.Person{}
 
-	var err = json.Unmarshal(pJson, &p)
+// 	var err = json.Unmarshal(pJson, &p)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return p
+// }
+
+// func PersonArrayFromJSON(pJson []byte) []Model.Person {
+// 	var pList []Model.Person
+
+// 	var err = json.Unmarshal(pJson, &pList)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return pList
+// }
+
+// func PersonToJSON(obj interface{}) []byte {
+// 	pJson, err := json.Marshal(obj)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return pJson
+// }
+
+func (pf *PersonFacade) GetSafetyPlansByUserID(userID int, role int) ([]*Model.SafetyPlan, int) {
+	var emptyList []*Model.SafetyPlan
+
+	spList, err := pf.personDao.GetSafetyPlansByUserID(userID, role)
 	if err != nil {
-		panic(err)
+		return emptyList, 0
 	}
 
-	return p
+	return spList, 1
 }
 
-func PersonArrayFromJSON(pJson []byte) []Model.Person {
-	var pList []Model.Person
+func (pf *PersonFacade) GetAppointmentsByUserID(userID int, role int) ([]*Model.Appointment, int) {
+	var emptyList []*Model.Appointment
 
-	var err = json.Unmarshal(pJson, &pList)
+	aList, err := pf.personDao.GetAppointmentsByUserID(userID, role)
 	if err != nil {
-		panic(err)
+		return emptyList, 0
 	}
 
-	return pList
-}
-
-func PersonToJSON(obj interface{}) []byte {
-	pJson, err := json.Marshal(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	return pJson
+	return aList, 1
 }

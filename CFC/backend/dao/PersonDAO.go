@@ -3,6 +3,7 @@ package dao
 import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
+	"errors"
 	"strconv"
 )
 
@@ -82,7 +83,7 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) error {
 		p.GetAddress(),
 		p.GetPhoneNumber(),
 		p.GetRole(),
-		//p.GetExpiration(),
+		p.GetExpiration(),
 		userID,
 	}
 
@@ -177,4 +178,84 @@ func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
 	c.SetClientID(int(cuid))
 
 	return c, nil
+}
+
+func (pd *PersonDao) GetClinicianByUserID(userID int) (*Model.Clinician, error){
+	var query = "SELECT * FROM cfc.clinician WHERE clinician.person_userid=$1"
+	var parameters = []interface{}{userID}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Clinician), err
+	}
+
+	var res = result[0]
+	cuid, _ := strconv.ParseInt(res[0], 10, 64)
+	uid, _ := strconv.ParseInt(res[1], 10, 64)
+	c := Model.NewClinician(int(uid), res[2])
+	c.SetClinicianID(int(cuid))
+
+	return c, nil
+}
+
+func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.SafetyPlan, error) {
+	var spList []*Model.SafetyPlan
+	var query string
+	var parameters = []interface{}{userID}
+
+	if role == 1 {
+		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid = $1)"
+	} else if role == 2 {
+		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT cclinicianid FROM cfc.clinician WHERE clinician.person_userid = $1)"
+	} else {
+		return spList, errors.New("incorrect role id")
+	}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return spList, err
+	}
+
+	for _, res := range result {
+		spuid, _ := strconv.ParseInt(res[0], 10, 64)
+		uc, _ := strconv.ParseInt(res[6], 10, 64)
+		clientuid, _ := strconv.ParseInt(res[7], 10, 64)
+		clinicianid, _ := strconv.ParseInt(res[8], 10, 64)
+		sp := Model.NewSafetyPlan(res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
+		sp.SetSafetyID(int(spuid))
+		spList = append(spList, sp)
+	}
+
+	return spList, nil
+}
+
+func (pd *PersonDao) GetAppointmentsByUserID(userID int, role int) ([]*Model.Appointment, error) {
+	var aList []*Model.Appointment
+	var query string
+	var parameters = []interface{}{userID}
+
+	if role == 1 {
+		query = "SELECT * FROM cfc.appointments WHERE appointments.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid=$1)"
+	} else if role == 2 {
+		query = "SELECT * FROM cfc.appointments WHERE appointments.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE clinician.person_userid=$1)"
+	} else {
+		return aList, errors.New("incorrect role id")
+	}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return aList, err
+	}
+
+	for _, res := range result {
+		appid, _ := strconv.ParseInt(res[0], 10, 64)
+		clientid, _ := strconv.ParseInt(res[3], 10, 64)
+		clinicianid, _ := strconv.ParseInt(res[4], 10, 64)
+		app := Model.NewAppointment(res[1], res[2], int(clientid), int(clinicianid))
+		app.SetAppointmentID(int(appid))
+
+		aList = append(aList, app)
+	}
+
+	return aList, nil
 }

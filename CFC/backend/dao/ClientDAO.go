@@ -54,7 +54,7 @@ func (cd *ClientDao) GetAll() ([]*Model.Client, error) {
 
 func (cd *ClientDao) Add(c Model.Client) error {
 	var query = "INSERT INTO cfc.client(clientid,person_userid) VALUES($1,$2);"
-	var parameters = []interface{}{cd.GetNextUserID(), c.GetUserID()}
+	var parameters = []interface{}{cd.GetNextClientID(), c.GetUserID()}
 
 	return cd.db.Insert(query, parameters)
 }
@@ -73,7 +73,7 @@ func (cd *ClientDao) Delete(clientID int) error {
 	return cd.db.Delete(query, parameters)
 }
 
-func (cd *ClientDao) GetNextUserID() int {
+func (cd *ClientDao) GetNextClientID() int {
 	var query = "SELECT MAX(clientId) FROM cfc.client"
 
 	result, err := cd.db.Select(query, []interface{}{})
@@ -85,8 +85,6 @@ func (cd *ClientDao) GetNextUserID() int {
 
 	return int(res) + 1
 }
-
-// TODO GetSafetyPlanByClientID()
 
 // TODO GetSupportNetworksByClientID()
 
@@ -131,15 +129,37 @@ func (cd *ClientDao) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, e
 	return sp, nil
 }
 
-func (cd *ClientDao) GetNextClientID() int {
-	var query = "SELECT MAX(userId) FROM cfc.client"
+func (cd *ClientDao) GetClinicianUserByClientID(clientID int) (*Model.Person, error) {
+	var query = "SELECT * FROM cfc.person WHERE person.userid IN (SELECT clinician.person_userid FROM cfc.clinician INNER JOIN client_has_clinician ON client_has_clinician.clinician_clinicianid = clinician.clinicianid AND client_has_clinician.client_clientid=$1)"
+	var parameters = []interface{}{clientID}
 
-	result, err := cd.db.Select(query, []interface{}{})
+	result, err := cd.db.Select(query, parameters)
 	if err != nil {
-		return -1
+		return new(Model.Person), err
 	}
 
-	res, _ := strconv.ParseInt(result[0][0], 10, 64)
+	var res = result[0]
+	uid, _ := strconv.ParseInt(res[0], 10, 64)
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
+	p.SetUserID(int(uid))
 
-	return int(res) + 1
+	return p, nil
+}
+
+func (cd *ClientDao) GetClinicianByClientID(clientID int) (*Model.Clinician, error) {
+	var query = "SELECT * FROM cfc.clinician WHERE clinician.clinicianid IN (SELECT clinician_clinicianID FROM cfc.client_has_clinician WHERE client_has_clinician.client_clientid=$1)"
+	var parameters = []interface{}{clientID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Clinician), err
+	}
+
+	var res = result[0]
+	cuid, _ := strconv.ParseInt(res[0], 10, 64)
+	uid, _ := strconv.ParseInt(res[1], 10, 64)
+	c := Model.NewClinician(int(uid), res[2])
+	c.SetClinicianID(int(cuid))
+	
+	return c, nil
 }

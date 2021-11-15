@@ -64,7 +64,8 @@ func (pd *PersonDao) Add(p Model.Person) error {
 		p.GetAddress(),
 		p.GetPhoneNumber(),
 		p.GetRole(),
-		//p.GetExpiration(),
+		p.GetExpiration(),
+		p.GetDOB(),
 	}
 
 	return pd.db.Insert(query, parameters)

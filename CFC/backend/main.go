@@ -2,7 +2,9 @@ package main
 
 import (
 	"CFC/backend/CFC/backend/DB"
+	"CFC/backend/CFC/backend/facade"
 	Facade "CFC/backend/CFC/backend/facade"
+	"CFC/backend/CFC/backend/model"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -75,7 +77,7 @@ func main() {
 
 // This returns a jwt upon a successful login
 func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
-	type SignUp struct {
+	type sign struct {
 		Username    string
 		FirstName   string
 		LastName    string
@@ -83,16 +85,46 @@ func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
 		Address     string
 		Password    string
 		PhoneNumber string
-		Code        string
 		DOB         string
 	}
-	var signStruct SignUp
+	var signStruct sign
 	body := json.NewDecoder(r.Body).Decode(&signStruct)
 	if body != nil {
 		http.Error(w, body.Error(), http.StatusBadRequest)
 		return
 	}
 
+	person := Facade.NewPersonFacade(db.database)
+	newPers := model.NewPerson(
+		signStruct.Username,
+		signStruct.Password,
+		signStruct.FirstName,
+		signStruct.LastName,
+		signStruct.Email,
+		signStruct.Address,
+		signStruct.PhoneNumber,
+		"1",
+		" ",
+		signStruct.DOB)
+	id, err := person.CreateNewPerson(*newPers)
+	if err != 1 {
+		http.Error(w, "Couldn't Create Person", http.StatusBadRequest)
+		return
+	} else {
+		fmt.Println(id)
+		client := facade.NewClientFacade(db.database)
+		clientModel := model.NewClient(id - 1)
+		client.AddClient(*clientModel)
+		resp := make(map[string]string)
+		resp["message"] = "Client added to Database"
+		b, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+	}
 }
 
 // This returns a jwt upon a successful login

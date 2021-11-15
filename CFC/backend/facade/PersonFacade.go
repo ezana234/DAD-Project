@@ -223,7 +223,7 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Mode
 
 		return p, 1
 	}
-	
+
 	return new(Model.Person), 0
 }
 

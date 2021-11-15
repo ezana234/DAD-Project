@@ -24,12 +24,9 @@ return (
             <Header header="Client's Homepage"/>
             <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
                 <h4>Welcome {firstname}</h4>
-                <br></br>
                 <h5>What would you like to do today?</h5>
                 <button onClick={viewProfile} class="myButton">View my profile</button>
-                <br></br>
                 <button class="myButton">View my safety plan</button>
-                <br></br>
                 <button class="myButton">Add emergency contact</button>
             </div>
             

@@ -34,6 +34,16 @@ func (cf *ClientFacade) GetClientByID(clientID int) (*Model.Client, int) {
 	return c, 0
 }
 
+func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
+	var emptyList []*Model.Client
+	cList, err := cf.clientDao.GetAll()
+	if err != nil {
+		return emptyList, 0
+	}
+
+	return cList, 1
+}
+
 func (cf *ClientFacade) AddClient(c Model.Client) int {
 	c.SetClientID(cf.clientDao.GetNextClientID())
 

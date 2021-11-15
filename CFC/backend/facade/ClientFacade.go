@@ -4,7 +4,6 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
-	"log"
 )
 
 type ClientFacade struct {

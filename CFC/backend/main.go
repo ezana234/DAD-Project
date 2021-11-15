@@ -2,18 +2,22 @@ package main
 
 import (
 	"CFC/backend/CFC/backend/DB"
+	"strings"
+	"time"
 
-// 	Auth "CFC/backend/CFC/backend/auth"
-// 	Facade "CFC/backend/CFC/backend/facade"
-// 	Handlers "CFC/backend/CFC/backend/handlers"
+	// 	Auth "CFC/backend/CFC/backend/auth"
+	// 	Facade "CFC/backend/CFC/backend/facade"
+	// 	Handlers "CFC/backend/CFC/backend/handlers"
 
 	"CFC/backend/CFC/backend/facade"
 	Facade "CFC/backend/CFC/backend/facade"
 	"CFC/backend/CFC/backend/model"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"

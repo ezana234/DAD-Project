@@ -159,7 +159,67 @@ For the current milestone, we have a route that authenticates a user based on a 
 
 ![](img9.png)
 
-##
+## Performance and refactoring:
+Backend:
+- Changes to Database
+    1. The Person table now has fields for DOB and password expiration
+    2. The Clinician table now has a field for referral code, which will be used by the client when they go to create an account on the site. The referral code is used to prevent spam accounts and to automatically assign that clinician to the client.
+- Updated routes for login and for clinicians to get clients
+    1. JWT Authentication tokens implemented for users
+- Updated facades and DAOs for more functionality
+    1. Mostly just adding the ability to get data from multiple tables within a facade (example: Able to get Safety Plans from the ClientFacade via clientID)
+-The ER Diagram was also updated (see above)
+
+Frontend:
+- The frontend allows only authorized users to sign in
+- Modified Client's and Clinician's homepage to list all the options a user can do upon landing on the home page, also included a navbar.
+- Clients can now view their profile by clicking on the View My Profile button on their homepage
+- Clinicians can view/search for users by clicking on View Users button on their homepage
+- Refactored the entire frontend code to separate View components and the actual components which contain the data. Following this strategy made the code look cleaner, readable and easily understandable. Earlier two other components were grouped with the View component which made the code look very messy and cluttered. In the code snippet below, we can see one example of how the code has been restructured.
+
+```
+return (
+        <>
+            <Header header="Client's Homepage"/>
+            <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
+                <h4>Welcome {firstname}</h4>
+                <h5>What would you like to do today?</h5>
+                <button onClick={viewProfile} class="myButton">View my profile</button>
+                <button class="myButton">View my safety plan</button>
+                <button class="myButton">Add emergency contact</button>
+            </div>
+            
+        </>
+    )
+```
+
+This is the code used to render the Client's homepage. Notice how the Navbar/Header is split into a component of it's own and being used(in the second line inside return method) in this View component. A similar code structure will be noticeable in all the other components as well. Another example of refactored code:
+```
+<Header header="Clients"/>
+       
+        <div style={{textAlign:"center"}}>
+            
+            <h3>Clients</h3>
+            <Search/>
+            <div className="DivWithScroll">
+            {usersArray.map((user) => (
+  <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
+                    <Card.Body>
+                        <Card.Title>{user.FirstName + user.LastName}</Card.Title>
+                        <Card.Link href="#">Safety Plan</Card.Link>
+                        <Card.Link href="#">Profile</Card.Link>
+                    </Card.Body>
+                </Card>
+                ))}
+            </div>
+
+```
+This is the view of the View Users page. Notice how the Search bar is defined as its own component and being called here in this component to Search and filter users/clients. Also notice how the same Header component is being reused in this case.
+
+The backend code is also structured/refactored in a way that the code is easy readable, understandable.
+
+Refactoring the code improves the overall structure of the code, it makes the code more efficient and highly cohesive. It also helps in making the application loosely coupled, hence improving the overall performance of the application.
+
 
 ## Timeline:
 

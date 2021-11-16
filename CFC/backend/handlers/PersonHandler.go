@@ -12,11 +12,9 @@ type PersonHandler struct {
 	Database DB.DatabaseConnection
 }
 
-
 func NewPersonHandler(db DB.DatabaseConnection) *PersonHandler {
 	return &PersonHandler{Database: db}
 }
-
 
 func (ph *PersonHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	claims, er := Auth.IsAuthorized(w, r)
@@ -32,7 +30,7 @@ func (ph *PersonHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	var i int = int(claims["userID"].(float64))
 	pers, err := person.GetPerson(i)
 	if err == 0 {
-		http.Error(w, pers.Error(), http.StatusNotFound)
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 	type PersonMessage struct {

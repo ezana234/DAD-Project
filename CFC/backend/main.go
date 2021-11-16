@@ -9,10 +9,10 @@ import (
 	// 	Facade "CFC/backend/CFC/backend/facade"
 	// 	Handlers "CFC/backend/CFC/backend/handlers"
 
+	Auth "CFC/backend/CFC/backend/auth"
 	"CFC/backend/CFC/backend/facade"
 	Facade "CFC/backend/CFC/backend/facade"
 	Handlers "CFC/backend/CFC/backend/handlers"
-	Auth "CFC/backend/CFC/backend/auth"
 	"CFC/backend/CFC/backend/model"
 	"encoding/json"
 	"fmt"
@@ -51,8 +51,8 @@ func main() {
 	// Routes
 	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
-// 	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
-// 	mux.HandleFunc("/person", (&Handlers.PersonHandler{Database: db}).GetPerson).Methods("GET")
+	// 	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
+	// 	mux.HandleFunc("/person", (&Handlers.PersonHandler{Database: db}).GetPerson).Methods("GET")
 	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
@@ -224,7 +224,7 @@ func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
 	var userID int = int(claims["userID"].(float64))
 	pers, err := person.GetPerson(userID)
 	if err == 0 {
-		http.Error(w, pers.Error(), http.StatusNotFound)
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 	type PersonMessage struct {

@@ -19,7 +19,7 @@ func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
 	var userID int = int(claims["userID"].(float64))
 	pers, err := person.GetPerson(userID)
 	if err == 0 {
-		http.Error(w, pers.Error(), http.StatusNotFound)
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 	type PersonMessage struct {

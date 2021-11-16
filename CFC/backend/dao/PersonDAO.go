@@ -116,9 +116,9 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 	return p, nil
 }
 
-func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
-	var query = "SELECT * FROM cfc.person WHERE email=$1 LIMIT 1"
-	var parameterMap = []interface{}{email}
+func (pd *PersonDao) GetPersonByEmail(email string, password string) (*Model.Person, error) {
+	var query = "SELECT * FROM cfc.person WHERE email=$1 and password=$2 LIMIT 1"
+	var parameterMap = []interface{}{email, password}
 
 	result, err := pd.db.Select(query, parameterMap)
 	if err != nil || len(result) == 0 {
@@ -160,8 +160,6 @@ func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 
 // TODO GetClinicianByUserID()
 
-
-
 func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
 	var query = "SELECT * FROM cfc.client WHERE userID=$1 LIMIT 1"
 	var parameters = []interface{}{userID}
@@ -180,7 +178,7 @@ func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
 	return c, nil
 }
 
-func (pd *PersonDao) GetClinicianByUserID(userID int) (*Model.Clinician, error){
+func (pd *PersonDao) GetClinicianByUserID(userID int) (*Model.Clinician, error) {
 	var query = "SELECT * FROM cfc.clinician WHERE clinician.person_userid=$1"
 	var parameters = []interface{}{userID}
 

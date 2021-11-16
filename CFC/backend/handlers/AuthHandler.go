@@ -25,7 +25,7 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	person := Facade.NewPersonFacade(ah.Database)
-	pers, _ := person.LoginPersonByEmail(logStruct.Email, logStruct.Password)
+	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
 	//pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
 	if pers.GetUserID() == 0 {
 		http.Error(w, "Bad Login", http.StatusUnauthorized)

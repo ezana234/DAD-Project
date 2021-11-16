@@ -205,7 +205,7 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 	return 0
 }
 
-func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Model.Person, int){
+func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Model.Person, int) {
 	p, err := pf.personDao.GetPersonByEmail(email)
 	if err != nil {
 		log.Printf("Error: %s when logging in by email", err)
@@ -213,9 +213,9 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Mode
 	}
 
 	if CheckPasswords(p.GetPassword(), password) {
-		if !IsExpired(p.GetExpiration()) {
-			return new(Model.Person), -1
-		}
+		//if !IsExpired(p.GetExpiration()) {
+		//	return new(Model.Person), -1
+		//}
 
 		return p, 1
 	}

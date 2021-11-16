@@ -109,10 +109,6 @@ func (p *Person) SetDOB(dob string) {
 	p.DOB = dob
 }
 
-func (p Person) Error() string {
-	panic("implement me")
-}
-
 func (p *Person) Print() string {
 	var pString = fmt.Sprintf("UserID: %d\nUsername: %s\nPassword: %s\nFirst Name: %s\nLast Name: %s\nEmail: %s\nAddress: %s\nPhone Number: %s\nRole: %s\nExpiration: %s\n", p.GetUserID(), p.GetUserName(), p.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration())
 	return pString

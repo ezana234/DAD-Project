@@ -166,7 +166,7 @@ func (cd *ClinicianDao) GetClientUsersByClinicianID(clinicianID int) ([]*Model.P
 		p.SetUserID(int(uid))
 		pList = append(pList, p)
 	}
-	
+
 	return pList, nil
 }
 

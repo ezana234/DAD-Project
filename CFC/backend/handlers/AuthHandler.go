@@ -2,13 +2,12 @@ package handlers
 
 import (
 	"CFC/backend/CFC/backend/DB"
-	Facade "CFC/backend/CFC/backend/facade"
 	Auth "CFC/backend/CFC/backend/auth"
+	Facade "CFC/backend/CFC/backend/facade"
 	Model "CFC/backend/CFC/backend/model"
 	"encoding/json"
 	"net/http"
 )
-
 
 type AuthHandler struct {
 	Database DB.DatabaseConnection
@@ -26,7 +25,8 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	person := Facade.NewPersonFacade(ah.Database)
-	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
+	pers, _ := person.LoginPersonByEmail(logStruct.Email, logStruct.Password)
+	//pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
 	if pers.GetUserID() == 0 {
 		http.Error(w, "Bad Login", http.StatusUnauthorized)
 		return
@@ -44,7 +44,10 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
+		_, err = w.Write(b)
+		if err != nil {
+			return
+		}
 	}
 }
 

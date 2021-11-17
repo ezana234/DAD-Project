@@ -86,7 +86,7 @@ func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
 }
 
 func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
-	p, err := pf.personDao.GetPersonByEmail(email, password)
+	p, err := pf.personDao.GetPersonByEmail(email)
 	if err != nil {
 		log.Printf("Error: %s when getting person by email", err)
 		return new(Model.Person)
@@ -206,23 +206,23 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 	return 0
 }
 
-// func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Model.Person, int) {
-// 	p, err := pf.personDao.GetPersonByEmail(email)
-// 	if err != nil {
-// 		log.Printf("Error: %s when logging in by email", err)
-// 		return new(Model.Person), 0
-// 	}
+func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Model.Person, int) {
+	p, err := pf.personDao.GetPersonByEmail(email)
+	if err != nil {
+		log.Printf("Error: %s when logging in by email", err)
+		return new(Model.Person), 0
+	}
 
-// 	if CheckPasswords(p.GetPassword(), password) {
-// 		//if !IsExpired(p.GetExpiration()) {
-// 		//	return new(Model.Person), -1
-// 		//}
+	if CheckPasswords(p.GetPassword(), password) {
+		//if !IsExpired(p.GetExpiration()) {
+		//	return new(Model.Person), -1
+		//}
 
-// 		return p, 1
-// 	}
+		return p, 1
+	}
 
-// 	return new(Model.Person), 0
-// }
+	return new(Model.Person), 0
+}
 
 func (pf PersonFacade) UpdatePassword(password string) int {
 	p := pf.authManager.GetCurrentUser()

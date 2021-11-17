@@ -16,7 +16,7 @@ function Users(props) {
         }
     
         return clients.filter((client) => {
-            const clientName = client.FirstName.toLowerCase();
+            const clientName = client.FirstName;
             console.log(clientName);
             return clientName.includes(query);
         });
@@ -31,14 +31,14 @@ function Users(props) {
     console.log(searchQuery);
     return (
         <>
-        <Header header="Clients"/>
+        <Header header="List of clients"/>
         <br></br>
         <br></br>
         <br></br>
         <br></br>
         <div style={{textAlign:"center"}}>
             
-            <h3>Clients</h3>
+            <h3>Find your clients</h3>
             <br></br>
             <Search
             searchQuery={searchQuery}
@@ -51,9 +51,9 @@ function Users(props) {
             {filteredClients.map((client) => (
                     <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
                     <Card.Body>
-                        <Card.Title>{client.FirstName + client.LastName}</Card.Title>
-                        <Card.Link href="#">Safety Plan</Card.Link>
-                        <Card.Link href="#">Profile</Card.Link>
+                        <Card.Title>{client.FirstName + " " + client.LastName}</Card.Title>
+                        <Card.Link href="#">View Safety Plan</Card.Link>
+                        <Card.Link href="#">View Profile</Card.Link>
                     </Card.Body>
                 </Card>
                 ))}

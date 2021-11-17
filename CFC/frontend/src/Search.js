@@ -2,7 +2,7 @@ import React from "react";
 import './Search.css'
 
 const SearchBar = ({ searchQuery, setSearchQuery }) => (
-    <form action="/" method="get">
+    <>
         <label htmlFor="header-search">
             <span className="visually-hidden">Search clients</span>
         </label>
@@ -14,8 +14,8 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => (
             placeholder="Search Clients"
             name="s" 
         />
-        <button className="button" type="submit">Search</button>
-    </form>
+        <button className="button">Search</button>
+    </>
 );
 
 export default SearchBar;

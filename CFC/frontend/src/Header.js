@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import green from "@material-ui/core/colors/green";
+import { useHistory } from 'react-router';
 //import './Header.css';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 function Header(props) {
+  const history = useHistory();
   const classes = useStyles();
   const [example, setExample] = useState("primary");
   const isCustomColor = example === "blue";
@@ -50,7 +52,7 @@ function Header(props) {
                 <Typography variant="h6" className={classes.title}>
                     {props.header}
                 </Typography>
-                <IconButton color="inherit" onClick={() => setExample("default")}>
+                <IconButton color="inherit" onClick={() => history.push("/")}>
                     <h6 style={{paddingTop:"10px"}}>Sign Out</h6>
                 </IconButton>
                 

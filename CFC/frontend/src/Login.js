@@ -33,40 +33,41 @@ function Login() {
                 
                 const tokenData = jwt(data['token']);
                 console.log(tokenData);
+                if(tokenData.authorized){
+                    if(tokenData.role =='1'){
+                        console.log("Yes");
+                        console.log(token);
+                        console.log(data['token'])
+                        console.log("Second request")
 
-                if(tokenData.authorized && tokenData.role =='1'){
-                    console.log("Yes");
-                    console.log(token);
-                    console.log(data['token'])
-                    console.log("Second request")
+                        console.log("Bearer "+data['token'])
 
-                    console.log("Bearer "+data['token'])
+                        let url = "http://127.0.0.1:3000/client"
 
-                    let url = "http://127.0.0.1:3000/client"
+                        
+                        const AuthStr = 'Bearer '.concat(data['token']);
 
-                    
-                    const AuthStr = 'Bearer '.concat(data['token']);
-
-                    axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
-                    .then((response) => {
-                                    console.log("FINAL", response)
-                                    if(response.status  == 200){
-                                        history.push({
-                                            pathname: '/home',
-                                            state: response.data
-                                        })
+                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
+                        .then((response) => {
+                                        console.log("FINAL", response)
+                                        if(response.status  == 200){
+                                            history.push({
+                                                pathname: '/home',
+                                                state: response.data
+                                            })
+                                        }
+                                    }, (error) => {
+                                        console.log("Error"+error)
                                     }
-                                }, (error) => {
-                                    console.log("Error"+error)
-                                }
-                            );
-                }
-                else if (tokenData.authorized && tokenData.role =='2'){
-                    console.log("Clinician data", data)
-                    history.push({
-                        pathname: '/clinicianHome',
-                        state: data['token']
-                    })
+                                );
+                    }
+                    else if (tokenData.role =='2'){
+                        console.log("Clinician data", data)
+                        history.push({
+                            pathname: '/clinicianHome',
+                            state: data['token']
+                        })
+                    }
                 }
                 else{
                     alert("You are not an authorized user");

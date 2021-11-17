@@ -109,25 +109,25 @@ func (cd *ClientDao) GetUserByClientID(clientID int) (*Model.Person, error) {
 	return p, nil
 }
 
-func (cd *ClientDao) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, error) {
-	var query = "SELECT * FROM cfc.safety_plan WHERE clientid=$1"
-	var parameters = []interface{}{clientID}
+// func (cd *ClientDao) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, error) {
+// 	var query = "SELECT * FROM cfc.safety_plan WHERE clientid=$1"
+// 	var parameters = []interface{}{clientID}
 
-	result, err := cd.db.Select(query, parameters)
-	if err != nil {
-		return new(Model.SafetyPlan), err
-	}
+// 	result, err := cd.db.Select(query, parameters)
+// 	if err != nil {
+// 		return new(Model.SafetyPlan), err
+// 	}
 
-	var res = result[0]
-	spuid, _ := strconv.ParseInt(res[0], 10, 64)
-	uc, _ := strconv.ParseInt(res[6], 10, 64)
-	clientuid, _ := strconv.ParseInt(res[7], 10, 64)
-	clinicianid, _ := strconv.ParseInt(res[8], 10, 64)
-	sp := Model.NewSafetyPlan(res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
-	sp.SetSafetyID(int(spuid))
-	
-	return sp, nil
-}
+// 	var res = result[0]
+// 	spuid, _ := strconv.ParseInt(res[0], 10, 64)
+// 	uc, _ := strconv.ParseInt(res[6], 10, 64)
+// 	clientuid, _ := strconv.ParseInt(res[7], 10, 64)
+// 	clinicianid, _ := strconv.ParseInt(res[8], 10, 64)
+// 	sp := Model.NewSafetyPlan(res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
+// 	sp.SetSafetyID(int(spuid))
+
+// 	return sp, nil
+// }
 
 func (cd *ClientDao) GetClinicianUserByClientID(clientID int) (*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person WHERE person.userid IN (SELECT clinician.person_userid FROM cfc.clinician INNER JOIN client_has_clinician ON client_has_clinician.clinician_clinicianid = clinician.clinicianid AND client_has_clinician.client_clientid=$1)"
@@ -160,6 +160,6 @@ func (cd *ClientDao) GetClinicianByClientID(clientID int) (*Model.Clinician, err
 	uid, _ := strconv.ParseInt(res[1], 10, 64)
 	c := Model.NewClinician(int(uid), res[2])
 	c.SetClinicianID(int(cuid))
-	
+
 	return c, nil
 }

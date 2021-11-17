@@ -66,14 +66,14 @@ func (cf *ClientFacade) GetUserByClientID(clientID int) (*Model.Person, int) {
 	return p, 1
 }
 
-func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, int) {
-	sp, err := cf.clientDao.GetSafetyPlanByClientID(clientID)
-	if err != nil {
-		return new(Model.SafetyPlan), 0
-	}
+// func (cf *ClientFacade) GetSafetyPlanByClientID(clientID int) (*Model.SafetyPlan, int) {
+// 	sp, err := cf.clientDao.GetSafetyPlanByClientID(clientID)
+// 	if err != nil {
+// 		return new(Model.SafetyPlan), 0
+// 	}
 
-	return sp, 1
-}
+// 	return sp, 1
+// }
 
 func (cf *ClientFacade) GetClinicianByClientID(clientID int) (*Model.Clinician, int) {
 	clinician, err := cf.clientDao.GetClinicianByClientID(clientID)
@@ -92,4 +92,3 @@ func (cf *ClientFacade) GetUserClinicianByClientID(clientID int) (*Model.Person,
 
 	return p, 1
 }
-

@@ -1,25 +1,25 @@
 package facade
 
 import (
+	"CFC/backend/CFC/backend/DB"
 	Auth "CFC/backend/CFC/backend/auth"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
-	"errors"
 )
 
 type SafetyPlanFacade struct {
-	spd  DAO.SafetyPlanDao
-	auth Auth.AuthenticationManager
+	safetyDao DAO.SafetyPlanDao
+	auth      Auth.AuthenticationManager
 }
 
-func NewSafetyPlanFacade(spd DAO.SafetyPlanDao, auth Auth.AuthenticationManager) *SafetyPlanFacade {
-	return &SafetyPlanFacade{spd: spd, auth: auth}
+func NewSafetyPlanFacade(db DB.DatabaseConnection) *SafetyPlanFacade {
+	return &SafetyPlanFacade{safetyDao: *DAO.NewSafetyPlanDao(db)}
 }
 
 func (spf *SafetyPlanFacade) GetSafetyPlan(safetyId int) (*Model.SafetyPlan, error) {
-	if spf.auth.IsCurrentUserAdmin() || spf.auth.IsCurrentUserClinician() {
-		return spf.spd.GetByID(safetyId), nil
-	}
+	return spf.safetyDao.GetByID(safetyId), nil
+}
 
-	return new(Model.SafetyPlan), errors.New("user does not have permission")
+func (spf *SafetyPlanFacade) GetSafetyPlanByUserID(userId int) ([]*Model.SafetyPlan, error) {
+	return spf.safetyDao.GetByUserID(userId), nil
 }

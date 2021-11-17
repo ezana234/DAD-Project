@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	// "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
@@ -56,6 +57,7 @@ func main() {
 	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
+	mux.HandleFunc("/safetyplan", dbHandler.getSafetyPlan).Methods("GET")
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 
 	// Allow CORS
@@ -335,6 +337,37 @@ func (db *Database) getClients(w http.ResponseWriter, r *http.Request) {
 		clinician := Facade.NewClinicianFacade(db.database)
 		clients, _ := clinician.GetAllClients()
 		b, erro := json.Marshal(clients)
+		if erro != nil {
+			http.Error(w, erro.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+	} else {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+}
+
+func (db *Database) getSafetyPlan(w http.ResponseWriter, r *http.Request) {
+	claims, er := Auth.IsAuthorized(w, r)
+	if er == false {
+		return
+	}
+	userID := r.URL.Query().Get("userID")
+	fmt.Println(userID)
+	intUserID, err := strconv.Atoi(userID)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusUnauthorized)
+	}
+	// Check if the person is a client
+	var role string = fmt.Sprintf("%v", claims["role"])
+	intRole, err := strconv.Atoi(role)
+	if (role == "1" && userID == fmt.Sprintf("%v", claims["userID"])) || role == "2" {
+		person := Facade.NewPersonFacade(db.database)
+		safetyPlan, _ := person.GetSafetyPlansByUserID(intUserID, intRole)
+		fmt.Println(safetyPlan)
+		b, erro := json.Marshal(safetyPlan)
 		if erro != nil {
 			http.Error(w, erro.Error(), http.StatusInternalServerError)
 			return

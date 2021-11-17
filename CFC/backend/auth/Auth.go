@@ -3,10 +3,11 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 func GenerateJWT(userID int, email string, role string) (string, error) {
@@ -31,7 +32,6 @@ func GenerateJWT(userID int, email string, role string) (string, error) {
 }
 
 func IsAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
-	fmt.Println(r.Header)
 	if r.Header["Authorization"] == nil {
 		resp := make(map[string]string)
 		resp["error"] = "No Token Found"
@@ -56,7 +56,6 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) 
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims)
 		// if claims["role"] == "admin" {
 
 		// 	r.Header.Set("Role", "admin")

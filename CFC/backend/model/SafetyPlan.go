@@ -12,8 +12,8 @@ type SafetyPlan struct {
 	ClinicianID          int
 }
 
-func NewSafetyPlan(triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, updatedClinician int, clientID int, clinicianID int) *SafetyPlan {
-	return &SafetyPlan{Triggers: triggers, WarningSigns: warningSigns, DestructiveBehaviors: destructiveBehaviors, InternalStrategies: internalStrategies, UpdatedDatetime: updatedDatetime, UpdatedClinician: updatedClinician, ClientID: clientID, ClinicianID: clinicianID}
+func NewSafetyPlan(safetyid int, triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, updatedClinician int, clientID int, clinicianID int) *SafetyPlan {
+	return &SafetyPlan{SafetyID: safetyid, Triggers: triggers, WarningSigns: warningSigns, DestructiveBehaviors: destructiveBehaviors, InternalStrategies: internalStrategies, UpdatedDatetime: updatedDatetime, UpdatedClinician: updatedClinician, ClientID: clientID, ClinicianID: clinicianID}
 }
 
 func (sp *SafetyPlan) GetSafetyID() int {

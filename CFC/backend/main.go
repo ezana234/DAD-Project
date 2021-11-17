@@ -50,21 +50,13 @@ func main() {
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 
-	//pf := Facade.NewPersonFacade(db)
-	//person, _ := pf.GetPerson(2)
-	//pf.UpdatePassword(person, "tppassword")
-	// Routes
-	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
-	// 	mux.HandleFunc("/client", dbHandler.client).Methods("GET")
-	// 	mux.HandleFunc("/person", (&Handlers.PersonHandler{Database: db}).GetPerson).Methods("GET")
-	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	mux.HandleFunc("/safetyplan", dbHandler.getSafetyPlan).Methods("GET")
-	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
-	// mux.HandleFunc("/clinician/safetyplan")
 	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
+	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
+	mux.HandleFunc("/clinician/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlan).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplans", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlans).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{

@@ -11,7 +11,7 @@ import axios from 'axios';
 function Home2(props) {
     console.log(props);
     console.log(props.location.state);
-    const token = props.location.state;
+    const token = props.location.state.Token;
     const history = useHistory();
     var firstname = props.location.state.FirstName;
     const viewProfile = event => {
@@ -29,7 +29,7 @@ function Home2(props) {
                     if(response.status  == 200){
                         history.push({
                             pathname: '/users',
-                            state: response.data
+                            state: {"Data": response.data, "Token": token, "Role":props.location.state.Role}
                         })
                     }
                 }, (error) => {

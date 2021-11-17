@@ -7,7 +7,10 @@ import Search from './Search';
 function Users(props) {
     console.log("Users", props)
     const clients = props.location.state;
+    console.log("Type: ", typeof(clients))
     const filterClients = (clients, query) => {
+        console.log("Inside filter clients method")
+        console.log(!query)
         if (!query) {
             return clients;
         }
@@ -18,10 +21,14 @@ function Users(props) {
             return clientName.includes(query);
         });
     };
-    const { search } = window.location;
-    const query = new URLSearchParams(search).get('s');
-    const filteredClients = filterClients(clients, query);
+    
+    let query = "";
     const [searchQuery, setSearchQuery] = useState(query || '');
+    const { search } = window.location;
+    query = searchQuery;
+    console.log(query)
+    const filteredClients = filterClients(clients, query);
+    console.log(searchQuery);
     return (
         <>
         <Header header="Clients"/>
@@ -37,6 +44,9 @@ function Users(props) {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             />
+            {
+                console.log(searchQuery)
+            }
             <div className="DivWithScroll">
             {filteredClients.map((client) => (
                     <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
@@ -48,36 +58,6 @@ function Users(props) {
                 </Card>
                 ))}
             </div>
-            {/* <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Steve Rogers</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Tony Stark</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Bruce Banner</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Peter Parker</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card>
-            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Clint Barton</Card.Title>
-                    <Card.Link href="#">Safety Plan</Card.Link>
-                </Card.Body>
-            </Card> */}
         </div>
         </>
     )

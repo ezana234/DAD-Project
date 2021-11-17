@@ -57,7 +57,7 @@ function Login() {
                                         })
                                     }
                                 }, (error) => {
-                                    console.log(error)
+                                    console.log("Error"+error)
                                 }
                             );
                 }
@@ -72,7 +72,11 @@ function Login() {
                     alert("You are not an authorized user");
                 }
 
-                }
+                },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Incorrect email or password!");
+            }
+
             });
 
             

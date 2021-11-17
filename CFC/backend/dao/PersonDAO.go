@@ -221,7 +221,7 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 	if role == 1 {
 		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid = $1)"
 	} else if role == 2 {
-		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT cclinicianid FROM cfc.clinician WHERE clinician.person_userid = $1)"
+		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE clinician.person_userid = $1)"
 	} else {
 		return spList, errors.New("incorrect role id")
 	}

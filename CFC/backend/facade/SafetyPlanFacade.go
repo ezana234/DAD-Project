@@ -23,3 +23,14 @@ func (spf *SafetyPlanFacade) GetSafetyPlan(safetyId int) (*Model.SafetyPlan, err
 func (spf *SafetyPlanFacade) GetSafetyPlanByUserID(userId int) ([]*Model.SafetyPlan, error) {
 	return spf.safetyDao.GetByUserID(userId), nil
 }
+
+func (spf *SafetyPlanFacade) GetAllSafetyPlans() ([]*Model.SafetyPlan, int) {
+	var emptyList []*Model.SafetyPlan
+
+	spList, err := spf.safetyDao.GetAll()
+	if err != nil {
+		return emptyList, 0
+	}
+
+	return spList, 1
+}

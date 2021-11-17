@@ -84,6 +84,7 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) error {
 		p.GetPhoneNumber(),
 		p.GetRole(),
 		p.GetExpiration(),
+		p.GetDOB(),
 		userID,
 	}
 
@@ -221,13 +222,14 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 	if role == 1 {
 		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid = $1)"
 	} else if role == 2 {
-		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE clinician.person_userid = $1)"
+		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE person_userid = $1)"
 	} else {
 		return spList, errors.New("incorrect role id")
 	}
 
 	result, err := pd.db.Select(query, parameters)
 	if err != nil {
+		println(err)
 		return spList, err
 	}
 
@@ -236,11 +238,11 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 		uc, _ := strconv.ParseInt(res[6], 10, 64)
 		clientuid, _ := strconv.ParseInt(res[7], 10, 64)
 		clinicianid, _ := strconv.ParseInt(res[8], 10, 64)
-		sp := Model.NewSafetyPlan(int(spuid), res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
+		sp := Model.NewSafetyPlan(res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
 		sp.SetSafetyID(int(spuid))
 		spList = append(spList, sp)
 	}
-
+	println(spList)
 	return spList, nil
 }
 

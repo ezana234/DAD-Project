@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type SafetyPlan struct {
 	SafetyID             int
 	Triggers             string
@@ -12,8 +14,8 @@ type SafetyPlan struct {
 	ClinicianID          int
 }
 
-func NewSafetyPlan(safetyid int, triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, updatedClinician int, clientID int, clinicianID int) *SafetyPlan {
-	return &SafetyPlan{SafetyID: safetyid, Triggers: triggers, WarningSigns: warningSigns, DestructiveBehaviors: destructiveBehaviors, InternalStrategies: internalStrategies, UpdatedDatetime: updatedDatetime, UpdatedClinician: updatedClinician, ClientID: clientID, ClinicianID: clinicianID}
+func NewSafetyPlan(triggers string, warningSigns string, destructiveBehaviors string, internalStrategies string, updatedDatetime string, updatedClinician int, clientID int, clinicianID int) *SafetyPlan {
+	return &SafetyPlan{Triggers: triggers, WarningSigns: warningSigns, DestructiveBehaviors: destructiveBehaviors, InternalStrategies: internalStrategies, UpdatedDatetime: updatedDatetime, UpdatedClinician: updatedClinician, ClientID: clientID, ClinicianID: clinicianID}
 }
 
 func (sp *SafetyPlan) GetSafetyID() int {
@@ -86,4 +88,9 @@ func (sp *SafetyPlan) GetClinicianID() int {
 
 func (sp *SafetyPlan) SetClinicianID(clinicianID int) {
 	sp.ClinicianID = clinicianID
+}
+
+func (sp *SafetyPlan) SafetyPlanToString() string {
+	spStr := fmt.Sprintf("SafetyID: %d, Triggers: %s, WarningSigns: %s, DestructiveBehaviors: %s, InternalStrategies: %s, UpdatedDateTime: %s, UpdatedClinician: %d, ClientID: %d, ClinicianID: %d", sp.SafetyID, sp.Triggers, sp.WarningSigns, sp.InternalStrategies, sp.UpdatedDatetime, sp.UpdatedClinician, sp.ClientID, sp.ClinicianID)
+	return spStr
 }

@@ -224,8 +224,7 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Mode
 	return new(Model.Person), 0
 }
 
-func (pf PersonFacade) UpdatePassword(password string) int {
-	p := pf.authManager.GetCurrentUser()
+func (pf PersonFacade) UpdatePassword(p *Model.Person, password string) int {
 	p.SetPassword(HashPassword(password))
 
 	err := pf.personDao.Update(p.GetUserID(), p)
@@ -328,6 +327,7 @@ func (pf *PersonFacade) GetSafetyPlansByUserID(userID int, role int) ([]*Model.S
 	var emptyList []*Model.SafetyPlan
 
 	spList, err := pf.personDao.GetSafetyPlansByUserID(userID, role)
+	println()
 	if err != nil {
 		return emptyList, 0
 	}

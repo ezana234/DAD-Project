@@ -49,6 +49,10 @@ func main() {
 	mux := mux.NewRouter()
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
+
+	//pf := Facade.NewPersonFacade(db)
+	//person, _ := pf.GetPerson(2)
+	//pf.UpdatePassword(person, "tppassword")
 	// Routes
 	// mux.HandleFunc("/login", dbHandler.login).Methods("POST")
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
@@ -61,7 +65,7 @@ func main() {
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	// mux.HandleFunc("/clinician/safetyplan")
 	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
-
+	mux.HandleFunc("/clinician/safetyplans", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlans).Methods("GET")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
@@ -357,7 +361,6 @@ func (db *Database) getSafetyPlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := r.URL.Query().Get("userID")
-	fmt.Println(userID)
 	intUserID, err := strconv.Atoi(userID)
 	if err != nil {
 		http.Error(w, "Bad Request", http.StatusUnauthorized)
@@ -368,7 +371,6 @@ func (db *Database) getSafetyPlan(w http.ResponseWriter, r *http.Request) {
 	if (role == "1" && userID == fmt.Sprintf("%v", claims["userID"])) || role == "2" {
 		person := Facade.NewPersonFacade(db.database)
 		safetyPlan, _ := person.GetSafetyPlansByUserID(intUserID, intRole)
-		fmt.Println(safetyPlan)
 		b, erro := json.Marshal(safetyPlan)
 		if erro != nil {
 			http.Error(w, erro.Error(), http.StatusInternalServerError)

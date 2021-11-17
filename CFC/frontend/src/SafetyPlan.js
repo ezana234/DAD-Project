@@ -3,42 +3,31 @@ import {Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Header';
 
-function SafetyPlan() {
+function SafetyPlan(props) {
+    console.log("Safety plans props", props)
+    const safetyPlanObject = props.location.state[0];
+    console.log(safetyPlanObject)
     return (
-        <div style={{textAlign:"center"}}>
-                <br></br>
-                <h1>My Safety Plan</h1>
-                <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                    <Card.Body>
-                        <Card.Title>Warning Signs</Card.Title>
-                        <Card.Link href="#">Link</Card.Link>
-                    </Card.Body>
-                </Card>
-                <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                    <Card.Body>
-                        <Card.Title>Internal Coping Stratergies</Card.Title>
-                        <Card.Link href="#">Link</Card.Link>
-                    </Card.Body>
-                </Card>
-                <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                    <Card.Body>
-                        <Card.Title>External Coping Stratergies</Card.Title>
-                        <Card.Link href="#">Link</Card.Link>
-                    </Card.Body>
-                </Card>
-                <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                    <Card.Body>
-                        <Card.Title>Emergency Contacts</Card.Title>
-                        <Card.Link href="#">Link</Card.Link>
-                    </Card.Body>
-                </Card>
-                <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
-                    <Card.Body>
-                        <Card.Title>Request Immediate Help</Card.Title>
-                        <Card.Link href="#">Link</Card.Link>
-                    </Card.Body>
-                </Card>
-            </div>
+        <>
+            <Header header="Safety Plan"/>
+            <br></br>
+            <br></br>
+            <br></br>
+            <div style={{textAlign:"center"}}>
+                    <br></br>
+                    <h4>Safety Plan Details:</h4>
+                    {Object.keys(safetyPlanObject).map((key) => (
+                        (key=="Triggers" || key == "WarningSigns" || key == "DestructiveBehaviors" || key == "InternalStrategies") &&
+                            <Card style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
+                            <Card.Body>
+                                <Card.Title>{key}</Card.Title>
+                                <p>{safetyPlanObject[key]}</p>
+                            </Card.Body>
+                            </Card>
+                    ))
+                    }
+                </div>
+            </>
     )
 }
 

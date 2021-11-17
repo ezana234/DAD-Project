@@ -52,8 +52,8 @@ function Login() {
                                         console.log("FINAL", response)
                                         if(response.status  == 200){
                                             history.push({
-                                                pathname: '/home',
-                                                state: response.data
+                                                pathname: '/clientHome',
+                                                state: {"Data":response.data, "Token":data['token'], "Role":tokenData.role}
                                             })
                                         }
                                     }, (error) => {
@@ -65,7 +65,7 @@ function Login() {
                         console.log("Clinician data", data)
                         history.push({
                             pathname: '/clinicianHome',
-                            state: data['token']
+                            state: {"Data":[], "Token":data['token'], "Role":tokenData.role}
                         })
                     }
                 }
@@ -106,22 +106,12 @@ function Login() {
                 <h1>SignIn</h1>
 
                 <form>
-                    <h5>Username:</h5>
+                    <h5>Email:</h5>
                     <input type='text' value={email} onChange={event => setEmail(event.target.value)} />
 
                     <h5>Password:</h5>
                     <input type='password' value={password} onChange={event => setPassword(event.target.value)} />
-                    {/* <p>You are:</p>
-                    <div onChange={onChangeValue}>
-                        <input type="radio" id="client" name="radio" value="client"/>
-                        <label for="client">Client</label>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" id="clinician" name="radio" value="clinician"/>
-                        <label for="clinician">Clinician</label>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="radio" id="Other" name="radio" value="Other"/>
-                        <label for="Other">Other</label>
-                    </div> */}
+
                     <button type='submit' onClick={signIn} className='signInButton'>Sign In</button>
                 </form>
 

@@ -57,6 +57,8 @@ func main() {
 	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
 	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
+	// mux.HandleFunc("/clinician/safetyplan")
+	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
 
 	// Allow CORS
 	c := cors.New(cors.Options{

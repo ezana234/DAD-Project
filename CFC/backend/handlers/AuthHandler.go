@@ -86,7 +86,6 @@ func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Couldn't Create Person", http.StatusBadRequest)
 		return
 	} else {
-		// fmt.Println(userID)
 		client := Facade.NewClientFacade(ah.Database)
 		clientModel := Model.NewClient(userID)
 		client.AddClient(*clientModel)

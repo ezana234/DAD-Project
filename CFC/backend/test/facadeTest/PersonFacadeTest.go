@@ -1,4 +1,4 @@
-package facade
+package facadeTest
 
 import (
 	"CFC/backend/CFC/backend/DB"

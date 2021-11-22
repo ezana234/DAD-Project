@@ -7,7 +7,7 @@ import (
 	Model "CFC/backend/CFC/backend/model"
 
 	// "encoding/json"
-	"fmt"
+
 	"log"
 	"time"
 
@@ -41,48 +41,37 @@ func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
 }
 
 func (pf *PersonFacade) GetAllPersons() ([]*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		var pList []*Model.Person
+	var pList []*Model.Person
 
-		tmp, err := pf.personDao.GetAll()
-		if err != nil {
-			log.Printf("Error: %s when getting all persons", err)
-			return pList, 0
-		}
-
-		for _, res := range tmp {
-			res.SetPassword("null")
-			pList = append(pList, res)
-		}
-
-		return pList, 1
+	tmp, err := pf.personDao.GetAll()
+	if err != nil {
+		log.Printf("Error: %s when getting all persons", err)
+		return pList, 0
 	}
 
-	log.Printf("Error: user is not authorized to get persons")
-	return []*Model.Person{}, -1
+	for _, res := range tmp {
+		res.SetPassword("null")
+		pList = append(pList, res)
+	}
 
+	return pList, 1
 }
 
 func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		var pList []*Model.Person
+	var pList []*Model.Person
 
-		tmp, err := pf.personDao.GetAll()
-		if err != nil {
-			log.Printf("Error: %s when getting number of persons", err)
-			return pList, 0
-		}
-
-		for _, res := range tmp[:num] {
-			res.SetPassword("null")
-			pList = append(pList, res)
-		}
-
-		return pList, 1
+	tmp, err := pf.personDao.GetAll()
+	if err != nil {
+		log.Printf("Error: %s when getting number of persons", err)
+		return pList, 0
 	}
 
-	log.Printf("Error: user is not authorized to get persons")
-	return []*Model.Person{}, -1
+	for _, res := range tmp[:num] {
+		res.SetPassword("null")
+		pList = append(pList, res)
+	}
+
+	return pList, 1
 }
 
 func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
@@ -111,25 +100,20 @@ func (pf *PersonFacade) AddPerson(p Model.Person) int {
 }
 
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
-		pOld, err := pf.personDao.GetUserByID(userID)
-		if err != nil {
-			log.Printf("Error: %s when getting person", err)
-			return 0
-		}
-		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
+	pOld, err := pf.personDao.GetUserByID(userID)
+	if err != nil {
+		log.Printf("Error: %s when getting person", err)
+		return 0
+	}
+	var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
 
-		err = pf.personDao.Update(userID, pNew)
-		if err != nil {
-			log.Printf("Error: %s when updating person", err)
-			return 0
-		}
-
-		return 1
+	err = pf.personDao.Update(userID, pNew)
+	if err != nil {
+		log.Printf("Error: %s when updating person", err)
+		return 0
 	}
 
-	log.Printf("Error: User is not authorized to update person")
-	return -1
+	return 1
 }
 
 // DeletePerson
@@ -138,18 +122,13 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 // returns 0 if deletion failed
 // returns 1 if deletion was successful
 func (pf *PersonFacade) DeletePerson(userID int) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		err := pf.personDao.Delete(userID)
-		if err != nil {
-			log.Printf("Error: %s when deleting person", err)
-			return 0
-		}
-
-		return 1
+	err := pf.personDao.Delete(userID)
+	if err != nil {
+		log.Printf("Error: %s when deleting person", err)
+		return 0
 	}
 
-	log.Printf("Error: User is not authorized to delete person")
-	return -1
+	return 1
 }
 
 // CreateNewPerson
@@ -157,9 +136,7 @@ func (pf *PersonFacade) DeletePerson(userID int) int {
 // returns 0 if creation was unsuccessful, 1 if it was successful
 func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
 	usernameIsPresent, err := pf.personDao.UsernameExists(p.UserName)
-	println(usernameIsPresent)
 	if err != nil {
-		fmt.Println("User")
 		log.Printf("Error: %s when creating new person", err)
 		return -1, 0
 	}
@@ -173,11 +150,10 @@ func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
 
 	err = pf.personDao.Add(p)
 	if err != nil {
-		fmt.Println("person")
 		log.Printf("Error: %s when creating new person", err)
 		return -1, 0
 	}
-	fmt.Println("success")
+
 	return pf.personDao.GetNextUserID(), 1
 }
 
@@ -237,26 +213,21 @@ func (pf PersonFacade) UpdatePassword(p *Model.Person, password string) int {
 }
 
 func (pf PersonFacade) ResetPassword(username string) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetUserName() == username {
-		p, err := pf.personDao.GetPersonByUserName(username)
-		if err != nil {
-			log.Printf("Error: %s when getting persons by email", err)
-			return 0
-		}
-
-		p.SetPassword("temp")
-
-		err = pf.personDao.Update(p.GetUserID(), p)
-		if err != nil {
-			log.Printf("Error: %s whem updating person", err)
-			return 0
-		}
-
-		return 1
+	p, err := pf.personDao.GetPersonByUserName(username)
+	if err != nil {
+		log.Printf("Error: %s when getting persons by email", err)
+		return 0
 	}
 
-	log.Printf("Error: user is not authorized to reset password")
-	return -1
+	p.SetPassword("temp")
+
+	err = pf.personDao.Update(p.GetUserID(), p)
+	if err != nil {
+		log.Printf("Error: %s whem updating person", err)
+		return 0
+	}
+
+	return 1
 }
 
 func HashPassword(password string) string {

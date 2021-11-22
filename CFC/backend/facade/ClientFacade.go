@@ -4,6 +4,7 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
+	"log"
 )
 
 type ClientFacade struct {
@@ -34,9 +35,19 @@ func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
 	return cList, 1
 }
 
-func (cf *ClientFacade) AddClient(c Model.Client) interface{} {
-	_ = cf.clientDao.Add(c)
-	return nil
+func (cf *ClientFacade) AddClient(c Model.Client) int {
+	rowsAffected, err := cf.clientDao.Add(c)
+	if err != nil {
+		log.Printf("Error: %s when adding client", err)
+		return 0
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when adding client")
+		return 0
+	}
+
+	return 1
 }
 
 func (cf *ClientFacade) DeleteClient(clientID int) int {
@@ -49,9 +60,13 @@ func (cf *ClientFacade) DeleteClient(clientID int) int {
 }
 
 func (cf *ClientFacade) UpdateClient(clientID int, c *Model.Client) int {
-	err := cf.clientDao.Update(clientID, c)
+	rowsAffected, err := cf.clientDao.Update(clientID, c)
 	if err != nil {
 		return 0
+	}
+
+	if rowsAffected == 0 {
+		return -1
 	}
 
 	return 1

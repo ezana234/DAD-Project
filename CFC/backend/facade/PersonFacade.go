@@ -74,6 +74,15 @@ func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
 	return pList, 1
 }
 
+func (pf *PersonFacade) GetPersonByUserName(username string) (*Model.Person, int) {
+	p, err := pf.personDao.GetPersonByUserName(username)
+	if err != nil {
+		return new(Model.Person), 0
+	}
+
+	return p, 1
+}
+
 func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
 	p, err := pf.personDao.GetPersonByEmail(email)
 	if err != nil {
@@ -89,16 +98,26 @@ func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.P
 	// return new(Model.Person), -1
 }
 
+// AddPerson Adds person to database
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf *PersonFacade) AddPerson(p Model.Person) int {
 	p.SetUserID(pf.personDao.GetNextUserID())
-	err := pf.personDao.Add(p)
+	rowsAffected, err := pf.personDao.Add(p)
 	if err != nil {
 		log.Printf("Error: %s when adding person", err)
 		return 0
 	}
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows updated when adding person")
+		return 0
+	}
+
 	return 1
 }
 
+// UpdatePerson Updates person specified by userID
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 	pOld, err := pf.personDao.GetUserByID(userID)
 	if err != nil {
@@ -107,17 +126,21 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 	}
 	var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
 
-	err = pf.personDao.Update(userID, pNew)
+	rowsAffected, err := pf.personDao.Update(userID, pNew)
 	if err != nil {
 		log.Printf("Error: %s when updating person", err)
 		return 0
 	}
 
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when updating person")
+		return -1
+	}
+
 	return 1
 }
 
-// DeletePerson
-// function will delete a person from the database
+// DeletePerson Deletes a person from the database specified by userID
 // returns -1 if user is not authorized to delete
 // returns 0 if deletion failed
 // returns 1 if deletion was successful
@@ -131,34 +154,38 @@ func (pf *PersonFacade) DeletePerson(userID int) int {
 	return 1
 }
 
-// CreateNewPerson
-// this functions adds a new user to the db when they create their account for the first time
-// returns 0 if creation was unsuccessful, 1 if it was successful
-func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
+// CreateNewPerson Adds a new user to the db when they create their account for the first time.
+// This function differs from AddPerson in that it hashes the person's password before database insertion.
+// Returns -1 if username already exists, returns 0 if creation was unsuccessful, and 1 if it was successful.
+func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
 	usernameIsPresent, err := pf.personDao.UsernameExists(p.UserName)
 	if err != nil {
 		log.Printf("Error: %s when creating new person", err)
-		return -1, 0
+		return 0
 	}
 
 	if usernameIsPresent {
-		return -1, -1
+		return -1
 	}
 
 	p.SetUserID(pf.personDao.GetNextUserID())
 	p.SetPassword(HashPassword(p.GetPassword()))
 
-	err = pf.personDao.Add(p)
+	rowsAffected, err := pf.personDao.Add(p)
 	if err != nil {
 		log.Printf("Error: %s when creating new person", err)
-		return -1, 0
+		return 0
 	}
 
-	return pf.personDao.GetNextUserID(), 1
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when creating new person")
+		return 0
+	}
+
+	return 1
 }
 
-// LoginPersonByUserName
-// this function will query all persons with a matching username and then check if the passwords match.
+// LoginPersonByUserName This function will query all persons with a matching username and then check if the passwords match.
 // if there are no persons that have the desired username, then this function will return 0.
 // if the password does not match, this function will return 0.
 // if there is a password match, this function will return 1.
@@ -200,18 +227,28 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Mode
 	return new(Model.Person), 0
 }
 
+// UpdatePassword Updates a user's password
+// Parameters are: Model.Person of the desired person, new user's password
+// Returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf PersonFacade) UpdatePassword(p *Model.Person, password string) int {
 	p.SetPassword(HashPassword(password))
 
-	err := pf.personDao.Update(p.GetUserID(), p)
+	rowsAffected, err := pf.personDao.Update(p.GetUserID(), p)
 	if err != nil {
 		log.Printf("Error: %s when updating password", err)
+		return 0
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when updating password")
 		return 0
 	}
 
 	return 1
 }
 
+// ResetPassword
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf PersonFacade) ResetPassword(username string) int {
 	p, err := pf.personDao.GetPersonByUserName(username)
 	if err != nil {
@@ -221,10 +258,15 @@ func (pf PersonFacade) ResetPassword(username string) int {
 
 	p.SetPassword("temp")
 
-	err = pf.personDao.Update(p.GetUserID(), p)
+	rowsAffected, err := pf.personDao.Update(p.GetUserID(), p)
 	if err != nil {
 		log.Printf("Error: %s whem updating person", err)
 		return 0
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when updating person")
+		return -1
 	}
 
 	return 1

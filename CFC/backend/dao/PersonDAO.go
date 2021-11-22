@@ -53,7 +53,7 @@ func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 	return pList, nil
 }
 
-func (pd *PersonDao) Add(p Model.Person) error {
+func (pd *PersonDao) Add(p Model.Person) (int, error) {
 	var query = "INSERT INTO cfc.person(userid,username,password,firstname,lastname,email,address,phonenumber,role,expiration,dob) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)"
 	var parameters = []interface{}{
 		p.GetUserID(),
@@ -72,7 +72,7 @@ func (pd *PersonDao) Add(p Model.Person) error {
 	return pd.db.Insert(query, parameters)
 }
 
-func (pd *PersonDao) Update(userID int, p *Model.Person) error {
+func (pd *PersonDao) Update(userID int, p *Model.Person) (int, error) {
 	var query = "UPDATE cfc.person SET userName=$1, password=$2, firstName=$3, lastName=$4, email=$5, address=$6, phoneNumber=$7, role=$8, expiration=$9, dob=$10 WHERE userId=$11"
 	var parameters = []interface{}{
 		p.GetUserName(),
@@ -135,7 +135,7 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 // }
 
 func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
-	var query = "SELECT * FROM cfc.person WHERE email=$1LIMIT 1"
+	var query = "SELECT * FROM cfc.person WHERE email=$1 LIMIT 1"
 	var parameterMap = []interface{}{email}
 
 	result, err := pd.db.Select(query, parameterMap)

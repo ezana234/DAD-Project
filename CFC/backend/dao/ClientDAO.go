@@ -52,14 +52,14 @@ func (cd *ClientDao) GetAll() ([]*Model.Client, error) {
 	return cList, nil
 }
 
-func (cd *ClientDao) Add(c Model.Client) error {
+func (cd *ClientDao) Add(c Model.Client) (int, error) {
 	var query = "INSERT INTO cfc.client(clientid,person_userid) VALUES($1,$2);"
 	var parameters = []interface{}{cd.GetNextClientID(), c.GetUserID()}
 
 	return cd.db.Insert(query, parameters)
 }
 
-func (cd *ClientDao) Update(clientID int, c *Model.Client) error {
+func (cd *ClientDao) Update(clientID int, c *Model.Client) (int, error) {
 	var query = "UPDATE cfc.client SET userid=$1 WHERE clientid=$2"
 	var parameters = []interface{}{c.GetUserID(), clientID}
 

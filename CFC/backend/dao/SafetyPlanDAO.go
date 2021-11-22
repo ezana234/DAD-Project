@@ -82,7 +82,7 @@ func (spd *SafetyPlanDao) GetAll() ([]*Model.SafetyPlan, error) {
 	return spList, nil
 }
 
-func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) error {
+func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) (int, error) {
 	var query = "INSERT INTO safety_plan(safetyId,triggers,warningSigns,destructiveBehaviors,internalStrategies,updatedDatetime,updatedClinician,Client_clientId,Clinician_clinicianId) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)"
 	var parameters = []interface{}{
 		sp.GetSafetyID(),
@@ -99,7 +99,7 @@ func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) error {
 	return spd.db.Insert(query, parameters)
 }
 
-func (spd *SafetyPlanDao) Update(userID int, sp *Model.SafetyPlan) error {
+func (spd *SafetyPlanDao) Update(userID int, sp *Model.SafetyPlan) (int, error) {
 	var query = "UPDATE safety_plan SET triggers=$1,warningSigns=$2,destructiveBehaviors=$3,internalStrategies=$4,updatedDatetime=$5,updatedClinician=$6,Client_clientId=$7,Clinician_clinicianId=$8 WHERE safetyId=$9"
 	var parameters = []interface{}{
 		sp.GetTriggers(),
@@ -122,7 +122,7 @@ func (spd *SafetyPlanDao) Delete(safetyId int) error {
 		safetyId,
 	}
 
-	return spd.db.Update(query, parameters)
+	return spd.db.Delete(query, parameters)
 }
 
 // TODO GetClientBySafetyPlanID()

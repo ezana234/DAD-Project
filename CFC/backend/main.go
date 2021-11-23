@@ -54,17 +54,16 @@ func main() {
 
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
 	mux.HandleFunc("/signUp", (&Handlers.AuthHandler{Database: db}).SignUp).Methods("POST")
-	//mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
 	mux.HandleFunc("/client", (&Handlers.ClientHandler{Database: db}).GetClient).Methods("GET")
 	mux.HandleFunc("/safetyplan", dbHandler.getSafetyPlan).Methods("GET")
 	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
-
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlan).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplans", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlans).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplan/add", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianAddSafetyPlan).Methods("POST")
 	mux.HandleFunc("/clinician/safetyplan/update", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianUpdateSafetyPlan).Methods("POST")
 	mux.HandleFunc("/clinician/safetyplan/delete", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianDeleteSafetyPlan).Methods("POST")
+
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
@@ -93,155 +92,6 @@ func main() {
 	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
 }
-
-// func (db *Database) login(w http.ResponseWriter, r *http.Request) {
-// 	type Login struct {
-// 		Email    string
-// 		Password string
-// 	}
-// 	var logStruct Login
-// 	body := json.NewDecoder(r.Body).Decode(&logStruct)
-// 	if body != nil {
-// 		http.Error(w, body.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	person := Facade.NewPersonFacade(db.database)
-// 	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
-// 	if pers.GetUserID() == 0 {
-// 		http.Error(w, "Bad Login", http.StatusUnauthorized)
-// 		return
-// 	} else {
-// 		tokenString, err := Auth.GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
-// 		println(tokenString)
-// 		if err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 			return
-// 		}
-// 		resp := make(map[string]string)
-// 		resp["token"] = tokenString
-// 		b, err := json.Marshal(resp)
-// 		if err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("Content-Type", "application/json")
-// 		w.Write(b)
-// 	}
-// }
-
-// func (db *Database) client(w http.ResponseWriter, r *http.Request) {
-// 	claims, er := Auth.IsAuthorized(w, r)
-
-// This function gets the client from the JWT
-func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	claims, er := Auth.IsAuthorized(w, r)
-	if er == false {
-		return
-	}
-	person := Facade.NewPersonFacade(db.database)
-	var userID int = int(claims["userID"].(float64))
-	pers, err := person.GetPerson(userID)
-	if err == 0 {
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	}
-	type PersonMessage struct {
-		UserID      int
-		UserName    string
-		FirstName   string
-		LastName    string
-		Email       string
-		Address     string
-		PhoneNumber string
-		Role        string
-	}
-	persJson := PersonMessage{
-		UserID:      pers.GetUserID(),
-		UserName:    pers.GetUserName(),
-		FirstName:   pers.GetFirstName(),
-		LastName:    pers.GetLastName(),
-		Email:       pers.GetEmail(),
-		Address:     pers.GetAddress(),
-		PhoneNumber: pers.GetPhoneNumber(),
-		Role:        pers.GetRole()}
-
-	b, erro := json.Marshal(persJson)
-	if erro != nil {
-		http.Error(w, erro.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
-}
-
-//func GenerateJWT(userID int, email string, role string) (string, error) {
-//	var mySigningKey = []byte("CFC-Secret8")
-//	token := jwt.New(jwt.SigningMethodHS256)
-//	claims := token.Claims.(jwt.MapClaims)
-//
-//	claims["authorized"] = true
-//	claims["userID"] = userID
-//	claims["email"] = email
-//	claims["role"] = role
-//	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
-//
-//	tokenString, err := token.SignedString(mySigningKey)
-//
-//	if err != nil {
-//		fmt.Errorf("Something Went Wrong: %s", err.Error())
-//		return "", err
-//	}
-//
-//	return tokenString, nil
-//}
-
-//func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
-//	fmt.Println(r.Header)
-//	if r.Header["Authorization"] == nil {
-//		resp := make(map[string]string)
-//		resp["error"] = "No Token Found"
-//		json.NewEncoder(w).Encode(resp)
-//		return nil, false
-//	}
-//
-//	var mySigningKey = []byte("CFC-Secret8")
-//
-//	token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
-//		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-//			return nil, fmt.Errorf("There was an error in parsing")
-//		}
-//		return mySigningKey, nil
-//	})
-//
-//	if err != nil {
-//		resp := make(map[string]string)
-//		resp["error"] = "Your Token is invalid."
-//		json.NewEncoder(w).Encode(resp)
-//		return nil, false
-//	}
-//
-//	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-//		fmt.Println(claims)
-//		// if claims["role"] == "admin" {
-//
-//		// 	r.Header.Set("Role", "admin")
-//		// 	handler.ServeHTTP(w, r)
-//		// 	return
-//
-//		// } else if claims["role"] == "user" {
-//
-//		// 	r.Header.Set("Role", "user")
-//		// 	handler.ServeHTTP(w, r)
-//		// 	return
-//		// }
-//		return claims, true
-//	} else {
-//		return nil, false
-//	}
-//
-//}
 
 // This function gets clients only if you are a clinician
 func (db *Database) getClients(w http.ResponseWriter, r *http.Request) {
@@ -295,59 +145,3 @@ func (db *Database) getSafetyPlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-// Generates a JWT
-// func GenerateJWT(userID int, email string, role string) (string, error) {
-// 	var mySigningKey = []byte("CFC-Secret8")
-// 	token := jwt.New(jwt.SigningMethodHS256)
-// 	claims := token.Claims.(jwt.MapClaims)
-
-// 	claims["authorized"] = true
-// 	claims["userID"] = userID
-// 	claims["email"] = email
-// 	claims["role"] = role
-// 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
-
-// 	tokenString, err := token.SignedString(mySigningKey)
-
-// 	if err != nil {
-// 		fmt.Errorf("Something Went Wrong: %s", err.Error())
-// 		return "", err
-// 	}
-
-// 	return tokenString, nil
-// }
-
-// Checks if the JWT is valid
-// func isAuthorized(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
-// 	fmt.Println(r.Header)
-// 	if r.Header["Authorization"] == nil {
-// 		resp := make(map[string]string)
-// 		resp["error"] = "No Token Found"
-// 		json.NewEncoder(w).Encode(resp)
-// 		return nil, false
-// 	}
-
-// 	var mySigningKey = []byte("CFC-Secret8")
-
-// 	token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], " ")[1], func(token *jwt.Token) (interface{}, error) {
-// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 			return nil, fmt.Errorf("There was an error in parsing")
-// 		}
-// 		return mySigningKey, nil
-// 	})
-
-// 	if err != nil {
-// 		resp := make(map[string]string)
-// 		resp["error"] = "Your Token is invalid."
-// 		json.NewEncoder(w).Encode(resp)
-// 		return nil, false
-// 	}
-
-// 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-// 		return claims, true
-// 	} else {
-// 		return nil, false
-// 	}
-
-// }

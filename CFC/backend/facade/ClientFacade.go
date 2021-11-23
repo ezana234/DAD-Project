@@ -35,25 +35,29 @@ func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
 	return cList, 1
 }
 
-func (cf *ClientFacade) AddClient(c Model.Client) int {
+func (cf *ClientFacade) AddClient(c Model.Client) (int, int) {
 	rowsAffected, err := cf.clientDao.Add(c)
 	if err != nil {
 		log.Printf("Error: %s when adding client", err)
-		return 0
+		return 0, 0
 	}
 
 	if rowsAffected == 0 {
+		println("yeet")
 		log.Printf("0 rows affected when adding client")
-		return 0
+		return 0, 0
 	}
 
-	return 1
+	return cf.clientDao.GetNextClientID() - 1, 1
 }
 
 func (cf *ClientFacade) DeleteClient(clientID int) int {
-	err := cf.clientDao.Delete(clientID)
+	rowsAffected, err := cf.clientDao.Delete(clientID)
 	if err != nil {
 		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
 	return 1
@@ -64,8 +68,7 @@ func (cf *ClientFacade) UpdateClient(clientID int, c *Model.Client) int {
 	if err != nil {
 		return 0
 	}
-
-	if rowsAffected == 0 {
+	if rowsAffected <= 0 {
 		return -1
 	}
 
@@ -106,4 +109,18 @@ func (cf *ClientFacade) GetUserClinicianByClientID(clientID int) (*Model.Person,
 	}
 
 	return p, 1
+}
+
+func (cf *ClientFacade) AssignClinicianToClient(clientID int, clinicianID int) int {
+	rowsAffected, err := cf.clientDao.AssignClientToClinician(clientID, clinicianID)
+	if err != nil {
+		log.Printf("Error: %s when assigning clinician to client", err)
+		return 0
+	}
+	if rowsAffected <= 0 {
+		log.Printf("0 rows affected when assigning clinician to client")
+		return 0
+	}
+
+	return 1
 }

@@ -2,7 +2,6 @@ package facade
 
 import (
 	"CFC/backend/CFC/backend/DB"
-	Auth "CFC/backend/CFC/backend/auth"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
 
@@ -15,8 +14,7 @@ import (
 )
 
 type PersonFacade struct {
-	personDao   DAO.PersonDao
-	authManager *Auth.AuthenticationManager
+	personDao DAO.PersonDao
 }
 
 func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
@@ -107,8 +105,7 @@ func (pf *PersonFacade) AddPerson(p Model.Person) int {
 		log.Printf("Error: %s when adding person", err)
 		return 0
 	}
-
-	if rowsAffected == 0 {
+	if rowsAffected <= 0 {
 		log.Printf("0 rows updated when adding person")
 		return 0
 	}
@@ -131,8 +128,7 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 		log.Printf("Error: %s when updating person", err)
 		return 0
 	}
-
-	if rowsAffected == 0 {
+	if rowsAffected <= 0 {
 		log.Printf("0 rows affected when updating person")
 		return -1
 	}
@@ -145,10 +141,13 @@ func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
 // returns 0 if deletion failed
 // returns 1 if deletion was successful
 func (pf *PersonFacade) DeletePerson(userID int) int {
-	err := pf.personDao.Delete(userID)
+	rowsAffected, err := pf.personDao.Delete(userID)
 	if err != nil {
 		log.Printf("Error: %s when deleting person", err)
 		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
 	return 1
@@ -157,15 +156,15 @@ func (pf *PersonFacade) DeletePerson(userID int) int {
 // CreateNewPerson Adds a new user to the db when they create their account for the first time.
 // This function differs from AddPerson in that it hashes the person's password before database insertion.
 // Returns -1 if username already exists, returns 0 if creation was unsuccessful, and 1 if it was successful.
-func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
-	usernameIsPresent, err := pf.personDao.UsernameExists(p.UserName)
+func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
+	emailExists, err := pf.personDao.EmailExists(p.UserName)
 	if err != nil {
 		log.Printf("Error: %s when creating new person", err)
-		return 0
+		return 0, 0
 	}
 
-	if usernameIsPresent {
-		return -1
+	if emailExists {
+		return 0, -1
 	}
 
 	p.SetUserID(pf.personDao.GetNextUserID())
@@ -174,15 +173,15 @@ func (pf *PersonFacade) CreateNewPerson(p Model.Person) int {
 	rowsAffected, err := pf.personDao.Add(p)
 	if err != nil {
 		log.Printf("Error: %s when creating new person", err)
-		return 0
+		return 0, 0
 	}
 
 	if rowsAffected == 0 {
 		log.Printf("0 rows affected when creating new person")
-		return 0
+		return 0, 0
 	}
 
-	return 1
+	return p.GetUserID(), 1
 }
 
 // LoginPersonByUserName This function will query all persons with a matching username and then check if the passwords match.
@@ -202,7 +201,7 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 			return -1
 		}
 
-		pf.authManager.LoginUser(p)
+		//pf.authManager.LoginUser(p)
 		return 1
 	}
 
@@ -238,10 +237,9 @@ func (pf PersonFacade) UpdatePassword(p *Model.Person, password string) int {
 		log.Printf("Error: %s when updating password", err)
 		return 0
 	}
-
-	if rowsAffected == 0 {
+	if rowsAffected <= 0 {
 		log.Printf("0 rows affected when updating password")
-		return 0
+		return -1
 	}
 
 	return 1
@@ -335,6 +333,15 @@ func IsExpired(expiration string) bool {
 
 // 	return pJson
 // }
+
+func (pf *PersonFacade) GetClinicianByUserID(userID int) (*Model.Clinician, int) {
+	clinician, err := pf.personDao.GetClinicianByUserID(userID)
+	if err != nil {
+		return new(Model.Clinician), 0
+	}
+
+	return clinician, 1
+}
 
 func (pf *PersonFacade) GetSafetyPlansByUserID(userID int, role int) ([]*Model.SafetyPlan, int) {
 	var emptyList []*Model.SafetyPlan

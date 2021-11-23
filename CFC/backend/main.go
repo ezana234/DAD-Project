@@ -10,10 +10,8 @@ import (
 	// 	Handlers "CFC/backend/CFC/backend/handlers"
 
 	Auth "CFC/backend/CFC/backend/auth"
-	"CFC/backend/CFC/backend/facade"
 	Facade "CFC/backend/CFC/backend/facade"
 	Handlers "CFC/backend/CFC/backend/handlers"
-	"CFC/backend/CFC/backend/model"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -46,23 +44,27 @@ func accessControlMiddleware(next http.Handler) http.Handler {
 
 func main() {
 
-	
 	db := *DB.NewDatabaseConnection("ydmscaoenbipqz", "f9ac329ae1c957bdd5015e4f91bb7968850dd6eb2773105ff6f2b4efb036de47", "ec2-52-54-237-144.compute-1.amazonaws.com", "5432", "d85fspl6bklvdv")
 	mux := mux.NewRouter()
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
-	// pf := Facade.NewPersonFacade(db)
-	// pNew := *model.NewPerson("tuser", "tpassword", "Test", "User", "tuser@gmail.com", "123 Street", "123456789", "1", "", "04/03/2002")
-	// pf.CreateNewPerson(pNew)
+	//pf := Facade.NewPersonFacade(db)
+	//pNew := *model.NewPerson("clinicianuser2", "c2password", "Clinician2", "User2", "clin2@gmail.com", "123 Street", "123456789", "2", "", "04/03/2002")
+	//pf.CreateNewPerson(pNew)
 
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
-	mux.HandleFunc("/signUp", dbHandler.signUp).Methods("POST")
-	mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
+	mux.HandleFunc("/signUp", (&Handlers.AuthHandler{Database: db}).SignUp).Methods("POST")
+	//mux.HandleFunc("/client", dbHandler.getClient).Methods("GET")
+	mux.HandleFunc("/client", (&Handlers.ClientHandler{Database: db}).GetClient).Methods("GET")
 	mux.HandleFunc("/safetyplan", dbHandler.getSafetyPlan).Methods("GET")
 	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
+
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlan).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplans", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlans).Methods("GET")
+	mux.HandleFunc("/clinician/safetyplan/add", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianAddSafetyPlan).Methods("POST")
+	mux.HandleFunc("/clinician/safetyplan/update", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianUpdateSafetyPlan).Methods("POST")
+	mux.HandleFunc("/clinician/safetyplan/delete", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianDeleteSafetyPlan).Methods("POST")
 	// Allow CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"}, //you service is available and allowed for this base url
@@ -129,93 +131,6 @@ func main() {
 
 // func (db *Database) client(w http.ResponseWriter, r *http.Request) {
 // 	claims, er := Auth.IsAuthorized(w, r)
-
-// This returns a jwt upon a successful login
-func (db *Database) signUp(w http.ResponseWriter, r *http.Request) {
-	type sign struct {
-		Username    string
-		FirstName   string
-		LastName    string
-		Email       string
-		Address     string
-		Password    string
-		PhoneNumber string
-		DOB         string
-	}
-	var signStruct sign
-	body := json.NewDecoder(r.Body).Decode(&signStruct)
-	if body != nil {
-		http.Error(w, body.Error(), http.StatusBadRequest)
-		return
-	}
-
-	person := Facade.NewPersonFacade(db.database)
-	newPers := model.NewPerson(
-		signStruct.Username,
-		signStruct.Password,
-		signStruct.FirstName,
-		signStruct.LastName,
-		signStruct.Email,
-		signStruct.Address,
-		signStruct.PhoneNumber,
-		"1",
-		" ",
-		signStruct.DOB)
-	userID, err := person.CreateNewPerson(*newPers)
-	if err != 1 {
-		http.Error(w, "Couldn't Create Person", http.StatusBadRequest)
-		return
-	} else {
-		// fmt.Println(userID)
-		client := facade.NewClientFacade(db.database)
-		clientModel := model.NewClient(userID)
-		client.AddClient(*clientModel)
-		resp := make(map[string]string)
-		resp["message"] = "Client added to Database"
-		b, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-	}
-}
-
-// This returns a jwt upon a successful login
-func (db *Database) login(w http.ResponseWriter, r *http.Request) {
-	type Login struct {
-		Email    string
-		Password string
-	}
-	var logStruct Login
-	body := json.NewDecoder(r.Body).Decode(&logStruct)
-	if body != nil {
-		http.Error(w, body.Error(), http.StatusBadRequest)
-		return
-	}
-	person := Facade.NewPersonFacade(db.database)
-	pers := person.GetPersonByEmail(logStruct.Email, logStruct.Password)
-	if pers.GetUserID() == 0 {
-		http.Error(w, "Bad Login", http.StatusUnauthorized)
-		return
-	} else {
-		tokenString, erro := Auth.GenerateJWT(pers.GetUserID(), pers.GetEmail(), pers.GetRole())
-		if erro != nil {
-			http.Error(w, erro.Error(), http.StatusInternalServerError)
-			return
-		}
-		resp := make(map[string]string)
-		resp["token"] = tokenString
-		b, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-	}
-}
 
 // This function gets the client from the JWT
 func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {

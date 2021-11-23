@@ -182,19 +182,43 @@ func (d *DatabaseConnection) Update(query string, parameters []interface{}) (int
 	return int(rowsAffected), nil
 }
 
-func (d *DatabaseConnection) Delete(query string, parameters []interface{}) error {
+//func (d *DatabaseConnection) Delete(query string, parameters []interface{}) error {
+//	db, err := sql.Open("postgres", d.psqlInfo)
+//	if err != nil {
+//		log.Printf("Error %s when opening DB\n", err)
+//		return errors.New("failed to connect to DB")
+//	}
+//
+//	_, err = db.Exec(query, parameters...)
+//	if err != nil {
+//		log.Printf("Error %s when deleting from DB\n", err)
+//		return errors.New("failed to delete from database")
+//	}
+//
+//	defer func(db *sql.DB) {
+//		err := db.Close()
+//		if err != nil {
+//			log.Printf("Error %s when closing DB\n", err)
+//		}
+//	}(db)
+//
+//	return nil
+//}
+
+func (d *DatabaseConnection) Delete(query string, parameters []interface{}) (int, error) {
 	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		log.Printf("Error %s when opening DB\n", err)
-		return errors.New("failed to connect to DB")
+		return 0, errors.New("failed to connect to DB")
 	}
 
-	_, err = db.Exec(query, parameters...)
+	result, err := db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when deleting from DB\n", err)
-		return errors.New("failed to delete from database")
+		return 0, errors.New("failed to delete from database")
 	}
 
+	rowsAffected, _ := result.RowsAffected()
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
@@ -202,5 +226,9 @@ func (d *DatabaseConnection) Delete(query string, parameters []interface{}) erro
 		}
 	}(db)
 
-	return nil
+	return int(rowsAffected), nil
+}
+
+func (d *DatabaseConnection) StartTransaction() {
+
 }

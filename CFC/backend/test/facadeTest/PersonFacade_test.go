@@ -96,8 +96,8 @@ func TestAddPersonSuccess(t *testing.T) {
 
 }
 
-func TestDeletePersonSuccess(t *testing.T) {
-	pf := setUpPersonFacadeTests()
-
-	intReturn := pf.DeletePerson(1006)
-}
+//func TestDeletePersonSuccess(t *testing.T) {
+//	pf := setUpPersonFacadeTests()
+//
+//	intReturn := pf.DeletePerson(1006)
+//}

@@ -37,21 +37,21 @@ func (ad *AppointmentDao) GetAppointmentByID(appID int) (*Model.Appointment, err
 	return app, nil
 }
 
-func (ad *AppointmentDao) AddAppointment(app Model.Appointment) error {
+func (ad *AppointmentDao) AddAppointment(app Model.Appointment) (int, error) {
 	var query = "INSERT INTO cfc.appointments(appointmentid, appointmenttime, appointmentmedium, client_clientid, clinician_clinicianid) VALUES($1,$2,$3,$4,$5)"
 	var parameters = []interface{}{app.GetAppointmentID(), app.GetAppointmentTime(), app.GetAppointmentMedium(), app.GetClientID(), app.GetClinicianID()}
-	
+
 	return ad.db.Insert(query, parameters)
 }
 
-func (ad *AppointmentDao) UpdateAppointment(appID int, app Model.Appointment) error {
+func (ad *AppointmentDao) UpdateAppointment(appID int, app Model.Appointment) (int, error) {
 	var query = "UPDATE cfc.appointments SET appointmenttime=$1, appointmentmedium=$2, client_clientid=$3, clinician_clinicianid=$4 WHERE appointmentid=$5"
 	var parameters = []interface{}{app.GetAppointmentTime(), app.GetAppointmentMedium(), app.GetClientID(), app.GetClinicianID(), appID}
-	
+
 	return ad.db.Update(query, parameters)
 }
 
-func (ad *AppointmentDao) DeleteAppointment(appID int) error {
+func (ad *AppointmentDao) DeleteAppointment(appID int) (int, error) {
 	var query = "DELETE FROM cfc.appointments WHERE appointmentid=$1"
 	var parameters = []interface{}{appID}
 

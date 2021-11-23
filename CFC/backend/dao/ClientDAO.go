@@ -66,7 +66,7 @@ func (cd *ClientDao) Update(clientID int, c *Model.Client) (int, error) {
 	return cd.db.Update(query, parameters)
 }
 
-func (cd *ClientDao) Delete(clientID int) error {
+func (cd *ClientDao) Delete(clientID int) (int, error) {
 	var query = "DELETE FROM cfc.client WHERE clientid=$1"
 	var parameters = []interface{}{clientID}
 
@@ -162,4 +162,10 @@ func (cd *ClientDao) GetClinicianByClientID(clientID int) (*Model.Clinician, err
 	c.SetClinicianID(int(cuid))
 
 	return c, nil
+}
+
+func (cd *ClientDao) AssignClientToClinician(clientID int, clinicianID int) (int, error) {
+	var query = "INSERT INTO cfc.client_has_clinician(client_clientid, clinician_clinicianid) VALUES($1, $2)"
+	var parameters = []interface{}{clientID, clinicianID}
+	return cd.db.Insert(query, parameters)
 }

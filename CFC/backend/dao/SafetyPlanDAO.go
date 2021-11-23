@@ -5,6 +5,7 @@ import (
 	Model "CFC/backend/CFC/backend/model"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type SafetyPlanDao struct {
@@ -16,7 +17,7 @@ func NewSafetyPlanDao(db DB.DatabaseConnection) *SafetyPlanDao {
 }
 
 func (spd *SafetyPlanDao) GetByID(safetyID int) *Model.SafetyPlan {
-	var query = "SELECT * FROM safety_plan WHERE safetyId=$1"
+	var query = "SELECT * FROM cfc.safety_plan WHERE safetyId=$1"
 	var parameters = []interface{}{
 		safetyID,
 	}
@@ -82,15 +83,15 @@ func (spd *SafetyPlanDao) GetAll() ([]*Model.SafetyPlan, error) {
 	return spList, nil
 }
 
-func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) (int, error) {
-	var query = "INSERT INTO safety_plan(safetyId,triggers,warningSigns,destructiveBehaviors,internalStrategies,updatedDatetime,updatedClinician,Client_clientId,Clinician_clinicianId) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)"
+func (spd *SafetyPlanDao) Add(sp *Model.SafetyPlan) (int, error) {
+	var query = "INSERT INTO cfc.safety_plan(safetyId,triggers,warningSigns,destructiveBehaviors,internalStrategies,updatedDatetime,updatedClinician,Client_clientId,Clinician_clinicianId) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)"
 	var parameters = []interface{}{
 		sp.GetSafetyID(),
 		sp.GetTriggers(),
 		sp.GetWarningSigns(),
 		sp.GetDestructiveBehaviors(),
 		sp.GetInternalStrategies(),
-		sp.GetUpdatedDatetime(),
+		time.Now(),
 		sp.GetUpdatedClinician(),
 		sp.GetClientID(),
 		sp.GetClinicianID(),
@@ -99,25 +100,25 @@ func (spd *SafetyPlanDao) Add(sp Model.SafetyPlan) (int, error) {
 	return spd.db.Insert(query, parameters)
 }
 
-func (spd *SafetyPlanDao) Update(userID int, sp *Model.SafetyPlan) (int, error) {
-	var query = "UPDATE safety_plan SET triggers=$1,warningSigns=$2,destructiveBehaviors=$3,internalStrategies=$4,updatedDatetime=$5,updatedClinician=$6,Client_clientId=$7,Clinician_clinicianId=$8 WHERE safetyId=$9"
+func (spd *SafetyPlanDao) Update(safetyID int, sp *Model.SafetyPlan) (int, error) {
+	var query = "UPDATE cfc.safety_plan SET triggers=$1,warningSigns=$2,destructiveBehaviors=$3,internalStrategies=$4,updatedDatetime=$5,updatedClinician=$6,Client_clientId=$7,Clinician_clinicianId=$8 WHERE safetyId=$9"
 	var parameters = []interface{}{
 		sp.GetTriggers(),
 		sp.GetWarningSigns(),
 		sp.GetDestructiveBehaviors(),
 		sp.GetInternalStrategies(),
-		sp.GetUpdatedDatetime(),
+		time.Now(),
 		sp.GetUpdatedClinician(),
 		sp.GetClientID(),
 		sp.GetClinicianID(),
-		userID,
+		safetyID,
 	}
 
 	return spd.db.Update(query, parameters)
 }
 
-func (spd *SafetyPlanDao) Delete(safetyId int) error {
-	var query = "DELETE FROM safety_plan WHERE safetyId=$1"
+func (spd *SafetyPlanDao) Delete(safetyId int) (int, error) {
+	var query = "DELETE FROM cfc.safety_plan WHERE safetyId=$1"
 	var parameters = []interface{}{
 		safetyId,
 	}
@@ -128,3 +129,16 @@ func (spd *SafetyPlanDao) Delete(safetyId int) error {
 // TODO GetClientBySafetyPlanID()
 
 // TODO GetClinicianBySafetyPlanID()
+
+func (spd *SafetyPlanDao) GetNextSafetyID() int {
+	var query = "SELECT MAX(safetyid) FROM cfc.safety_plan"
+
+	result, err := spd.db.Select(query, []interface{}{})
+	if err != nil {
+		return -1
+	}
+
+	res, _ := strconv.ParseInt(result[0][0], 10, 64)
+
+	return int(res) + 1
+}

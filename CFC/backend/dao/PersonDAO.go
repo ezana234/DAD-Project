@@ -91,7 +91,7 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) (int, error) {
 	return pd.db.Update(query, parameters)
 }
 
-func (pd *PersonDao) Delete(userID int) error {
+func (pd *PersonDao) Delete(userID int) (int, error) {
 	var query = "DELETE FROM cfc.person WHERE userId=$1"
 	var parameters = []interface{}{
 		userID,
@@ -167,6 +167,18 @@ func (pd *PersonDao) GetNextUserID() int {
 func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 	var query = "SELECT username FROM cfc.person WHERE username=$1"
 	var parameters = []interface{}{username}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil || len(result) > 0 {
+		return true, err
+	}
+
+	return false, nil
+}
+
+func (pd *PersonDao) EmailExists(email string) (bool, error) {
+	var query = "SELECT email FROM cfc.person WHERE email=$1"
+	var parameters = []interface{}{email}
 
 	result, err := pd.db.Select(query, parameters)
 	if err != nil || len(result) > 0 {

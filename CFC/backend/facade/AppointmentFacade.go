@@ -24,7 +24,7 @@ func (af *AppointmentFacade) GetAppointmentByID(appID int) (*Model.Appointment, 
 }
 
 func (af *AppointmentFacade) AddAppointment(app Model.Appointment) int {
-	err := af.appointmentDao.AddAppointment(app)
+	_, err := af.appointmentDao.AddAppointment(app)
 	if err != nil {
 		return 0
 	}
@@ -33,7 +33,7 @@ func (af *AppointmentFacade) AddAppointment(app Model.Appointment) int {
 }
 
 func (af *AppointmentFacade) UpdateAppointment(appID int, app Model.Appointment) int {
-	err := af.appointmentDao.UpdateAppointment(appID, app)
+	_, err := af.appointmentDao.UpdateAppointment(appID, app)
 	if err != nil {
 		return 0
 	}
@@ -42,7 +42,7 @@ func (af *AppointmentFacade) UpdateAppointment(appID int, app Model.Appointment)
 }
 
 func (af *AppointmentFacade) DeleteAppointment(appID int) int {
-	err := af.appointmentDao.DeleteAppointment(appID)
+	_, err := af.appointmentDao.DeleteAppointment(appID)
 	if err != nil {
 		return 0
 	}

@@ -22,7 +22,7 @@ func (cf *ClientFacade) GetClientByClientID(clientID int) (*Model.Client, int) {
 		return new(Model.Client), 0
 	}
 
-	return c, 0
+	return c, 1
 }
 
 func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {

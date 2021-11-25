@@ -68,7 +68,7 @@ Controller: The intermediary between the View and Model. It requests information
 
 ## Entity Relationship Diagram:
 
-![](img0.png)
+![](/CFC/img0.png)
 
 ## Layering:
 
@@ -81,7 +81,45 @@ Controller: The intermediary between the View and Model. It requests information
 - Clinicians would be able to view their clients safety plans and would be notified of any changes the clients make.
 - Users(Clients/Clinicians) will be using the UI to login to their respective accounts.
 
-![](img1.png)
+```
+const signUp = event => {
+        event.preventDefault();
+        history.push('/signUp');
+        
+    }
+
+
+
+    return (
+        <div className='loginForm'>
+                <img
+                    className="logo"
+                    src='img.png' 
+                />
+
+            <div className='container'>
+                <h1>SignIn</h1>
+
+                <form>
+                    <h5>Email:</h5>
+                    <input type='text' value={email} onChange={event => setEmail(event.target.value)} />
+
+                    <h5>Password:</h5>
+                    <input type='password' value={password} onChange={event => setPassword(event.target.value)} />
+
+                    <button type='submit' onClick={signIn} className='signInButton'>Sign In</button>
+                </form>
+
+                <p>
+                    By signing-in you agree to the CFC Conditions & Policies. Please
+                    see our Privacy Notice.
+                </p>
+
+                <button onClick={signUp} className='signUpButton'>Sign Up</button>
+            </div>
+        </div>
+    )
+```
 
 The code snippet above shows how the login page is designed. It shows the structure(1 Column) of the login page and the components(Labels, Input Text Fields, Button) of it. The code also shows how these Input Fields are stored in values(React Hook States) and how they can be used while the user hits the submit button. Also one other thing to notice here is that, the user is redirected to the Home page after hitting the login button. The user will be able to view the Safety Plan on the Home page.
 
@@ -126,7 +164,7 @@ In the image above we can see how the table in the database is defined, what are
 - The facades, which will be interacting directly with the database. These facades will handle the sql statements, and will return the data to the DAOs. Each DAO will have its own facade. The facades will also be written in Go.
 - The MYSQL Database.
   - DBConnection is the class used to instantiate the database connection. Every facade will use the DBConnection object to connect.
-  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](img3.png)
+  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](/CFC/img3.png)
 
 ## Exception Handling:
 
@@ -134,13 +172,127 @@ In the image above we can see how the table in the database is defined, what are
 
 For the current milestone, we have built a login page for the users to access. Users can access the login page, enter their email &amp; password to access their respective home pages. Based on the role of the user whether they are a client/clinician/family member(other), their respective home pages are rendered when the user logs in. There is an option to sign up for new users.
 
-![](img5.png)
+```
+const signUp = event => {
+        event.preventDefault();
+        history.push('/signUp');
+        
+    }
+```
 
-![](img6.png)
+```
+const signIn = event => {
+        event.preventDefault();
+        
+        const credentials = { 'email': email, 'password':password};
+
+        console.log('AJAX')
+        
+        console.log(credentials)
+        axios({ method: 'post', url: 'http://127.0.0.1:3000/login', data: JSON.stringify(credentials)})
+        .then((response) => {
+            console.log(response.data);
+                console.log(response.data['token'])
+                setToken(response.data['token'])
+                
+                const tokenData = jwt(response.data['token']);
+                console.log(tokenData);
+                if(tokenData.authorized){
+                    if(tokenData.role =='1'){
+                        console.log("Yes");
+                        console.log(token);
+                        console.log(response.data['token'])
+                        console.log("Second request")
+
+                        console.log("Bearer "+response.data['token'])
+
+                        let url = "http://127.0.0.1:3000/client"
+
+                        
+                        const AuthStr = 'Bearer '.concat(response.data['token']);
+
+                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                        .then((res) => {
+                                        console.log("FINAL", res)
+                                        if(res.status  == 200){
+                                            history.push({
+                                                pathname: '/clientHome',
+                                                state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
+                                            })
+                                        }
+                                    }, (error) => {
+                                        console.log("Error"+error)
+                                    }
+                                );
+                    }
+                    else if (tokenData.role =='2'){
+                        console.log("Clinician data", response.data)
+                        history.push({
+                            pathname: '/clinicianHome',
+                            state: {"Data":[], "Token":response.data['token'], "Role":tokenData.role}
+                        })
+                    }
+                }
+                else{
+                    alert("You are not an authorized user");
+                }
+            }, (error) => {
+                console.log("Error"+error)
+            }
+        );
+
+            
+    }
+```
 
 In the two images above, you can see how signIn and signUp are handled as two separate methods. And in these methods, you can see how users are routed to a different homepage based on their role(client/clinician). When the signIn/signUp, the username and email are sent as JSON to the backend api which is shown in the image below.
 
-![](img7.png)
+```
+const signIn = event => {
+        event.preventDefault();
+        
+        const credentials = { 'email': email, 'password':password};
+
+        console.log('AJAX')
+        
+        console.log(credentials)
+        axios({ method: 'post', url: 'http://127.0.0.1:3000/login', data: JSON.stringify(credentials)})
+        .then((response) => {
+            console.log(response.data);
+                console.log(response.data['token'])
+                setToken(response.data['token'])
+                
+                const tokenData = jwt(response.data['token']);
+                console.log(tokenData);
+                if(tokenData.authorized){
+                    if(tokenData.role =='1'){
+                        console.log("Yes");
+                        console.log(token);
+                        console.log(response.data['token'])
+                        console.log("Second request")
+
+                        console.log("Bearer "+response.data['token'])
+
+                        let url = "http://127.0.0.1:3000/client"
+
+                        
+                        const AuthStr = 'Bearer '.concat(response.data['token']);
+
+                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                        .then((res) => {
+                                        console.log("FINAL", res)
+                                        if(res.status  == 200){
+                                            history.push({
+                                                pathname: '/clientHome',
+                                                state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
+                                            })
+                                        }
+                                    }, (error) => {
+                                        console.log("Error"+error)
+                                    }
+                                );
+                    }
+```
 
 - **Backend**
 
@@ -317,13 +469,15 @@ Refactoring the code improves the overall structure of the code, it makes the co
 
 ## How to run the application
 
-### Frontend:
-- First, run `npm install`
-- Then, run `npm start` to run the application in development mode. You can view it by navigating to [http://localhost:3000](http://localhost:3000)
-
-
 ### Backend:
 - First, navigate to `DAD-Project/CFC/backend`
 - Run `go build main.go`
 - Run `go run main.go`. The server runs on [http://localhost:3000](http://localhost:3000)
+
+### Frontend:
+- First, run `npm install`
+- Then, run `npm start` to run the application in development mode. You can view it by navigating to [http://localhost:3001](http://localhost:3001)
+
+
+
 

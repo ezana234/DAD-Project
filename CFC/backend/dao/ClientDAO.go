@@ -15,7 +15,7 @@ func NewClientDao(db DB.DatabaseConnection) *ClientDao {
 }
 
 func (cd *ClientDao) GetClientByID(clientID int) (*Model.Client, error) {
-	var query = "SELECT * FROM cfc.client WHERE person.clientId=$1"
+	var query = "SELECT * FROM cfc.client WHERE client.clientId=$1"
 	var parameters = []interface{}{clientID}
 
 	result, err := cd.db.Select(query, parameters)

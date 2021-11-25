@@ -125,13 +125,6 @@ func (d *DatabaseConnection) Insert(query string, parameters []interface{}) (int
 	}
 
 	rowsAffected, _ := result.RowsAffected()
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Printf("Error %s when closing DB\n", err)
-		}
-	}(db)
-
 	return int(rowsAffected), nil
 }
 
@@ -172,12 +165,6 @@ func (d *DatabaseConnection) Update(query string, parameters []interface{}) (int
 	}
 
 	rowsAffected, _ := result.RowsAffected()
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Printf("Error %s when closing DB\n", err)
-		}
-	}(db)
 
 	return int(rowsAffected), nil
 }
@@ -219,12 +206,6 @@ func (d *DatabaseConnection) Delete(query string, parameters []interface{}) (int
 	}
 
 	rowsAffected, _ := result.RowsAffected()
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Printf("Error %s when closing DB\n", err)
-		}
-	}(db)
 
 	return int(rowsAffected), nil
 }

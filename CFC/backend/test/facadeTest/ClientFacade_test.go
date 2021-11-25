@@ -3,7 +3,6 @@ package facadeTest
 import (
 	"CFC/backend/CFC/backend/DB"
 	Facade "CFC/backend/CFC/backend/facade"
-	Model "CFC/backend/CFC/backend/model"
 	"testing"
 )
 
@@ -33,11 +32,10 @@ func setUpClientFacadeTests() *Facade.ClientFacade {
 func TestGetClientSuccess(t *testing.T) {
 	//setup
 	cf := setUpClientFacadeTests()
-	clientModel := Model.NewClientBoth(2000, 2000)
-	cf.AddClient(*clientModel)
+
 	//test
-	var pExpectedClientID = 2000
-	var pExpectedUserID = 2000
+	var pExpectedClientID = 336
+	var pExpectedUserID = 501
 	client, success := cf.GetClientByClientID(pExpectedClientID)
 	if success == 0 {
 		t.Errorf("Return int = %d; want 1", success)

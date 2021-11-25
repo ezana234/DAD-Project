@@ -5,8 +5,15 @@ import Header from './Header';
 
 function SafetyPlan(props) {
     console.log("Safety plans props", props)
-    const safetyPlanObject = props.location.state[0];
-    console.log(safetyPlanObject)
+    let safetyPlanObject = {}
+    console.log(props.location.state==null)
+    if(props.location.state == null){
+        safetyPlanObject =  {"Triggers":"", "WarningSigns": "", "DestructiveBehaviors":"", "InternalStratergies":""}
+    }
+    else{
+        safetyPlanObject = props.location.state[0];
+        console.log(safetyPlanObject)
+    }
     return (
         <>
             <Header header="Safety Plan"/>

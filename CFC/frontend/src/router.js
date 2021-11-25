@@ -7,6 +7,8 @@ import Home2 from './Home2';
 import Profile from './Profile';
 import Users from './Users';
 import SafetyPlan from './SafetyPlan';
+import SignUp from './SignUp';
+
 
 function router() {
     return (
@@ -19,6 +21,8 @@ function router() {
                     <Route exact path = '/profile' component={Profile} />
                     <Route exact path = '/users' component = {Users} />
                     <Route exact path = '/safetyplan' component = {SafetyPlan} />
+                    <Route exact path = '/signUp' component ={SignUp} />
+
                     
                 </Switch>
             </BrowserRouter>

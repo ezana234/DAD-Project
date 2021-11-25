@@ -20,40 +20,35 @@ function Login() {
         console.log('AJAX')
         
         console.log(credentials)
-        $.ajax({
-            type: 'post',
-            url: 'http://localhost:3000/login',
-            data: JSON.stringify(credentials),
-            contentType: "application/json; charset=utf-8",
-            traditional: true,  
-            success: function (data) {
-                console.log(data);
-                console.log(data['token'])
-                setToken(data['token'])
+        axios({ method: 'post', url: 'http://127.0.0.1:3000/login', data: JSON.stringify(credentials)})
+        .then((response) => {
+            console.log(response.data);
+                console.log(response.data['token'])
+                setToken(response.data['token'])
                 
-                const tokenData = jwt(data['token']);
+                const tokenData = jwt(response.data['token']);
                 console.log(tokenData);
                 if(tokenData.authorized){
                     if(tokenData.role =='1'){
                         console.log("Yes");
                         console.log(token);
-                        console.log(data['token'])
+                        console.log(response.data['token'])
                         console.log("Second request")
 
-                        console.log("Bearer "+data['token'])
+                        console.log("Bearer "+response.data['token'])
 
                         let url = "http://127.0.0.1:3000/client"
 
                         
-                        const AuthStr = 'Bearer '.concat(data['token']);
+                        const AuthStr = 'Bearer '.concat(response.data['token']);
 
-                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
-                        .then((response) => {
-                                        console.log("FINAL", response)
-                                        if(response.status  == 200){
+                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                        .then((res) => {
+                                        console.log("FINAL", res)
+                                        if(res.status  == 200){
                                             history.push({
                                                 pathname: '/clientHome',
-                                                state: {"Data":response.data, "Token":data['token'], "Role":tokenData.role}
+                                                state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
                                             })
                                         }
                                     }, (error) => {
@@ -62,38 +57,90 @@ function Login() {
                                 );
                     }
                     else if (tokenData.role =='2'){
-                        console.log("Clinician data", data)
+                        console.log("Clinician data", response.data)
                         history.push({
                             pathname: '/clinicianHome',
-                            state: {"Data":[], "Token":data['token'], "Role":tokenData.role}
+                            state: {"Data":[], "Token":response.data['token'], "Role":tokenData.role}
                         })
                     }
                 }
                 else{
                     alert("You are not an authorized user");
                 }
-
-                },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert("Incorrect email or password!");
+            }, (error) => {
+                console.log("Error"+error)
             }
+        );
+        // $.ajax({
+        //     type: 'post',
+        //     url: 'http://localhost:3000/login',
+        //     data: JSON.stringify(credentials),
+        //     contentType: "application/json; charset=utf-8",
+        //     traditional: true,  
+        //     success: function (data) {
+        //         console.log(data);
+        //         console.log(data['token'])
+        //         setToken(data['token'])
+                
+        //         const tokenData = jwt(data['token']);
+        //         console.log(tokenData);
+        //         if(tokenData.authorized){
+        //             if(tokenData.role =='1'){
+        //                 console.log("Yes");
+        //                 console.log(token);
+        //                 console.log(data['token'])
+        //                 console.log("Second request")
 
-            });
+        //                 console.log("Bearer "+data['token'])
+
+        //                 let url = "http://127.0.0.1:3000/client"
+
+                        
+        //                 const AuthStr = 'Bearer '.concat(data['token']);
+
+        //                 axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
+        //                 .then((response) => {
+        //                                 console.log("FINAL", response)
+        //                                 if(response.status  == 200){
+        //                                     history.push({
+        //                                         pathname: '/clientHome',
+        //                                         state: {"Data":response.data, "Token":data['token'], "Role":tokenData.role}
+        //                                     })
+        //                                 }
+        //                             }, (error) => {
+        //                                 console.log("Error"+error)
+        //                             }
+        //                         );
+        //             }
+        //             else if (tokenData.role =='2'){
+        //                 console.log("Clinician data", data)
+        //                 history.push({
+        //                     pathname: '/clinicianHome',
+        //                     state: {"Data":[], "Token":data['token'], "Role":tokenData.role}
+        //                 })
+        //             }
+        //         }
+        //         else{
+        //             alert("You are not an authorized user");
+        //         }
+
+        //         },
+        //     error: function (xhr, ajaxOptions, thrownError) {
+        //         alert("Incorrect email or password!");
+        //     }
+
+        //     });
 
             
     }
 
     const signUp = event => {
         event.preventDefault();
-
+        history.push('/signUp');
         
     }
 
-    const onChangeValue = (event) =>{
-        console.log("HERE")
-        setUser(event.target.value)
-        //console.log(event.target.value)
-    }
+
 
     return (
         <div className='loginForm'>

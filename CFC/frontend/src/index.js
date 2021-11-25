@@ -5,9 +5,9 @@ import App from './App';
 import Routingpages from './router';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Routingpages/>
-  </React.StrictMode>,
+  //<React.StrictMode>
+    <Routingpages/>,
+  //</React.StrictMode>,
   document.getElementById('root')
 );
 

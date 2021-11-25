@@ -51,8 +51,9 @@ function Users(props) {
     function viewSafetyPlan(client){
         console.log("Inside view safety plan")
         console.log(client);
+        console.log("Index: "+clients.indexOf(client))
         if(client!=null){
-            axios({ method: 'get', url: 'http://127.0.0.1:3000/safetyplan', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }, params: {"userID": client.UserID} })
+            axios({ method: 'get', url: 'http://127.0.0.1:3000/clinician/safetyplan', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }, params: {"userID": client.UserID} })
             .then((response) => {
                         console.log("Safety plan clinician", response.data)
                         history.push({

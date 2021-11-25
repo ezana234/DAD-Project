@@ -23,7 +23,7 @@ function Home(props) {
     }
     const viewSafetyPlan = event =>{
         event.preventDefault();
-        axios({ method: 'get', url: 'http://127.0.0.1:3000/safetyplan', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }, params: {"userID": props.location.state.Data.UserID} })
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/client/safetyplan', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }})
         .then((response) => {
                     console.log("Safety plan", response.data)
                     history.push({

@@ -1,9 +1,53 @@
 import React, { useState } from 'react';
 import './SignUp.css';
+import { Link, useHistory } from "react-router-dom";
+import { auth } from "./firebase";
 import axios from 'axios';
-import $ from 'jquery';
+import $, { type } from 'jquery';
+import jwt from 'jwt-decode'
 
 function SignUp() {
+    const history = useHistory();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const [samepassword, setSamePassword] = useState('');
+    const [number, setNumber] = useState('');
+    const [dob, setDob] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [address, setAddress] = useState('');
+    const [lastName, setLastName] = useState('');
+    
+    const signUp = event => {
+        event.preventDefault();
+        console.log(password, samepassword, dob);
+        console.log(typeof(dob));
+        console.log(dob.split("-").reverse().join("-"));
+        
+        const credentials = {'Username':username,'FisrtName':firstName,'Lastname':lastName,'Email': email, 'Address':address,'Password':password, 'PhoneNumber':number, 'DOB':dob.split("-").reverse().join("-")};
+        console.log(credentials);
+        axios({ method: 'post', url: 'http://127.0.0.1:3000/signUp', data:JSON.stringify(credentials)})
+            .then((response) => {
+                            console.log("FINAL Singup response: ", response)
+                            if(response.status  == 200){
+                                const tokenData = jwt(response.data['token']);
+                                history.push({
+                                    pathname: '/clientHome',
+                                    state: {"Data":response.data, "Token":response.data['token'], "Role":tokenData.role}
+                                })
+                            }
+                        }, (error) => {
+                            console.log("Error"+error)
+                        }
+                    );
+            
+    }
+
+    const signIn = event => {
+        event.preventDefault();
+        history.push('/');
+        
+    }
     return (
         <div className='loginForm'>
                 <img
@@ -16,12 +60,29 @@ function SignUp() {
 
                 <form>
                     <h5>Username:</h5>
-                    <input type='text' value={email} onChange={event => setEmail(event.target.value)} />
-
+                    <input type='text' value={username} onChange={event => setUsername(event.target.value)} />
+                    <h5>First Name:</h5>
+                    <input type='text' value={firstName} onChange={event => setFirstName(event.target.value)} />
+                    <h5>Last Name:</h5>
+                    <input type='text' value={lastName} onChange={event => setLastName(event.target.value)} />
+                    <h5>Email:</h5>
+                    <input type='email' value={email} onChange={event => setEmail(event.target.value)} />
                     <h5>Password:</h5>
                     <input type='password' value={password} onChange={event => setPassword(event.target.value)} />
-                    <p>You are:</p>
-                    <button type='submit' onClick={signIn} className='signInButton'>Sign n</button>
+                    <h5>Confirm Password:</h5>
+                    <input type='password' value={samepassword} onChange={event => setSamePassword(event.target.value)} />
+                    <h5>Address:</h5>
+                    <input type='text' value={address} onChange={event => setAddress(event.target.value)} />
+                    <h5>Phone Number:</h5>
+                    <input type='number' value={number} onChange={event => setNumber(event.target.value)} />
+                    <h5>Date Of Birth:</h5>
+                    <input type='date'
+                        placeholder='Enter Birth Date'
+                        value={dob} onChange={event => setDob(event.target.value)}
+                        name='birthdate'
+                        max={new Date().toISOString().split("T")[0]}
+                    />
+                    <button type='submit' onClick={signUp} className='signInButton'>Sign up</button>
                 </form>
 
                 <p>
@@ -29,7 +90,7 @@ function SignUp() {
                     see our Privacy Notice.
                 </p>
 
-                <button onClick={signUp} className='signUpButton'>Sign Up</button>
+                <button onClick={signIn} className='signUpButton'>Login</button>
             </div>
         </div>
     )

@@ -54,27 +54,36 @@ func (cf *ClinicianFacade) GetAllClients() ([]*Model.Person, int) {
 func (cf *ClinicianFacade) AddClinician(c Model.Clinician) int {
 	c.SetClinicianID(cf.clinicianDao.GetNextClinicianID())
 
-	err := cf.clinicianDao.AddClinician(c)
+	rowsAffected, err := cf.clinicianDao.AddClinician(c)
 	if err != nil {
 		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
 	return 1
 }
 
 func (cf *ClinicianFacade) UpdateClinician(clinicianID int, c *Model.Clinician) int {
-	err := cf.clinicianDao.UpdateClinician(clinicianID, c)
+	rowsAffected, err := cf.clinicianDao.UpdateClinician(clinicianID, c)
 	if err != nil {
 		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
 	return 1
 }
 
 func (cf *ClinicianFacade) DeleteClinician(clinicianID int) int {
-	err := cf.clinicianDao.DeleteClinician(clinicianID)
+	rowsAffected, err := cf.clinicianDao.DeleteClinician(clinicianID)
 	if err != nil {
 		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
 	return 1
@@ -87,15 +96,17 @@ func (cf *ClinicianFacade) GetUserByClinicianID(clinicianID int) (*Model.Person,
 	}
 
 	return p, 1
-} 
+}
 
-func (cf *ClinicianFacade) GetClinicianByReferral(referral string) (*Model.Clinician, int) {
+// GetClinicianIDByReferral returns clinicianID identified by referral code
+// returns (0, 0) if there is an error, otherwise returns (clinicianID, 1)
+func (cf *ClinicianFacade) GetClinicianIDByReferral(referral string) (int, int) {
 	c, err := cf.clinicianDao.GetClinicianByReferral(referral)
 	if err != nil {
-		return new(Model.Clinician), 0
+		return 0, 0
 	}
 
-	return c, 1
+	return c.GetClinicianID(), 1
 }
 
 func (cf *ClinicianFacade) GetSafetyPlansByClinicianID(clinicianID int) ([]*Model.SafetyPlan, int) {

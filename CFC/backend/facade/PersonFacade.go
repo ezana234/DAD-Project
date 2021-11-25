@@ -2,12 +2,11 @@ package facade
 
 import (
 	"CFC/backend/CFC/backend/DB"
-	Auth "CFC/backend/CFC/backend/auth"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
 
 	// "encoding/json"
-	"fmt"
+
 	"log"
 	"time"
 
@@ -15,8 +14,7 @@ import (
 )
 
 type PersonFacade struct {
-	personDao   DAO.PersonDao
-	authManager *Auth.AuthenticationManager
+	personDao DAO.PersonDao
 }
 
 func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
@@ -41,48 +39,46 @@ func (pf *PersonFacade) GetPerson(userID int) (*Model.Person, int) {
 }
 
 func (pf *PersonFacade) GetAllPersons() ([]*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		var pList []*Model.Person
+	var pList []*Model.Person
 
-		tmp, err := pf.personDao.GetAll()
-		if err != nil {
-			log.Printf("Error: %s when getting all persons", err)
-			return pList, 0
-		}
-
-		for _, res := range tmp {
-			res.SetPassword("null")
-			pList = append(pList, res)
-		}
-
-		return pList, 1
+	tmp, err := pf.personDao.GetAll()
+	if err != nil {
+		log.Printf("Error: %s when getting all persons", err)
+		return pList, 0
 	}
 
-	log.Printf("Error: user is not authorized to get persons")
-	return []*Model.Person{}, -1
+	for _, res := range tmp {
+		res.SetPassword("null")
+		pList = append(pList, res)
+	}
 
+	return pList, 1
 }
 
 func (pf *PersonFacade) GetNPersons(num int) ([]*Model.Person, int) {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		var pList []*Model.Person
+	var pList []*Model.Person
 
-		tmp, err := pf.personDao.GetAll()
-		if err != nil {
-			log.Printf("Error: %s when getting number of persons", err)
-			return pList, 0
-		}
-
-		for _, res := range tmp[:num] {
-			res.SetPassword("null")
-			pList = append(pList, res)
-		}
-
-		return pList, 1
+	tmp, err := pf.personDao.GetAll()
+	if err != nil {
+		log.Printf("Error: %s when getting number of persons", err)
+		return pList, 0
 	}
 
-	log.Printf("Error: user is not authorized to get persons")
-	return []*Model.Person{}, -1
+	for _, res := range tmp[:num] {
+		res.SetPassword("null")
+		pList = append(pList, res)
+	}
+
+	return pList, 1
+}
+
+func (pf *PersonFacade) GetPersonByUserName(username string) (*Model.Person, int) {
+	p, err := pf.personDao.GetPersonByUserName(username)
+	if err != nil {
+		return new(Model.Person), 0
+	}
+
+	return p, 1
 }
 
 func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
@@ -100,89 +96,95 @@ func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.P
 	// return new(Model.Person), -1
 }
 
+// AddPerson Adds person to database
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf *PersonFacade) AddPerson(p Model.Person) int {
 	p.SetUserID(pf.personDao.GetNextUserID())
-	err := pf.personDao.Add(p)
+	rowsAffected, err := pf.personDao.Add(p)
 	if err != nil {
 		log.Printf("Error: %s when adding person", err)
 		return 0
 	}
+	if rowsAffected <= 0 {
+		log.Printf("0 rows updated when adding person")
+		return 0
+	}
+
 	return 1
 }
 
+// UpdatePerson Updates person specified by userID
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf *PersonFacade) UpdatePerson(userID int, p Model.Person) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.IsCurrentUser(userID) {
-		pOld, err := pf.personDao.GetUserByID(userID)
-		if err != nil {
-			log.Printf("Error: %s when getting person", err)
-			return 0
-		}
-		var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
+	pOld, err := pf.personDao.GetUserByID(userID)
+	if err != nil {
+		log.Printf("Error: %s when getting person", err)
+		return 0
+	}
+	var pNew = Model.NewPerson(p.GetUserName(), pOld.GetPassword(), p.GetFirstName(), p.GetLastName(), p.GetEmail(), p.GetAddress(), p.GetPhoneNumber(), p.GetRole(), p.GetExpiration(), p.GetDOB())
 
-		err = pf.personDao.Update(userID, pNew)
-		if err != nil {
-			log.Printf("Error: %s when updating person", err)
-			return 0
-		}
-
-		return 1
+	rowsAffected, err := pf.personDao.Update(userID, pNew)
+	if err != nil {
+		log.Printf("Error: %s when updating person", err)
+		return 0
+	}
+	if rowsAffected <= 0 {
+		log.Printf("0 rows affected when updating person")
+		return -1
 	}
 
-	log.Printf("Error: User is not authorized to update person")
-	return -1
+	return 1
 }
 
-// DeletePerson
-// function will delete a person from the database
+// DeletePerson Deletes a person from the database specified by userID
 // returns -1 if user is not authorized to delete
 // returns 0 if deletion failed
 // returns 1 if deletion was successful
 func (pf *PersonFacade) DeletePerson(userID int) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() {
-		err := pf.personDao.Delete(userID)
-		if err != nil {
-			log.Printf("Error: %s when deleting person", err)
-			return 0
-		}
-
-		return 1
+	rowsAffected, err := pf.personDao.Delete(userID)
+	if err != nil {
+		log.Printf("Error: %s when deleting person", err)
+		return 0
+	}
+	if rowsAffected <= 0 {
+		return -1
 	}
 
-	log.Printf("Error: User is not authorized to delete person")
-	return -1
+	return 1
 }
 
-// CreateNewPerson
-// this functions adds a new user to the db when they create their account for the first time
-// returns 0 if creation was unsuccessful, 1 if it was successful
+// CreateNewPerson Adds a new user to the db when they create their account for the first time.
+// This function differs from AddPerson in that it hashes the person's password before database insertion.
+// Returns -1 if username already exists, returns 0 if creation was unsuccessful, and 1 if it was successful.
 func (pf *PersonFacade) CreateNewPerson(p Model.Person) (int, int) {
-	usernameIsPresent, err := pf.personDao.UsernameExists(p.UserName)
-	println(usernameIsPresent)
+	emailExists, err := pf.personDao.EmailExists(p.UserName)
 	if err != nil {
-		fmt.Println("User")
 		log.Printf("Error: %s when creating new person", err)
-		return -1, 0
+		return 0, 0
 	}
 
-	if usernameIsPresent {
-		return -1, -1
+	if emailExists {
+		return 0, -1
 	}
 
 	p.SetUserID(pf.personDao.GetNextUserID())
 	p.SetPassword(HashPassword(p.GetPassword()))
 
-	err = pf.personDao.Add(p)
+	rowsAffected, err := pf.personDao.Add(p)
 	if err != nil {
-		fmt.Println("person")
 		log.Printf("Error: %s when creating new person", err)
-		return -1, 0
+		return 0, 0
 	}
-	fmt.Println("success")
-	return pf.personDao.GetNextUserID(), 1
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when creating new person")
+		return 0, 0
+	}
+
+	return p.GetUserID(), 1
 }
 
-// LoginPersonByUserName
-// this function will query all persons with a matching username and then check if the passwords match.
+// LoginPersonByUserName This function will query all persons with a matching username and then check if the passwords match.
 // if there are no persons that have the desired username, then this function will return 0.
 // if the password does not match, this function will return 0.
 // if there is a password match, this function will return 1.
@@ -199,7 +201,7 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 			return -1
 		}
 
-		pf.authManager.LoginUser(p)
+		//pf.authManager.LoginUser(p)
 		return 1
 	}
 
@@ -224,40 +226,48 @@ func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Mode
 	return new(Model.Person), 0
 }
 
-func (pf PersonFacade) UpdatePassword(password string) int {
-	p := pf.authManager.GetCurrentUser()
+// UpdatePassword Updates a user's password
+// Parameters are: Model.Person of the desired person, new user's password
+// Returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
+func (pf PersonFacade) UpdatePassword(p *Model.Person, password string) int {
 	p.SetPassword(HashPassword(password))
 
-	err := pf.personDao.Update(p.GetUserID(), p)
+	rowsAffected, err := pf.personDao.Update(p.GetUserID(), p)
 	if err != nil {
 		log.Printf("Error: %s when updating password", err)
 		return 0
+	}
+	if rowsAffected <= 0 {
+		log.Printf("0 rows affected when updating password")
+		return -1
 	}
 
 	return 1
 }
 
+// ResetPassword
+// returns -1 if no rows were affected, 0 if there was an error, and 1 if it was successful
 func (pf PersonFacade) ResetPassword(username string) int {
-	if pf.authManager.IsCurrentUserAdmin() || pf.authManager.IsCurrentUserClinician() || pf.authManager.GetCurrentUser().GetUserName() == username {
-		p, err := pf.personDao.GetPersonByUserName(username)
-		if err != nil {
-			log.Printf("Error: %s when getting persons by email", err)
-			return 0
-		}
-
-		p.SetPassword("temp")
-
-		err = pf.personDao.Update(p.GetUserID(), p)
-		if err != nil {
-			log.Printf("Error: %s whem updating person", err)
-			return 0
-		}
-
-		return 1
+	p, err := pf.personDao.GetPersonByUserName(username)
+	if err != nil {
+		log.Printf("Error: %s when getting persons by email", err)
+		return 0
 	}
 
-	log.Printf("Error: user is not authorized to reset password")
-	return -1
+	p.SetPassword("temp")
+
+	rowsAffected, err := pf.personDao.Update(p.GetUserID(), p)
+	if err != nil {
+		log.Printf("Error: %s whem updating person", err)
+		return 0
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("0 rows affected when updating person")
+		return -1
+	}
+
+	return 1
 }
 
 func HashPassword(password string) string {
@@ -324,10 +334,20 @@ func IsExpired(expiration string) bool {
 // 	return pJson
 // }
 
+func (pf *PersonFacade) GetClinicianByUserID(userID int) (*Model.Clinician, int) {
+	clinician, err := pf.personDao.GetClinicianByUserID(userID)
+	if err != nil {
+		return new(Model.Clinician), 0
+	}
+
+	return clinician, 1
+}
+
 func (pf *PersonFacade) GetSafetyPlansByUserID(userID int, role int) ([]*Model.SafetyPlan, int) {
 	var emptyList []*Model.SafetyPlan
 
 	spList, err := pf.personDao.GetSafetyPlansByUserID(userID, role)
+	println()
 	if err != nil {
 		return emptyList, 0
 	}

@@ -50,9 +50,59 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// This returns a jwt upon a successful login
-func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
-	type sign struct {
+//// This returns a jwt upon a successful login
+//func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
+//	type sign struct {
+//		Username    string
+//		FirstName   string
+//		LastName    string
+//		Email       string
+//		Address     string
+//		Password    string
+//		PhoneNumber string
+//		DOB         string
+//	}
+//	var signStruct sign
+//	body := json.NewDecoder(r.Body).Decode(&signStruct)
+//	if body != nil {
+//		http.Error(w, body.Error(), http.StatusBadRequest)
+//		return
+//	}
+//
+//	person := Facade.NewPersonFacade(ah.Database)
+//	newPers := Model.NewPerson(
+//		signStruct.Username,
+//		signStruct.Password,
+//		signStruct.FirstName,
+//		signStruct.LastName,
+//		signStruct.Email,
+//		signStruct.Address,
+//		signStruct.PhoneNumber,
+//		"1",
+//		" ",
+//		signStruct.DOB)
+//	userID, err := person.CreateNewPerson(*newPers)
+//	if err != 1 {
+//		http.Error(w, "Couldn't Create Person", http.StatusBadRequest)
+//		return
+//	} else {
+//		client := Facade.NewClientFacade(ah.Database)
+//		clientModel := Model.NewClient(userID)
+//		client.AddClient(*clientModel)
+//		resp := make(map[string]string)
+//		resp["message"] = "Client added to Database"
+//		b, err := json.Marshal(resp)
+//		if err != nil {
+//			http.Error(w, err.Error(), http.StatusInternalServerError)
+//			return
+//		}
+//		w.Header().Set("Content-Type", "application/json")
+//		w.Write(b)
+//	}
+//}
+
+func (ah *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
+	type signUp struct {
 		Username    string
 		FirstName   string
 		LastName    string
@@ -61,15 +111,24 @@ func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		Password    string
 		PhoneNumber string
 		DOB         string
+		Referral    string
 	}
-	var signStruct sign
+
+	var signStruct signUp
 	body := json.NewDecoder(r.Body).Decode(&signStruct)
 	if body != nil {
 		http.Error(w, body.Error(), http.StatusBadRequest)
 		return
 	}
 
-	person := Facade.NewPersonFacade(ah.Database)
+	clinicianFacade := Facade.NewClinicianFacade(ah.Database)
+	clinicianID, _ := clinicianFacade.GetClinicianIDByReferral(signStruct.Referral)
+	if clinicianID == 0 {
+		http.Error(w, "Couldn't Create Person: No Clinician With Given Referral Code Found", http.StatusBadRequest)
+		return
+	}
+
+	personFacade := *Facade.NewPersonFacade(ah.Database)
 	newPers := Model.NewPerson(
 		signStruct.Username,
 		signStruct.Password,
@@ -81,15 +140,27 @@ func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		"1",
 		" ",
 		signStruct.DOB)
-	userID, err := person.CreateNewPerson(*newPers)
-	if err != 1 {
-		http.Error(w, "Couldn't Create Person", http.StatusBadRequest)
+	userID, returnInt := personFacade.CreateNewPerson(*newPers)
+	if returnInt == -1 {
+		http.Error(w, "Couldn't Create Person: Username Already Taken", http.StatusBadRequest)
+		return
+	} else if returnInt == 0 {
+		http.Error(w, "Couldn't Create Person: bad request", http.StatusBadRequest)
 		return
 	} else {
-		// fmt.Println(userID)
 		client := Facade.NewClientFacade(ah.Database)
 		clientModel := Model.NewClient(userID)
-		client.AddClient(*clientModel)
+		clientID, intReturn := client.AddClient(*clientModel)
+		if intReturn != 1 {
+			http.Error(w, "Error when adding client", http.StatusInternalServerError)
+			return
+		}
+		intReturn = client.AssignClinicianToClient(clientID, clinicianID)
+		if intReturn != 1 {
+			http.Error(w, "Error when assigning clinician", http.StatusInternalServerError)
+			return
+		}
+
 		resp := make(map[string]string)
 		resp["message"] = "Client added to Database"
 		b, err := json.Marshal(resp)
@@ -100,4 +171,5 @@ func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	}
+
 }

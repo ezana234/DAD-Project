@@ -1,21 +1,26 @@
 package handlers
 
 import (
+	"CFC/backend/CFC/backend/DB"
 	Auth "CFC/backend/CFC/backend/auth"
 	Facade "CFC/backend/CFC/backend/facade"
 	"encoding/json"
 	"net/http"
 )
 
+type ClientHandler struct {
+	Database DB.DatabaseConnection
+}
+
 // This function gets the client from the JWT
-func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
+func (ch *ClientHandler) GetClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	claims, er := Auth.IsAuthorized(w, r)
 	if er == false {
 		return
 	}
-	person := Facade.NewPersonFacade(db.database)
+	person := Facade.NewPersonFacade(ch.Database)
 	var userID int = int(claims["userID"].(float64))
 	pers, err := person.GetPerson(userID)
 	if err == 0 {
@@ -49,8 +54,6 @@ func (db *Database) getClient(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
-}
 
-func isAuthorized(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
+	return
 }

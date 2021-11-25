@@ -15,7 +15,7 @@ func NewClientDao(db DB.DatabaseConnection) *ClientDao {
 }
 
 func (cd *ClientDao) GetClientByID(clientID int) (*Model.Client, error) {
-	var query = "SELECT * FROM cfc.client WHERE person.clientId=$1"
+	var query = "SELECT * FROM cfc.client WHERE client.clientId=$1"
 	var parameters = []interface{}{clientID}
 
 	result, err := cd.db.Select(query, parameters)
@@ -52,21 +52,21 @@ func (cd *ClientDao) GetAll() ([]*Model.Client, error) {
 	return cList, nil
 }
 
-func (cd *ClientDao) Add(c Model.Client) error {
+func (cd *ClientDao) Add(c Model.Client) (int, error) {
 	var query = "INSERT INTO cfc.client(clientid,person_userid) VALUES($1,$2);"
 	var parameters = []interface{}{cd.GetNextClientID(), c.GetUserID()}
 
 	return cd.db.Insert(query, parameters)
 }
 
-func (cd *ClientDao) Update(clientID int, c *Model.Client) error {
+func (cd *ClientDao) Update(clientID int, c *Model.Client) (int, error) {
 	var query = "UPDATE cfc.client SET userid=$1 WHERE clientid=$2"
 	var parameters = []interface{}{c.GetUserID(), clientID}
 
 	return cd.db.Update(query, parameters)
 }
 
-func (cd *ClientDao) Delete(clientID int) error {
+func (cd *ClientDao) Delete(clientID int) (int, error) {
 	var query = "DELETE FROM cfc.client WHERE clientid=$1"
 	var parameters = []interface{}{clientID}
 
@@ -162,4 +162,10 @@ func (cd *ClientDao) GetClinicianByClientID(clientID int) (*Model.Clinician, err
 	c.SetClinicianID(int(cuid))
 
 	return c, nil
+}
+
+func (cd *ClientDao) AssignClientToClinician(clientID int, clinicianID int) (int, error) {
+	var query = "INSERT INTO cfc.client_has_clinician(client_clientid, clinician_clinicianid) VALUES($1, $2)"
+	var parameters = []interface{}{clientID, clinicianID}
+	return cd.db.Insert(query, parameters)
 }

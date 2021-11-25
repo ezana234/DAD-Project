@@ -53,7 +53,7 @@ func (pd *PersonDao) GetAll() ([]*Model.Person, error) {
 	return pList, nil
 }
 
-func (pd *PersonDao) Add(p Model.Person) error {
+func (pd *PersonDao) Add(p Model.Person) (int, error) {
 	var query = "INSERT INTO cfc.person(userid,username,password,firstname,lastname,email,address,phonenumber,role,expiration,dob) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)"
 	var parameters = []interface{}{
 		p.GetUserID(),
@@ -72,7 +72,7 @@ func (pd *PersonDao) Add(p Model.Person) error {
 	return pd.db.Insert(query, parameters)
 }
 
-func (pd *PersonDao) Update(userID int, p *Model.Person) error {
+func (pd *PersonDao) Update(userID int, p *Model.Person) (int, error) {
 	var query = "UPDATE cfc.person SET userName=$1, password=$2, firstName=$3, lastName=$4, email=$5, address=$6, phoneNumber=$7, role=$8, expiration=$9, dob=$10 WHERE userId=$11"
 	var parameters = []interface{}{
 		p.GetUserName(),
@@ -84,13 +84,14 @@ func (pd *PersonDao) Update(userID int, p *Model.Person) error {
 		p.GetPhoneNumber(),
 		p.GetRole(),
 		p.GetExpiration(),
+		p.GetDOB(),
 		userID,
 	}
 
 	return pd.db.Update(query, parameters)
 }
 
-func (pd *PersonDao) Delete(userID int) error {
+func (pd *PersonDao) Delete(userID int) (int, error) {
 	var query = "DELETE FROM cfc.person WHERE userId=$1"
 	var parameters = []interface{}{
 		userID,
@@ -134,7 +135,7 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 // }
 
 func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
-	var query = "SELECT * FROM cfc.person WHERE email=$1LIMIT 1"
+	var query = "SELECT * FROM cfc.person WHERE email=$1 LIMIT 1"
 	var parameterMap = []interface{}{email}
 
 	result, err := pd.db.Select(query, parameterMap)
@@ -166,6 +167,18 @@ func (pd *PersonDao) GetNextUserID() int {
 func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 	var query = "SELECT username FROM cfc.person WHERE username=$1"
 	var parameters = []interface{}{username}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil || len(result) > 0 {
+		return true, err
+	}
+
+	return false, nil
+}
+
+func (pd *PersonDao) EmailExists(email string) (bool, error) {
+	var query = "SELECT email FROM cfc.person WHERE email=$1"
+	var parameters = []interface{}{email}
 
 	result, err := pd.db.Select(query, parameters)
 	if err != nil || len(result) > 0 {
@@ -221,13 +234,14 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 	if role == 1 {
 		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid = $1)"
 	} else if role == 2 {
-		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE clinician.person_userid = $1)"
+		query = "SELECT * FROM cfc.safety_plan WHERE safety_plan.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE person_userid = $1)"
 	} else {
 		return spList, errors.New("incorrect role id")
 	}
 
 	result, err := pd.db.Select(query, parameters)
 	if err != nil {
+		println(err)
 		return spList, err
 	}
 
@@ -236,11 +250,11 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 		uc, _ := strconv.ParseInt(res[6], 10, 64)
 		clientuid, _ := strconv.ParseInt(res[7], 10, 64)
 		clinicianid, _ := strconv.ParseInt(res[8], 10, 64)
-		sp := Model.NewSafetyPlan(int(spuid), res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
+		sp := Model.NewSafetyPlan(res[1], res[2], res[3], res[4], res[5], int(uc), int(clientuid), int(clinicianid))
 		sp.SetSafetyID(int(spuid))
 		spList = append(spList, sp)
 	}
-
+	println(spList)
 	return spList, nil
 }
 

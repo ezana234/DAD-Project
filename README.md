@@ -394,7 +394,7 @@ func (ah *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 ```
 
 ## Performance and refactoring:
-Backend:
+- **Backend:**
 - Changes to Database
     1. The Person table now has fields for DOB and password expiration
     2. The Clinician table now has a field for referral code, which will be used by the client when they go to create an account on the site. The referral code is used to prevent spam accounts and to automatically assign that clinician to the client.
@@ -404,7 +404,7 @@ Backend:
     1. Mostly just adding the ability to get data from multiple tables within a facade (example: Able to get Safety Plans from the ClientFacade via clientID)
 -The ER Diagram was also updated (see above)
 
-Frontend:
+- **Frontend:**
 - The frontend allows only authorized users to sign in
 - Modified Client's and Clinician's homepage to list all the options a user can do upon landing on the home page, also included a navbar.
 - Clients can now view their profile by clicking on the View My Profile button on their homepage
@@ -453,6 +453,83 @@ This is the view of the View Users page. Notice how the Search bar is defined as
 The backend code is also structured/refactored in a way that the code is easy readable, understandable.
 
 Refactoring the code improves the overall structure of the code, it makes the code more efficient and highly cohesive. It also helps in making the application loosely coupled, hence improving the overall performance of the application.
+
+## Testing:
+
+- **Frontend:**
+	Used Jest library in React to perform testing on the frontend. All the following tests use a JWT Token which is hard coded, the JWT token expires after few minutes. To run the tests successfully, a valid JWT Token should be used in the code. 
+	Following snippet shows the output window when the tests are run successfully.
+	```
+	Test Suites: 3 passed, 3 total
+	Tests:       3 passed, 3 total
+	Snapshots:   0 total
+	Time:        4.103 s
+	Ran all test suites related to changed files.
+	```
+	- Testing Login call to the backend from frontend:
+	The following code can be found in Login.test.js flie in the src directory of frontend. 
+	```
+	test('Test login route', async() => {
+        var mock = new MockAdapter(axios);
+        const data = {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJlbWFpbCI6ImNsaWVudEBnbWFpbC5jb20iLCJleHAiOjE2Mzc4MTIwNTIsInJvbGUiOiIxIiwidXNlcklEIjoxMDA1fQ.cxX5sESNtFB9WG3D43XnboWSrxYtbJ8dzYwhKp1Y9mM"
+        };
+        mock.onPost('http://127.0.0.1:3000/login').reply(200, data);
+
+        const resp = await Login_Test({"email": "client@gmail.com", "password": "cliepassword"});
+        
+        expect(resp).toEqual(data);
+
+    });
+	```
+	In the code snippet above, observe how the mock response object is created as data.  Notice how a post call is made using mock.post and the expected result is passed as a parameter to the reply method. And then the Login_Test method is called from a different file and that triggers an API call to the backend to get the response back. And then both the responses are comapred and if they are equal, they pass the test.
+
+	- Testing Safetyplan call to the backend from frontend:
+	The following code can be found in Client_SafetyPlan.test.js flie in the src directory of frontend. 
+	```
+	test('Test for safetyplan of a client', async() => {
+        var mock = new MockAdapter(axios);
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJlbWFpbCI6ImNsaWVudEBnbWFpbC5jb20iLCJleHAiOjE2Mzc4MTI5MDAsInJvbGUiOiIxIiwidXNlcklEIjoxMDA1fQ.bmqBPT73VCE4NT0bIoN_jfrYwDBxQgwEVeYpo3UgtuE';
+        const data = [
+            {
+                "SafetyID": 3,
+                "Triggers": "Puppies",
+                "WarningSigns": "Manic Behavior",
+                "DestructiveBehaviors": "N/A",
+                "InternalStrategies": "Playing with cats",
+                "UpdatedClinician": 341,
+                "UpdatedDatetime": "2021-11-16T22:51:29Z",
+                "ClientID": 334,
+                "ClinicianID": 341
+            }
+        ];
+        mock.onGet('http://127.0.0.1:3000/client/safetyplan',{'Authorization': 'Bearer ' + token}).reply(200, data);
+
+        const resp = await Client_SafetyPlan_Test(token);
+        
+        expect(resp).toEqual(data);
+
+    });
+	```
+	In the code snippet above, observe how the mock response object is created as data. 
+	The data consists an object containing the safety plan information for that particular client. The JWT Token is hard coded, it changes everytime it expires. Notice how a get call is made using mock.get and the expected result is passed as a parameter to the reply method. And then the Login_Test method is called from a different file and that triggers an API call to the backend to get the response back. And then both the responses are comapred and if they are equal, they pass the test.
+	- Testing CinicianUsers call to the backend from frontend:
+	The following code can be found in ClinicianUsers.test.js flie in the src directory of frontend. 
+	```
+	test('Test for all clients of a clinician', async() => {
+        var mock = new MockAdapter(axios);
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJlbWFpbCI6ImNsaW5pY2lhbkBnbWFpbC5jb20iLCJleHAiOjE2Mzc4MTM2MDUsInJvbGUiOiIyIiwidXNlcklEIjoxMDA0fQ.Jt_QsOGbA6SWaKiqK6Jr4VEDnIeENlp-KUSMpPtX-sw';
+        const data = [...];
+        mock.onGet('http://127.0.0.1:3000/clinician/clients',{'Authorization': 'Bearer ' + token}).reply(200, data);
+
+        const resp = await Clinician_Users_Test(token);
+
+        expect(resp).toEqual(data);
+
+    });
+
+	```
+	In the code snippet above, observe how the mock response object is created as data. It consists a list of clients as an array. The JWT Token is hard coded, it changes everytime it expires. Notice how a get call is made using mock.get and the expected result is passed as a parameter to the reply method. And then the Login_Test method is called from a different file and that triggers an API call to the backend to get the response back. And then both the responses are comapred and if they are equal, they pass the test.
 
 
 ## Timeline:

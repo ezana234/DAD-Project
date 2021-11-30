@@ -27,3 +27,7 @@ func (c *Client) GetUserID() int {
 func (c *Client) SetUserID(userID int) {
 	c.UserID = userID
 }
+
+func (c *Client) ClientToString() {
+	return
+}

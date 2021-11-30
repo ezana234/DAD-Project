@@ -60,3 +60,37 @@ func TestGetAllClientSuccess(t *testing.T) {
 		t.Errorf("Return length of clients = %d; want > 1", len(clients))
 	}
 }
+
+func TestGetClientNameByClientID(t *testing.T) {
+	var expectedClientLastName = "Pally"
+	cf := setUpClientFacadeTests()
+	clientName, success := cf.GetClientNameByClientID(1)
+	println(clientName.Print())
+	if success == 0 {
+		t.Errorf("Return int = %d; want 1", success)
+	}
+
+	if clientName.GetLastName() != expectedClientLastName {
+		t.Errorf("Return client last name = \"%s\"; want \"%s\"", clientName.GetLastName(), expectedClientLastName)
+	}
+}
+
+//func TestGetClientNameByUserID(t *testing.T) {
+//	cf := setUpClientFacadeTests()
+//
+//}
+
+func TestGetAllClientNamesSuccess(t *testing.T) {
+	cf := setUpClientFacadeTests()
+
+	clientNames, success := cf.GetAllClientNames()
+	if success == 0 {
+		t.Errorf("Return int = %d; want 1", success)
+	}
+
+	if len(clientNames) == 0 {
+		t.Errorf("Return length of clients = %d; want > 1", len(clientNames))
+	}
+
+	return
+}

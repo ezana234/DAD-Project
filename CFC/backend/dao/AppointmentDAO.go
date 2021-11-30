@@ -39,8 +39,7 @@ func (ad *AppointmentDao) GetAppointmentByID(appID int) (*Model.Appointment, err
 
 func (ad *AppointmentDao) AddAppointment(app Model.Appointment) (int, error) {
 	var query = "INSERT INTO cfc.appointments(appointmentid, appointmenttime, appointmentmedium, client_clientid, clinician_clinicianid) VALUES($1,$2,$3,$4,$5)"
-	var parameters = []interface{}{app.GetAppointmentID(), app.GetAppointmentTime(), app.GetAppointmentMedium(), app.GetClientID(), app.GetClinicianID()}
-
+	var parameters = []interface{}{ad.GetNextAppointmentID(), app.GetAppointmentTime(), app.GetAppointmentMedium(), app.GetClientID(), app.GetClinicianID()}
 	return ad.db.Insert(query, parameters)
 }
 
@@ -78,4 +77,17 @@ func (ad *AppointmentDao) GetAllAppointments() ([]*Model.Appointment, error) {
 	}
 
 	return aList, nil
+}
+
+func (ad *AppointmentDao) GetNextAppointmentID() int {
+	var query = "SELECT MAX(appointmentID) FROM cfc.appointments"
+
+	result, err := ad.db.Select(query, []interface{}{})
+	if err != nil {
+		return -1
+	}
+
+	res, _ := strconv.ParseInt(result[0][0], 10, 64)
+
+	return int(res) + 1
 }

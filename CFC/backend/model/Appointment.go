@@ -1,11 +1,11 @@
 package model
 
 type Appointment struct {
-	AppointmentID     int
-	AppointmentTime   string
-	AppointmentMedium string
-	ClientID          int
-	ClinicianID       int
+	AppointmentID     int    `json:"AppointmentID"`
+	AppointmentTime   string `json:"AppointmentTime"`
+	AppointmentMedium string `json:"AppointmentMedium"`
+	ClientID          int    `json:"ClientID"`
+	ClinicianID       int    `json:"ClinicianID"`
 }
 
 func NewAppointment(appointmentTime string, appointmentMedium string, clientID int, clinicianID int) *Appointment {

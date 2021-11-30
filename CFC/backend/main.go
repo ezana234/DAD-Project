@@ -55,14 +55,27 @@ func main() {
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
 	mux.HandleFunc("/signUp", (&Handlers.AuthHandler{Database: db}).SignUp).Methods("POST")
 	mux.HandleFunc("/client", (&Handlers.ClientHandler{Database: db}).GetClient).Methods("GET")
+	mux.HandleFunc("/clientname", (&Handlers.ClientHandler{Database: db}).GetClientName).Methods("GET")
+	mux.HandleFunc("/clientname/userid", (&Handlers.ClientHandler{Database: db}).GetClientNameByUserID).Methods("GET")
+	mux.HandleFunc("/clientnames", (&Handlers.ClientHandler{Database: db}).GetAllClientNames).Methods("GET")
+	mux.HandleFunc("/clinicianname", (&Handlers.ClinicianHandler{Database: db}).GetClinicianName).Methods("GET")
+	mux.HandleFunc("/clinicianname/userid", (&Handlers.ClinicianHandler{Database: db}).GetClinicianNameByUserID).Methods("GET")
+	mux.HandleFunc("/cliniciannames", (&Handlers.ClinicianHandler{Database: db}).GetClinicianNames).Methods("GET")
 	mux.HandleFunc("/safetyplan", dbHandler.getSafetyPlan).Methods("GET")
 	mux.HandleFunc("/client/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClientGetSafetyPlan).Methods("GET")
+	mux.HandleFunc("/client/appointments", (&Handlers.AppointmentHandler{Database: db}).ClientGetAppointments).Methods("GET")
 	mux.HandleFunc("/clinician/clients", dbHandler.getClients).Methods("GET")
+	mux.HandleFunc("/clinician/clinicians", (&Handlers.ClinicianHandler{Database: db}).GetClinicians).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplan", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlan).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplans", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianGetSafetyPlans).Methods("GET")
 	mux.HandleFunc("/clinician/safetyplan/add", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianAddSafetyPlan).Methods("POST")
 	mux.HandleFunc("/clinician/safetyplan/update", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianUpdateSafetyPlan).Methods("POST")
 	mux.HandleFunc("/clinician/safetyplan/delete", (&Handlers.SafetyPlanHandler{Database: db}).ClinicianDeleteSafetyPlan).Methods("POST")
+	mux.HandleFunc("/appointment", (&Handlers.AppointmentHandler{Database: db}).GetAppointment).Methods("GET")
+	mux.HandleFunc("/appointment/add", (&Handlers.AppointmentHandler{Database: db}).AddAppointment).Methods("POST")
+	mux.HandleFunc("/appointment/update", (&Handlers.AppointmentHandler{Database: db}).UpdateAppointment).Methods("POST")
+	mux.HandleFunc("/appointment/delete", (&Handlers.AppointmentHandler{Database: db}).DeleteAppointment).Methods("POST")
+	mux.HandleFunc("/clinician/appointments", (&Handlers.AppointmentHandler{Database: db}).ClinicianGetAllAppointments).Methods("GET")
 
 	// Allow CORS
 	c := cors.New(cors.Options{
@@ -138,6 +151,7 @@ func (db *Database) getSafetyPlan(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, erro.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	} else {

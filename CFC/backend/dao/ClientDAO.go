@@ -169,3 +169,39 @@ func (cd *ClientDao) AssignClientToClinician(clientID int, clinicianID int) (int
 	var parameters = []interface{}{clientID, clinicianID}
 	return cd.db.Insert(query, parameters)
 }
+
+func (cd *ClientDao) GetClientNameByClientID(clientID int) (*Model.Person, error) {
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClientNames\" WHERE clientid = $1"
+	var parameters = []interface{}{clientID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	person := Model.NewPerson("", "", result[0][1], result[0][2], "", "", "", "", "", "")
+	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
+	person.SetUserID(int(uid))
+
+	return person, nil
+}
+
+func (cd *ClientDao) GetAllClientNames() ([]*Model.Person, error) {
+	var clientNamesList []*Model.Person
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClientNames\""
+	var parameters []interface{}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return clientNamesList, err
+	}
+
+	for _, res := range result {
+		person := Model.NewPerson("", "", res[1], res[2], "", "", "", "", "", "")
+		uid, _ := strconv.ParseInt(res[0], 10, 64)
+		person.SetUserID(int(uid))
+		clientNamesList = append(clientNamesList, person)
+	}
+
+	return clientNamesList, nil
+}

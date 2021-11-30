@@ -35,6 +35,26 @@ func (sph *SafetyPlanHandler) ClientGetSafetyPlan(w http.ResponseWriter, r *http
 	w.Write(b)
 }
 
+func (sph *SafetyPlanHandler) ClientViewSafetyPlan(w http.ResponseWriter, r *http.Request) {
+	claims, er := Auth.IsAuthorized(w, r)
+	if !er {
+		return
+	}
+
+	var userID int = int(claims["userID"].(float64))
+	sf := Facade.NewPersonFacade(sph.Database)
+	safetyplan, _ := sf.GetSafetyPlansByUserID(userID, 1)
+
+	b, err := json.Marshal(safetyplan)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+}
+
 func (sph *SafetyPlanHandler) ClinicianGetSafetyPlans(w http.ResponseWriter, r *http.Request) {
 	claims, er := Auth.IsAuthorized(w, r)
 	if er == false {
@@ -44,15 +64,9 @@ func (sph *SafetyPlanHandler) ClinicianGetSafetyPlans(w http.ResponseWriter, r *
 	// Check if the person is a clinician
 	var role = fmt.Sprintf("%v", claims["role"])
 	if role == "2" {
-		println("true")
 		spf := Facade.NewSafetyPlanFacade(sph.Database)
 		spList, _ := spf.GetAllSafetyPlans()
-		println(len(spList))
-		for _, a := range spList {
-			println(a.SafetyPlanToString())
-		}
 		b, err := json.Marshal(spList)
-		println(string(b))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -190,15 +204,19 @@ func (sph *SafetyPlanHandler) ClinicianDeleteSafetyPlan(w http.ResponseWriter, r
 		return
 	}
 
-	safetyID := r.URL.Query().Get("safetyID")
-	intSafetyID, err := strconv.Atoi(safetyID)
-	if err != nil {
-		http.Error(w, "Bad Request", http.StatusUnauthorized)
+	type SafetyPlanToDelete struct {
+		SafetyID int
 	}
 	var role string = fmt.Sprintf("%v", claims["role"])
 	if role == "2" {
+		var safetyPlanToDelete SafetyPlanToDelete
+		body := json.NewDecoder(r.Body).Decode(&safetyPlanToDelete)
+		if body != nil {
+			http.Error(w, body.Error(), http.StatusBadRequest)
+			return
+		}
 		spf := Facade.NewSafetyPlanFacade(sph.Database)
-		intReturn := spf.DeleteSafetyPlan(intSafetyID)
+		intReturn := spf.DeleteSafetyPlan(safetyPlanToDelete.SafetyID)
 		if intReturn != 1 {
 			http.Error(w, "error when updating safety plan", http.StatusInternalServerError)
 			return

@@ -532,6 +532,14 @@ Refactoring the code improves the overall structure of the code, it makes the co
 	In the code snippet above, observe how the mock response object is created as data. It consists a list of clients as an array. The JWT Token is hard coded, it changes everytime it expires. Notice how a get call is made using mock.get and the expected result is passed as a parameter to the reply method. And then the Login_Test method is called from a different file and that triggers an API call to the backend to get the response back. And then both the responses are comapred and if they are equal, they pass the test.
 
 
+## Packaging:
+ - Please proceed to this link - https://github.com/ezana234/DAD-Project to get access to all the project files.
+ - Use the following command to clone the repository in your system - git clone https://github.com/ezana234/DAD-Project 
+ - The CFC directory is the directory you want to use, it has both frontend and backend related files in directories called frontend and backend respectively.
+ - The frontend direcotry has a public directory which contains a index.html file. This file is the build file you should use to deploy. You can recreate the build file using the command npm run build inside the frontend directory.
+ - And if you want to run the app(frontend and backend) in your system, go to the last section of this file(How to run the application). That section demonstrates how to run the application in your system.
+
+
 ## Timeline:
 
 - Milestone3 (Layering) - October 8, 2021

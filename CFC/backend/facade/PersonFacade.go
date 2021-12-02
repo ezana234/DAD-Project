@@ -330,6 +330,15 @@ func IsExpired(expiration string) bool {
 // 	return pJson
 // }
 
+func (pf *PersonFacade) GetClientByUserID(userID int) (*Model.Client, int) {
+	client, err := pf.personDao.GetClientByUserID(userID)
+	if err != nil {
+		return new(Model.Client), 0
+	}
+
+	return client, 1
+}
+
 func (pf *PersonFacade) GetClinicianByUserID(userID int) (*Model.Clinician, int) {
 	clinician, err := pf.personDao.GetClinicianByUserID(userID)
 	if err != nil {

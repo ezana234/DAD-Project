@@ -153,3 +153,32 @@ func (ch *ClinicianHandler) GetClinicianNames(w http.ResponseWriter, r *http.Req
 	}
 
 }
+
+func (ch *ClinicianHandler) GetClinicianInfoByUserID(w http.ResponseWriter, r *http.Request) {
+	_, er := Auth.IsAuthorized(w, r)
+	if !er {
+		return
+	}
+
+	userID := r.URL.Query().Get("userID")
+	intUserID, err := strconv.Atoi(userID)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusUnauthorized)
+	}
+
+	pf := Facade.NewPersonFacade(ch.Database)
+	clinician, erro := pf.GetClinicianByUserID(intUserID)
+	if erro == 0 {
+		http.Error(w, "error when selecting clinician", http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(clinician)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+}

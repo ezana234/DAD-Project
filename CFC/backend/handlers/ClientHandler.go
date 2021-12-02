@@ -170,3 +170,33 @@ func (ch *ClientHandler) GetClientNameByUserID(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
+
+func (ch *ClientHandler) GetClientInfoByUserID(w http.ResponseWriter, r *http.Request) {
+	_, er := Auth.IsAuthorized(w, r)
+	if !er {
+		return
+	}
+
+	userID := r.URL.Query().Get("userID")
+	intUserID, err := strconv.Atoi(userID)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusUnauthorized)
+	}
+
+	pf := Facade.NewPersonFacade(ch.Database)
+	client, erro := pf.GetClientByUserID(intUserID)
+	if erro == 0 {
+		http.Error(w, "error when selecting client", http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(client)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+
+}

@@ -4,9 +4,10 @@ import React from 'react';
 import {Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Header';
-import './Home2.css';
+import './Home.css';
 import {useHistory} from 'react-router-dom';
 import axios from 'axios';
+import TodoButton from './TodoButton';
 
 function Home2(props) {
     console.log(props);
@@ -40,19 +41,24 @@ function Home2(props) {
     }
     return (
         <>
-        <Header header="Clinician's Homepage"/>
-            <br></br>
-            <br></br>
-            <br></br>
-            <br></br>
-            <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
-                <h4>Welcome {firstname}</h4>
-                <br></br>
-                <h5>What would you like to do today?</h5>
-                <button onClick={viewProfile} class="myButton">View my profile</button>
-                <br></br>
-                <button onClick={viewClients} class="myButton">View my clients</button>
+            <Header header="Clinician's Homepage"/>
 
+            <div className="container-center-horizontal">
+                <div className="client-home-screenscreen">
+                    <h1 className="place">
+                        Welcome {firstname}
+                    </h1>
+
+                    <div className="text-1">
+                        What would you like to do today
+                    </div>
+
+                    <TodoButton onClick={viewProfile}>View my profile</TodoButton>
+
+                    <TodoButton className={"todo-button-1"} onClick={viewClients}>
+                    View my clients
+                    </TodoButton>
+                </div>
             </div>
         </>
     )

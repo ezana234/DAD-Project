@@ -1,0 +1,30 @@
+.todo-button {
+	align-items: center;
+	background-color: var(--concrete);
+	border-radius: 10px;
+	box-shadow: 0px 4px 12px #00000040;
+	display: flex;
+	height: 61px;
+	margin-top: 30px;
+	min-width: 304px;
+	padding: 0 96px;
+	border: 2px solid black;
+  }
+
+.todo-button.todo-button-1 {
+	margin-top: 32px;
+	padding: 0 79px;
+  }
+  
+  .todo-button.todo-button-1 .view-my-profile {
+	min-width: 144px;
+  }
+  
+  .todo-button.todo-button-2 {
+	margin-top: 32px;
+	padding: 0 66px;
+  }
+  
+  .todo-button.todo-button-2 .view-my-profile {
+	min-width: 171px;
+  }

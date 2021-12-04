@@ -10,6 +10,8 @@ import SafetyPlan from './SafetyPlan';
 import SignUp from './SignUp';
 import AddSafetyPlan from './AddSafetyPlan';
 import ModifySafetyPlan from './ModifySafetyPlan';
+import ViewAppointments from './ViewAppointments';
+import AppointmentDetails from './AppointmentDetails';
 
 function router() {
     return (
@@ -25,7 +27,8 @@ function router() {
                     <Route exact path = '/safetyplan' component = {SafetyPlan} />
                     <Route exact path = '/addsafetyplan' component ={AddSafetyPlan} />
                     <Route exact path = '/modifysafetyplan' component ={ModifySafetyPlan} />
-
+                    <Route exact path = '/appointments' component ={ViewAppointments} />
+                    <Route exact path = '/appointmentDetails' component ={AppointmentDetails} />
                     
                 </Switch>
             </BrowserRouter>

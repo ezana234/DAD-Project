@@ -8,6 +8,7 @@ import './Home.css';
 import {useHistory} from 'react-router-dom';
 import axios from 'axios';
 import TodoButton from './TodoButton';
+import ViewAppointments from './ViewAppointments';
 
 function Home2(props) {
     console.log(props);
@@ -39,6 +40,22 @@ function Home2(props) {
             );
 
     }
+
+    const viewAppointments = event =>{
+        event.preventDefault();
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/client/appointments', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }})
+        .then((response) => {
+                    console.log("Appointments", response.data)
+                    history.push({
+                        pathname: '/appointments',
+                        state: {"Data":response.data, "Token": props.location.state.Token}
+                    })
+                    }, (error) => {
+                        console.log("Error"+error)
+                    }
+                );
+    }
+
     return (
         <>
             <Header header="Clinician's Homepage"/>
@@ -57,6 +74,9 @@ function Home2(props) {
 
                     <TodoButton className={"todo-button-1"} onClick={viewClients}>
                     View my clients
+                    </TodoButton>
+                    <TodoButton className={"todo-button-1"} onClick={viewAppointments}>
+                    View Appointments
                     </TodoButton>
                 </div>
             </div>

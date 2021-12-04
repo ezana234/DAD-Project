@@ -34,6 +34,21 @@ function Home(props) {
                     }
                 );
     }
+
+    const viewAppointments = event =>{
+        event.preventDefault();
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/client/appointments', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }})
+        .then((response) => {
+                    console.log("Appointments", response.data)
+                    history.push({
+                        pathname: '/appointments',
+                        state: {"Data":response.data, "Token": props.location.state.Token}
+                    })
+                    }, (error) => {
+                        console.log("Error"+error)
+                    }
+                );
+    }
     return (
         <>
             <Header header="Client's Homepage"/>
@@ -54,7 +69,7 @@ function Home(props) {
                         View my safety plan
                     </TodoButton>
 
-                    <TodoButton className={"todo-button-2"}>
+                    <TodoButton className={"todo-button-2"} onClick={viewAppointments}>
                         View my appointments
                     </TodoButton>
                 </div>

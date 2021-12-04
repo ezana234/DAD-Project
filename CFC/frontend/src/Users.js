@@ -43,7 +43,7 @@ function Users(props) {
         if(client!=null){
             history.push({
                 pathname: '/profile',
-                state: {"Data":client}
+                state: {"Data":client, "Token": props.location.state.Token}
             })
         }
     }
@@ -58,13 +58,24 @@ function Users(props) {
                         console.log("Safety plan clinician", response.data)
                         history.push({
                             pathname: '/safetyplan',
-                            state: response.data
+                            state: {"Data": response.data, "Token": props.location.state.Token, "UserID":client.UserID}
                         })
                         }, (error) => {
                             console.log("Error"+error)
                         }
                     );
         }
+    }
+
+    function addSafetyPlan(client){
+        console.log("Inside add safety plan")
+        console.log(client);
+        console.log("Index: "+clients.indexOf(client))
+        history.push({
+                pathname: '/addsafetyplan',
+                state: {"Data": client, "Token":props.location.state.Token}
+            })
+
     }
     return (
         <>
@@ -90,6 +101,7 @@ function Users(props) {
                     <Card.Body>
                         <Card.Title>{client.FirstName + " " + client.LastName}</Card.Title>
                         <Card.Link onClick={() => viewSafetyPlan(client)}>View Safety Plan</Card.Link> 
+                        {/* <Card.Link onClick={() => addSafetyPlan(client)}>Add Safety Plan</Card.Link>  */}
                         <Card.Link onClick={() => viewProfile(client)}>View Profile</Card.Link>
                     </Card.Body>
                 </Card>

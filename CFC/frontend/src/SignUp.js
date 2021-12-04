@@ -17,6 +17,7 @@ function SignUp() {
     const [firstName, setFirstName] = useState('');
     const [address, setAddress] = useState('');
     const [lastName, setLastName] = useState('');
+    const [referralCode, setreferralCode] = useState('');
     
     const signUp = event => {
         event.preventDefault();
@@ -24,7 +25,7 @@ function SignUp() {
         console.log(typeof(dob));
         console.log(dob.split("-").reverse().join("-"));
         
-        const credentials = {'Username':username,'FisrtName':firstName,'Lastname':lastName,'Email': email, 'Address':address,'Password':password, 'PhoneNumber':number, 'DOB':dob.split("-").reverse().join("-")};
+        const credentials = {'Username':username,'FisrtName':firstName,'Lastname':lastName,'Email': email, 'Address':address,'Password':password, 'PhoneNumber':number, 'DOB':dob.split("-").reverse().join("-"), 'Referral':referralCode};
         console.log(credentials);
         axios({ method: 'post', url: 'http://127.0.0.1:3000/signUp', data:JSON.stringify(credentials)})
             .then((response) => {
@@ -35,6 +36,9 @@ function SignUp() {
                                     pathname: '/clientHome',
                                     state: {"Data":response.data, "Token":response.data['token'], "Role":tokenData.role}
                                 })
+                            }
+                            else if(response.status  == 400){
+                                alert("Could not successfully register the client");
                             }
                         }, (error) => {
                             console.log("Error"+error)
@@ -75,6 +79,8 @@ function SignUp() {
                     <input type='text' value={address} onChange={event => setAddress(event.target.value)} />
                     <h5>Phone Number:</h5>
                     <input type='number' value={number} onChange={event => setNumber(event.target.value)} />
+                    <h5>Referral Code:</h5>
+                    <input type='number' value={referralCode} onChange={event => setreferralCode(event.target.value)} />
                     <h5>Date Of Birth:</h5>
                     <input type='date'
                         placeholder='Enter Birth Date'

@@ -74,7 +74,10 @@ function Home2(props) {
                     <TodoButton onClick={viewProfile}>View my profile</TodoButton>
 
                     <TodoButton className={"todo-button-1"} onClick={viewClients}>
-                    View my clients
+                    View Clients
+                    </TodoButton>
+                    <TodoButton className={"todo-button-1"} onClick={viewClients}>
+                    View Safety Plans
                     </TodoButton>
                     <TodoButton className={"todo-button-1"} onClick={viewAppointments}>
                     View Appointments

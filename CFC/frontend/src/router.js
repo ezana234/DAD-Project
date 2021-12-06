@@ -12,6 +12,8 @@ import AddSafetyPlan from './AddSafetyPlan';
 import ModifySafetyPlan from './ModifySafetyPlan';
 import ViewAppointments from './ViewAppointments';
 import AppointmentDetails from './AppointmentDetails';
+import AddAppointment from './AddAppointment';
+import ModifyAppointment from './ModifyAppointment';
 
 function router() {
     return (
@@ -29,7 +31,8 @@ function router() {
                     <Route exact path = '/modifysafetyplan' component ={ModifySafetyPlan} />
                     <Route exact path = '/appointments' component ={ViewAppointments} />
                     <Route exact path = '/appointmentDetails' component ={AppointmentDetails} />
-                    
+                    <Route exact path = '/addAppointment' component ={AddAppointment} />
+                    <Route exact path = '/modifyAppointment' component ={ModifyAppointment} />
                 </Switch>
             </BrowserRouter>
         </div>

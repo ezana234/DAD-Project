@@ -12,12 +12,12 @@ import TodoButton from './TodoButton';
 function Home(props) {
     const history = useHistory();
     console.log("props: ", props)
-    var firstname = props.location.state.FirstName;
+    var firstname = props.location.state.Data.FirstName;
     const viewProfile = event => {
         event.preventDefault();
         history.push({
             pathname: '/profile',
-            state: props.location.state
+            state: {"Data":props.location.state, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state, "w":0}
         })
     }
     const viewSafetyPlan = event =>{
@@ -27,7 +27,7 @@ function Home(props) {
                     console.log("Safety plan", response.data)
                     history.push({
                         pathname: '/safetyplan',
-                        state: response.data
+                        state: {"Data": response.data, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state, "s":0}
                     })
                     }, (error) => {
                         console.log("Error"+error)
@@ -42,7 +42,7 @@ function Home(props) {
                     console.log("Appointments", response.data)
                     history.push({
                         pathname: '/appointments',
-                        state: {"Data":response.data, "Token": props.location.state.Token}
+                        state: {"Data":response.data, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state}
                     })
                     }, (error) => {
                         console.log("Error"+error)
@@ -51,12 +51,12 @@ function Home(props) {
     }
     return (
         <>
-            <Header header="Client's Homepage"/>
+            <Header header="Client's Homepage" role={props.location.state.Role} oldData={props.location.state}/>
 
             <div className="container-center-horizontal">
                 <div className="client-home-screenscreen">
                     <h1 className="place">
-                        Welcome! {firstname}
+                        {"Welcome "+ firstname}
                     </h1>
 
                     <div className="text-1">

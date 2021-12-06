@@ -24,27 +24,28 @@ function SignUp() {
         console.log(password, samepassword, dob);
         console.log(typeof(dob));
         console.log(dob.split("-").reverse().join("-"));
-        
-        const credentials = {'Username':username,'FisrtName':firstName,'Lastname':lastName,'Email': email, 'Address':address,'Password':password, 'PhoneNumber':number, 'DOB':dob.split("-").reverse().join("-"), 'Referral':referralCode};
-        console.log(credentials);
-        axios({ method: 'post', url: 'http://127.0.0.1:3000/signUp', data:JSON.stringify(credentials)})
-            .then((response) => {
-                            console.log("FINAL Singup response: ", response)
-                            if(response.status  == 200){
-                                const tokenData = jwt(response.data['token']);
-                                history.push({
-                                    pathname: '/clientHome',
-                                    state: {"Data":response.data, "Token":response.data['token'], "Role":tokenData.role}
-                                })
-                            }
-                            else if(response.status  == 400){
+        if(password===samepassword){
+            const credentials = {'Username':username,'FisrtName':firstName,'Lastname':lastName,'Email': email, 'Address':address,'Password':password, 'PhoneNumber':number, 'DOB':dob.split("-").reverse().join("-"), 'Referral':referralCode};
+            console.log(credentials);
+            axios({ method: 'post', url: 'http://127.0.0.1:3000/signUp', data:JSON.stringify(credentials)})
+                .then((response) => {
+                                console.log("FINAL Singup response: ", response)
+                                if(response.status  == 200){
+                                    alert("Successfully registered the client");
+                                    history.push('/');
+                                }
+                                else if(response.status  == 400){
+                                    alert("Could not successfully register the client");
+                                }
+                            }, (error) => {
                                 alert("Could not successfully register the client");
+                                console.log("Error"+error)
                             }
-                        }, (error) => {
-                            console.log("Error"+error)
-                        }
-                    );
-            
+                        );
+        }
+        else{
+            alert("Make sure the passwords match and try again!")
+        }
     }
 
     const signIn = event => {
@@ -60,7 +61,7 @@ function SignUp() {
                 />
 
             <div className='container'>
-                <h1>SignUp</h1>
+                <h1>Register</h1>
 
                 <form>
                     <h5>Username:</h5>
@@ -80,7 +81,7 @@ function SignUp() {
                     <h5>Phone Number:</h5>
                     <input type='number' value={number} onChange={event => setNumber(event.target.value)} />
                     <h5>Referral Code:</h5>
-                    <input type='number' value={referralCode} onChange={event => setreferralCode(event.target.value)} />
+                    <input type='text' value={referralCode} onChange={event => setreferralCode(event.target.value)} />
                     <h5>Date Of Birth:</h5>
                     <input type='date'
                         placeholder='Enter Birth Date'
@@ -96,7 +97,7 @@ function SignUp() {
                     see our Privacy Notice.
                 </p>
 
-                <button onClick={signIn} className='signUpButton'>Login</button>
+                <button onClick={signIn} className='signUpButton'>Login Instead</button>
             </div>
         </div>
     )

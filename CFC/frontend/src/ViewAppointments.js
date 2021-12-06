@@ -7,9 +7,15 @@ import axios from 'axios';
 import './ViewAppointments.css'
 
 function ViewAppointments(props) {
+    console.log("View Appoints", props)
+    let clinicianID = 0
+    let arr=[]    
+
     const history = useHistory();
-    let arr = []
-    arr = props.location.state.Data;
+    if(props.location.state.Data!=null){
+        clinicianID = props.location.state.Data[0].ClinicianID
+        arr = props.location.state.Data;
+    }
 
     function viewAppointmentDetails(appointmentId, index){
         console.log("Inside VIEW Details")
@@ -27,25 +33,33 @@ function ViewAppointments(props) {
                                         if(res.status==200){
                                             console.log("Client Name details", res.data)
                                             clientname = res.data.FirstName+" "+res.data.LastName;
+                                            axios({ method: 'get', url: 'http://127.0.0.1:3000/clinicianname', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }, params: {"clinicianID": response.data.ClinicianID} })
+                                            .then((re) => {
+                                                        if(re.status==200){
+                                                            console.log("Clinician name details", re.data)
+                                                            clinicianname = re.data.FirstName+" "+re.data.LastName
+                                                            history.push({
+                                                                pathname: '/appointmentDetails',
+                                                                state: {"Data": arr, "Role":props.location.state.Role, "Token":props.location.state.Token, "ID":appointmentId, "ClientName":clientname, "ClinicianName": clinicianname, "Index":index, "oldData": props.location.state.oldData, "prev":props.location.state}
+                                                            })
+                                                        }
+                                                        }, (error) => {
+                                                            console.log("Error"+error)
+                                                        }
+                                                    );
+                                            
                                         }
                                         }, (error) => {
                                             console.log("Error"+error)
                                         }
                                     );
-                            axios({ method: 'get', url: 'http://127.0.0.1:3000/clinicianname', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }, params: {"clinicianID": response.data.ClinicianID} })
-                                .then((re) => {
-                                            if(re.status==200){
-                                                console.log("Clinician name details", re.data)
-                                                clinicianname = re.data.FirstName+" "+re.data.LastName
-                                            }
-                                            }, (error) => {
-                                                console.log("Error"+error)
-                                            }
-                                        );
-                            history.push({
-                                pathname: '/appointmentDetails',
-                                state: {"Data": arr, "Token":props.location.state.Token, "ID":appointmentId, "ClientName":clientname, "ClinicianName": clinicianname, "Index":index}
-                            })
+                            
+                            // if(clientname!="" && clinicianname!=""){
+                                // history.push({
+                                //     pathname: '/appointmentDetails',
+                                //     state: {"Data": arr, "Token":props.location.state.Token, "ID":appointmentId, "ClientName":clientname, "ClinicianName": clinicianname, "Index":index}
+                                // })
+                            // }
                         }
                         }, (error) => {
                             console.log("Error"+error)
@@ -56,30 +70,61 @@ function ViewAppointments(props) {
 
     }
 
+    function addAppointment(){
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/clinician/clients', headers: { 'Authorization': 'Bearer ' + props.location.state.Token } })
+                    .then((response) => {
+                    console.log("FINAL", response)
+                    if(response.status  == 200){
+                        history.push({
+                            pathname: '/addAppointment',
+                            state: {"Data": response.data, "Token": props.location.state.Token, "Role":props.location.state.Role, "ClinicianID": clinicianID, "oldData": props.location.state.oldData, "prev":props.location.state}
+                        })
+                    }
+                }, (error) => {
+                    console.log(error)
+                }
+            );
+    }
+
+    const backClick = () =>{
+        if(props.location.state.Role==1){
+          history.push({
+            pathname: '/clientHome',
+            state: props.location.state.prev
+        })
+        }
+        else{
+          history.push({
+            pathname: '/clinicianHome',
+            state: props.location.state.prev
+    
+        })
+        }
+      }
+
     return (
         <>
-        <Header header="List of appointments"/>
-        <br></br>
-        <br></br>
-        <br></br>
-        <br></br>
-        <div style={{textAlign:"center"}}>
+        <Header header="List of Appointments" role={props.location.state.Role} oldData={props.location.state.oldData}/>
+        <div style={{textAlign:"center", marginTop:"5rem"}}>
             
-            <h3>Your appointments</h3>
+            <h3>Your Appointments</h3>
             <br></br>
             <div className="DivWithScroll">
             {arr.map((appointment, index) => (
-                    <Card id="my_div" style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem' }}>
+                    <Card id="my_div" style={{marginLeft:"auto",marginRight:"auto", marginTop:"3%", width: '18rem', height: '40%'}}>
                     <Card.Body>
                     <Card.Title>{"Appointment "+appointment.AppointmentID}</Card.Title>
-                    <p>{"Time: "+appointment.AppointmentTime}</p>
-                    <p>{"Medium: "+appointment.AppointmentMedium}</p>
-                    <Card.Link onClick={() => viewAppointmentDetails(appointment.AppointmentID, index)}>View Details</Card.Link>
+                    <p>{"Time: "+(appointment.AppointmentTime.replace("T", " ").replace("Z", ""))}</p>
+                    <Card.Link style={{'cursor': 'pointer'}} onClick={() => viewAppointmentDetails(appointment.AppointmentID, index)}>View Details</Card.Link>
                     {/* <Card.Link onClick={() => viewAppointmentDetails(appointment.AppointmentID)}>View Details</Card.Link> */}
                     </Card.Body>
                 </Card>
                 ))}
             </div>
+            {props.location.state.Role == 2 &&
+            <Card.Link style={{'cursor': 'pointer'}} onClick={() => addAppointment()}>Add Appointment</Card.Link>}
+            <br></br>
+            <Card.Link style={{'cursor': 'pointer'}} onClick={backClick}>Go back</Card.Link> 
         </div>
         </>
     )

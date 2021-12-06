@@ -58,10 +58,24 @@ function Login() {
                     }
                     else if (tokenData.role =='2'){
                         console.log("Clinician data", response.data)
-                        history.push({
-                            pathname: '/clinicianHome',
-                            state: {"Data":[], "Token":response.data['token'], "Role":tokenData.role}
-                        })
+                        let url = "http://127.0.0.1:3000/client"
+
+                        
+                        const AuthStr = 'Bearer '.concat(response.data['token']);
+
+                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                        .then((res) => {
+                                        console.log("FINAL", res)
+                                        if(res.status  == 200){
+                                            history.push({
+                                                pathname: '/clinicianHome',
+                                                state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
+                                            })
+                                        }
+                                    }, (error) => {
+                                        console.log("Error"+error)
+                                    }
+                                );
                     }
                 }
                 else{

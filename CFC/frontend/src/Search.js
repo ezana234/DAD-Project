@@ -14,7 +14,7 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => (
             placeholder="Search Clients"
             name="s" 
         />
-        <button className="button">Search</button>
+        <button onClick={()=>(console.log("Clicked"))} className="button">Search</button>
     </>
 );
 

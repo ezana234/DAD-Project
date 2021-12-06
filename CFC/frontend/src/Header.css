@@ -11,3 +11,6 @@
 .customHeight{
     minHeight: 200
 }
+Typography{
+    cursor: pointer;
+}

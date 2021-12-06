@@ -3,6 +3,8 @@ import './ModifySafetyPlan.css'
 import Header from './Header';
 import {withRouter, Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import {Card} from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ModifySafetyPlan(props) {
     console.log("Modify safetyplan props:", props)
@@ -29,6 +31,10 @@ function ModifySafetyPlan(props) {
             // alert(response.data)
             if(response.status==200){
                 alert("Successfully modified Safety Plan")
+                history.push({
+                    pathname: '/clinicianHome',
+                    state: {"Data": props.location.state.oldData, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state.oldData}
+                })
             }
             else{
                 alert("Could not modify the Safety Plan")
@@ -41,13 +47,17 @@ function ModifySafetyPlan(props) {
             
     }
 
+    const backClick = () =>{
+        history.push({
+          pathname: '/safetyplan',
+          state: props.location.state.prev
+      })
+    }
+
     return (
         <>
-            <Header/>
-            <br></br>
-            <br></br>
-            <br></br>
-            <div className='loginForm'>
+            <Header header="Safety Plan" role={props.location.state.Role} oldData={props.location.state.oldData}/>
+            <div style={{marginTop:"5rem"}} className='loginForm'>
 
                 <div className='container'>
                     <h1>Modify Safety Plan</h1>
@@ -69,6 +79,8 @@ function ModifySafetyPlan(props) {
                     </form>
 
                 </div>
+                <br></br>
+                    <Card.Link style={{'cursor': 'pointer'}} onClick={backClick}>Go Back</Card.Link> 
             </div>
         </>
     )

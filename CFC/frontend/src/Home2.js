@@ -15,13 +15,14 @@ function Home2(props) {
     console.log(props.location.state);
     const token = props.location.state.Token;
     const history = useHistory();
-    var firstname = props.location.state.FirstName;
+    var firstname = props.location.state.Data.FirstName;
     const viewProfile = event => {
         event.preventDefault();
-        // history.push({
-        //     pathname: '/profile',
-        //     state: props.location.state
-        // })
+        history.push({
+            pathname: '/profile',
+            state: {"Data":props.location.state, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state, "w":0}
+
+        })
     }
     const viewClients = event => {
         event.preventDefault();
@@ -31,7 +32,7 @@ function Home2(props) {
                     if(response.status  == 200){
                         history.push({
                             pathname: '/users',
-                            state: {"Data": response.data, "Token": token, "Role":props.location.state.Role}
+                            state: {"Data": response.data, "Token": token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state}
                         })
                     }
                 }, (error) => {
@@ -48,7 +49,7 @@ function Home2(props) {
                     console.log("Appointments", response.data)
                     history.push({
                         pathname: '/appointments',
-                        state: {"Data":response.data, "Token": props.location.state.Token}
+                        state: {"Data":response.data, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state}
                     })
                     }, (error) => {
                         console.log("Error"+error)
@@ -58,12 +59,12 @@ function Home2(props) {
 
     return (
         <>
-            <Header header="Clinician's Homepage"/>
+            <Header header="Clinician's Homepage" role={props.location.state.Role} oldData={props.location.state}/>
 
             <div className="container-center-horizontal">
                 <div className="client-home-screenscreen">
                     <h1 className="place">
-                        Welcome {firstname}
+                        {"Welcome "+firstname}
                     </h1>
 
                     <div className="text-1">

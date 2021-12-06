@@ -3,6 +3,8 @@ import './AddSafetyPlan.css'
 import Header from './Header';
 import {withRouter, Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import {Card} from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
@@ -28,7 +30,18 @@ function AddSafetyPlan(props) {
             .then((response) => {
                 console.log(response);
                 // alert(response.data)
+                if(response.status==200){
+                    alert("Safety Plan successfully added")
+                    history.push({
+                        pathname: '/users',
+                        state: {"Data": props.location.state.Clients, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state.oldData}
+                    })
+                }
+                else{
+                    alert("Error while adding Safety Plan, please try again!")
+                }
                 }, (error) => {
+                    alert("Error while adding Safety Plan, please try again!")
                     console.log("Error"+error)
                 }
             );
@@ -41,13 +54,17 @@ function AddSafetyPlan(props) {
             
     }
 
+    const backClick = () =>{
+          history.push({
+            pathname: '/safetyplan',
+            state: props.location.state.prev
+        })
+      }
+
     return (
         <>
-            <Header/>
-            <br></br>
-            <br></br>
-            <br></br>
-            <div className='loginForm'>
+            <Header header="New Safety Plan" role={props.location.state.Role} oldData={props.location.state.oldData}/>
+            <div style={{marginTop:"5rem"}} className='loginForm'>
 
                 <div className='container'>
                     <h1>Add Safety Plan</h1>
@@ -62,13 +79,15 @@ function AddSafetyPlan(props) {
                         <h5>Destructive Behaviors:</h5>
                         <input type='text' value={destrctiveBehaviors} onChange={event => setDestrctiveBehaviors(event.target.value)} />
 
-                        <h5>Internal Coping Stratergies:</h5>
+                        <h5>Internal Coping Strategies:</h5>
                         <input type='text' value={internalStratergies} onChange={event => setInternalStratergies(event.target.value)} />
 
                         <button type='submit' onClick={createSafetyPlan} className='signInButton'>Create Safety Plan</button>
                     </form>
 
                 </div>
+                <br></br>
+                    <Card.Link style={{'cursor': 'pointer'}} onClick={backClick}>Go Back</Card.Link> 
             </div>
         </>
     )

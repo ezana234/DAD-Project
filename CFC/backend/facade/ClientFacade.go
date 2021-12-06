@@ -37,14 +37,8 @@ func (cf *ClientFacade) GetAllClients() ([]*Model.Client, int) {
 
 func (cf *ClientFacade) AddClient(c Model.Client) (int, int) {
 	rowsAffected, err := cf.clientDao.Add(c)
-	if err != nil {
+	if err != nil || rowsAffected == 0 {
 		log.Printf("Error: %s when adding client", err)
-		return 0, 0
-	}
-
-	if rowsAffected == 0 {
-		println("yeet")
-		log.Printf("0 rows affected when adding client")
 		return 0, 0
 	}
 
@@ -123,4 +117,22 @@ func (cf *ClientFacade) AssignClinicianToClient(clientID int, clinicianID int) i
 	}
 
 	return 1
+}
+
+func (cf *ClientFacade) GetClientNameByClientID(clientID int) (*Model.Person, int) {
+	clientName, err := cf.clientDao.GetClientNameByClientID(clientID)
+	if err != nil {
+		log.Printf("error occurred: %s when getting client name by clientID", err)
+		return clientName, 0
+	}
+	return clientName, 1
+}
+
+func (cf *ClientFacade) GetAllClientNames() ([]*Model.Person, int) {
+	clientNames, err := cf.clientDao.GetAllClientNames()
+	if err != nil {
+		return clientNames, 0
+	}
+
+	return clientNames, 1
 }

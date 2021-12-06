@@ -61,3 +61,10 @@ func (ph *PersonHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
+
+//func (ph *PersonHandler) ClientUpdateInfo(w http.ResponseWriter, r *http.Request) {
+//	claims, er := Auth.IsAuthorized(w, r)
+//	if !er {
+//		return
+//	}
+//}

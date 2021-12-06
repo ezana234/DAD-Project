@@ -4,6 +4,7 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
+	"log"
 )
 
 type AppointmentFacade struct {
@@ -24,17 +25,18 @@ func (af *AppointmentFacade) GetAppointmentByID(appID int) (*Model.Appointment, 
 }
 
 func (af *AppointmentFacade) AddAppointment(app Model.Appointment) int {
-	_, err := af.appointmentDao.AddAppointment(app)
-	if err != nil {
+	rowsAffected, err := af.appointmentDao.AddAppointment(app)
+	if err != nil || rowsAffected <= 0 {
+		log.Printf("error: %s when adding appointment", err)
 		return 0
 	}
 
-	return 1
+	return af.appointmentDao.GetNextAppointmentID() - 1
 }
 
 func (af *AppointmentFacade) UpdateAppointment(appID int, app Model.Appointment) int {
-	_, err := af.appointmentDao.UpdateAppointment(appID, app)
-	if err != nil {
+	rowsAffected, err := af.appointmentDao.UpdateAppointment(appID, app)
+	if err != nil || rowsAffected <= 0 {
 		return 0
 	}
 
@@ -42,8 +44,8 @@ func (af *AppointmentFacade) UpdateAppointment(appID int, app Model.Appointment)
 }
 
 func (af *AppointmentFacade) DeleteAppointment(appID int) int {
-	_, err := af.appointmentDao.DeleteAppointment(appID)
-	if err != nil {
+	rowsAffected, err := af.appointmentDao.DeleteAppointment(appID)
+	if err != nil || rowsAffected <= 0 {
 		return 0
 	}
 

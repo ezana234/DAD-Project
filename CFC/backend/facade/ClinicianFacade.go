@@ -129,3 +129,21 @@ func (cf *ClinicianFacade) GetClientUsersByClinicianID(clinicianID int) ([]*Mode
 
 	return pList, 1
 }
+
+func (cf *ClinicianFacade) GetClinicianNameByClinicianID(clinicianID int) (*Model.Person, int) {
+	clinicianName, err := cf.clinicianDao.GetClinicianNameByClinicianID(clinicianID)
+	if err != nil {
+		return clinicianName, 0
+	}
+
+	return clinicianName, 1
+}
+
+func (cf *ClinicianFacade) GetAllClinicianNames() ([]*Model.Person, int) {
+	clinicianNames, err := cf.clinicianDao.GetAllClinicianNames()
+	if err != nil {
+		return clinicianNames, 0
+	}
+
+	return clinicianNames, 1
+}

@@ -101,16 +101,12 @@ func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.P
 func (pf *PersonFacade) AddPerson(p Model.Person) int {
 	p.SetUserID(pf.personDao.GetNextUserID())
 	rowsAffected, err := pf.personDao.Add(p)
-	if err != nil {
+	if err != nil || rowsAffected <= 0 {
 		log.Printf("Error: %s when adding person", err)
 		return 0
 	}
-	if rowsAffected <= 0 {
-		log.Printf("0 rows updated when adding person")
-		return 0
-	}
 
-	return 1
+	return pf.personDao.GetNextUserID() - 1
 }
 
 // UpdatePerson Updates person specified by userID
@@ -334,6 +330,15 @@ func IsExpired(expiration string) bool {
 // 	return pJson
 // }
 
+func (pf *PersonFacade) GetClientByUserID(userID int) (*Model.Client, int) {
+	client, err := pf.personDao.GetClientByUserID(userID)
+	if err != nil {
+		return new(Model.Client), 0
+	}
+
+	return client, 1
+}
+
 func (pf *PersonFacade) GetClinicianByUserID(userID int) (*Model.Clinician, int) {
 	clinician, err := pf.personDao.GetClinicianByUserID(userID)
 	if err != nil {
@@ -355,7 +360,7 @@ func (pf *PersonFacade) GetSafetyPlansByUserID(userID int, role int) ([]*Model.S
 	return spList, 1
 }
 
-func (pf *PersonFacade) GetAppointmentsByUserID(userID int, role int) ([]*Model.Appointment, int) {
+func (pf *PersonFacade) GetAppointmentsByUserID(userID int, role string) ([]*Model.Appointment, int) {
 	var emptyList []*Model.Appointment
 
 	aList, err := pf.personDao.GetAppointmentsByUserID(userID, role)
@@ -364,4 +369,22 @@ func (pf *PersonFacade) GetAppointmentsByUserID(userID int, role int) ([]*Model.
 	}
 
 	return aList, 1
+}
+
+func (pf *PersonFacade) GetClientNameByUserID(userID int) (*Model.Person, int) {
+	clientName, err := pf.personDao.GetClientNameByUserID(userID)
+	if err != nil {
+		return clientName, 0
+	}
+
+	return clientName, 1
+}
+
+func (pf *PersonFacade) GetClinicianNameByUserID(userID int) (*Model.Person, int) {
+	clinicianName, err := pf.personDao.GetClinicianNameByUserID(userID)
+	if err != nil {
+		return clinicianName, 0
+	}
+
+	return clinicianName, 1
 }

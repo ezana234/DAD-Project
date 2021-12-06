@@ -15,7 +15,7 @@ func NewClinicianDao(db DB.DatabaseConnection) *ClinicianDao {
 }
 
 func (cd *ClinicianDao) GetClinicianByID(clinicianID int) (*Model.Clinician, error) {
-	var query = "SELECT * FROM clinician WHERE person.clinicianId=$1"
+	var query = "SELECT * FROM cfc.clinician WHERE person.clinicianId=$1"
 	var parameters = []interface{}{clinicianID}
 
 	result, err := cd.db.Select(query, parameters)
@@ -33,7 +33,7 @@ func (cd *ClinicianDao) GetClinicianByID(clinicianID int) (*Model.Clinician, err
 }
 
 func (cd *ClinicianDao) GetAllClinicians() ([]*Model.Clinician, error) {
-	var query = "SELECT * FROM clinician"
+	var query = "SELECT * FROM cfc.clinician"
 	var cList []*Model.Clinician
 
 	result, err := cd.db.Select(query, []interface{}{})
@@ -263,6 +263,42 @@ func (cd *ClinicianDao) GetClinicianByReferral(referral string) (*Model.Clinicia
 	clinician.SetClinicianID(int(cuid))
 
 	return clinician, nil
+}
+
+func (cd *ClinicianDao) GetClinicianNameByClinicianID(clinicianID int) (*Model.Person, error) {
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClinicianNames\" WHERE clinicianid = $1"
+	var parameters = []interface{}{clinicianID}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
+	clinicianName := Model.NewPerson("", "", result[0][1], result[0][2], "", "", "", "", "", "")
+	clinicianName.SetUserID(int(uid))
+
+	return clinicianName, nil
+}
+
+func (cd *ClinicianDao) GetAllClinicianNames() ([]*Model.Person, error) {
+	var clinicianNames []*Model.Person
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClinicianNames\""
+	var parameters []interface{}
+
+	result, err := cd.db.Select(query, parameters)
+	if err != nil {
+		return clinicianNames, err
+	}
+
+	for _, res := range result {
+		uid, _ := strconv.ParseInt(res[0], 10, 64)
+		clinicianName := Model.NewPerson("", "", res[1], res[2], "", "", "", "", "", "")
+		clinicianName.SetUserID(int(uid))
+		clinicianNames = append(clinicianNames, clinicianName)
+	}
+
+	return clinicianNames, nil
 }
 
 // TODO GetUserByClinicianID()

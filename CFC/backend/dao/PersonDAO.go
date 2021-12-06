@@ -191,7 +191,7 @@ func (pd *PersonDao) EmailExists(email string) (bool, error) {
 // TODO GetClinicianByUserID()
 
 func (pd *PersonDao) GetClientByUserID(userID int) (*Model.Client, error) {
-	var query = "SELECT * FROM cfc.client WHERE userID=$1 LIMIT 1"
+	var query = "SELECT * FROM cfc.client WHERE person_userid=$1"
 	var parameters = []interface{}{userID}
 
 	result, err := pd.db.Select(query, parameters)
@@ -258,14 +258,14 @@ func (pd *PersonDao) GetSafetyPlansByUserID(userID int, role int) ([]*Model.Safe
 	return spList, nil
 }
 
-func (pd *PersonDao) GetAppointmentsByUserID(userID int, role int) ([]*Model.Appointment, error) {
+func (pd *PersonDao) GetAppointmentsByUserID(userID int, role string) ([]*Model.Appointment, error) {
 	var aList []*Model.Appointment
 	var query string
 	var parameters = []interface{}{userID}
 
-	if role == 1 {
+	if role == "1" {
 		query = "SELECT * FROM cfc.appointments WHERE appointments.client_clientid IN (SELECT clientid FROM cfc.client WHERE client.person_userid=$1)"
-	} else if role == 2 {
+	} else if role == "2" {
 		query = "SELECT * FROM cfc.appointments WHERE appointments.clinician_clinicianid IN (SELECT clinicianid FROM cfc.clinician WHERE clinician.person_userid=$1)"
 	} else {
 		return aList, errors.New("incorrect role id")
@@ -287,4 +287,36 @@ func (pd *PersonDao) GetAppointmentsByUserID(userID int, role int) ([]*Model.App
 	}
 
 	return aList, nil
+}
+
+func (pd *PersonDao) GetClientNameByUserID(userID int) (*Model.Person, error) {
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClientNames\" WHERE userid=$1"
+	var parameters = []interface{}{userID}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
+	clientName := Model.NewPerson("", "", result[0][1], result[0][2], "", "", "", "", "", "")
+	clientName.SetUserID(int(uid))
+
+	return clientName, nil
+}
+
+func (pd *PersonDao) GetClinicianNameByUserID(userID int) (*Model.Person, error) {
+	var query = "SELECT userid, firstname, lastname FROM cfc.\"ClinicianNames\" WHERE userid=$1"
+	var parameters = []interface{}{userID}
+
+	result, err := pd.db.Select(query, parameters)
+	if err != nil {
+		return new(Model.Person), err
+	}
+
+	uid, _ := strconv.ParseInt(result[0][0], 10, 64)
+	clinicianName := Model.NewPerson("", "", result[0][1], result[0][2], "", "", "", "", "", "")
+	clinicianName.SetUserID(int(uid))
+
+	return clinicianName, nil
 }

@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Person struct {
 	UserID int `db:"userID"`
@@ -18,7 +21,7 @@ type Person struct {
 }
 
 func NewPerson(userName string, password string, firstName string, lastName string, email string, address string, phoneNumber string, role string, expiration string, dob string) *Person {
-	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: email, Address: address, PhoneNumber: phoneNumber, Role: role, Expiration: expiration, DOB: dob}
+	return &Person{UserName: userName, Password: password, FirstName: firstName, LastName: lastName, Email: strings.ToLower(email), Address: address, PhoneNumber: phoneNumber, Role: role, Expiration: expiration, DOB: dob}
 }
 
 func (p *Person) GetUserID() int {
@@ -66,7 +69,7 @@ func (p *Person) GetEmail() string {
 }
 
 func (p *Person) SetEmail(email string) {
-	p.Email = email
+	p.Email = strings.ToLower(email)
 }
 
 func (p *Person) GetAddress() string {

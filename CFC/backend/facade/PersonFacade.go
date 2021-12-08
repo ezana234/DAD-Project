@@ -4,6 +4,7 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	DAO "CFC/backend/CFC/backend/dao"
 	Model "CFC/backend/CFC/backend/model"
+	"strings"
 
 	// "encoding/json"
 
@@ -82,6 +83,7 @@ func (pf *PersonFacade) GetPersonByUserName(username string) (*Model.Person, int
 }
 
 func (pf *PersonFacade) GetPersonByEmail(email string, password string) *Model.Person {
+	email = strings.ToLower(email)
 	p, err := pf.personDao.GetPersonByEmail(email)
 	if err != nil {
 		log.Printf("Error: %s when getting person by email", err)
@@ -205,6 +207,7 @@ func (pf *PersonFacade) LoginPersonByUserName(userName string, password string) 
 }
 
 func (pf *PersonFacade) LoginPersonByEmail(email string, password string) (*Model.Person, int) {
+	email = strings.ToLower(email)
 	p, err := pf.personDao.GetPersonByEmail(email)
 	if err != nil {
 		log.Printf("Error: %s when logging in by email", err)

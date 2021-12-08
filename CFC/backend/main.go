@@ -49,7 +49,7 @@ func main() {
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 	//pf := Facade.NewPersonFacade(db)
-	//pNew := *model.NewPerson("clinicianuser2", "c2password", "Clinician2", "User2", "clin2@gmail.com", "123 Street", "123456789", "2", "", "04/03/2002")
+	//pNew := *model.NewPerson("dmichaels", "", "Danny", "Michaels", "dmichaels@cfc.com", "2233 West Drive Street", "123456789", "2", "", "04/03/2002")
 	//pf.CreateNewPerson(pNew)
 
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")

@@ -5,6 +5,7 @@ import (
 	Model "CFC/backend/CFC/backend/model"
 	"errors"
 	"strconv"
+	"strings"
 )
 
 type PersonDao struct {
@@ -136,7 +137,7 @@ func (pd *PersonDao) GetPersonByUserName(userName string) (*Model.Person, error)
 
 func (pd *PersonDao) GetPersonByEmail(email string) (*Model.Person, error) {
 	var query = "SELECT * FROM cfc.person WHERE email=$1 LIMIT 1"
-	var parameterMap = []interface{}{email}
+	var parameterMap = []interface{}{strings.ToLower(email)}
 
 	result, err := pd.db.Select(query, parameterMap)
 	if err != nil || len(result) == 0 {
@@ -178,7 +179,7 @@ func (pd *PersonDao) UsernameExists(username string) (bool, error) {
 
 func (pd *PersonDao) EmailExists(email string) (bool, error) {
 	var query = "SELECT email FROM cfc.person WHERE email=$1"
-	var parameters = []interface{}{email}
+	var parameters = []interface{}{strings.ToLower(email)}
 
 	result, err := pd.db.Select(query, parameters)
 	if err != nil || len(result) > 0 {

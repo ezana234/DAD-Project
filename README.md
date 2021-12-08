@@ -554,6 +554,9 @@ Refactoring the code improves the overall structure of the code, it makes the co
 
 ## How to run the application
 
+### Repository
+- First, clone the repository at [https://github.com/ezana234/DAD-Project.git](https://github.com/ezana234/DAD-Project.git)
+
 ### Backend:
 - First, navigate to `DAD-Project/CFC/backend`
 - Run `go build main.go`

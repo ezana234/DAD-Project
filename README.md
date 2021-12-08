@@ -68,7 +68,7 @@ Controller: The intermediary between the View and Model. It requests information
 
 ## Entity Relationship Diagram:
 
-![](/CFC/img0.png)
+![](/Users/rweiss/GolandProjects/DAD-Project/CFC/img0.png)
 
 ## Layering:
 
@@ -164,7 +164,7 @@ In the image above we can see how the table in the database is defined, what are
 - The facades, which will be interacting directly with the database. These facades will handle the sql statements, and will return the data to the DAOs. Each DAO will have its own facade. The facades will also be written in Go.
 - The MYSQL Database.
   - DBConnection is the class used to instantiate the database connection. Every facade will use the DBConnection object to connect.
-  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](/CFC/img3.png)
+  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](/Users/rweiss/GolandProjects/DAD-Project/CFC/img3.png)
 
 ## Exception Handling:
 
@@ -554,6 +554,9 @@ Refactoring the code improves the overall structure of the code, it makes the co
 
 ## How to run the application
 
+### Repository
+- First, clone the repository at [https://github.com/ezana234/DAD-Project.git](https://github.com/ezana234/DAD-Project.git)
+
 ### Backend:
 - First, navigate to `DAD-Project/CFC/backend`
 - Run `go build main.go`
@@ -563,6 +566,27 @@ Refactoring the code improves the overall structure of the code, it makes the co
 - First, run `npm install`
 - Then, run `npm start` to run the application in development mode. You can view it by navigating to [http://localhost:3001](http://localhost:3001)
 
+
+## Test User Accounts:
+
+There are a few test user accounts that you can log in with.
+
+### Clinicians:
+
+#### Danny Michaels:
+- Email: *dmichaels@cfc.com*
+- Password: *dmpassword*
+- Referral: *DMICHCFC*
+
+### Clients
+
+#### Bobby Tarantino
+- Email: *btarantino@gmail.com*
+- Password: *btpassword*
+
+#### Slim Shady
+- Email: *sshady@gmail.com*
+- Password: *sspassword*
 
 
 

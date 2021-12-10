@@ -96,7 +96,7 @@ Controller: The intermediary between the View and Model. It requests information
 
 ## Entity Relationship Diagram:
 
-![](./img0.png)
+![](img0.png)
 
 ## Layering:
 
@@ -109,7 +109,7 @@ Controller: The intermediary between the View and Model. It requests information
 - Clinicians would be able to view their clients safety plans and would be notified of any changes the clients make.
 - Users(Clients/Clinicians) will be using the UI to login to their respective accounts.
 
-![](./img1.png)
+![](img1.png)
 
 The code snippet above shows how the login page is designed. It shows the structure(1 Column) of the login page and the components(Labels, Input Text Fields, Button) of it. The code also shows how these Input Fields are stored in values(React Hook States) and how they can be used while the user hits the submit button. Also one other thing to notice here is that, the user is redirected to the Home page after hitting the login button. The user will be able to view the Safety Plan on the Home page.
 
@@ -120,7 +120,7 @@ The code snippet above shows how the login page is designed. It shows the struct
 - Data which is stored in Database includes:
   - User details like the username/email, email, password, name, address phone number will be stored in a table in the database.
 
-![](./img2.png)
+![](img2.png)
 
 In the image above we can see how the table in the database is defined, what are all the column names/attributes defined in the table.
 
@@ -137,7 +137,7 @@ In the image above we can see how the table in the database is defined, what are
 - The facades, which will be interacting directly with the database. These facades will handle the sql statements, and will return the data to the DAOs. Each DAO will have its own facade. The facades will also be written in Go.
 - The MYSQL Database.
   - DBConnection is the class used to instantiate the database connection. Every facade will use the DBConnection object to connect.
-  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](./img3.png)
+  - A few inconsistencies in the data are &quot;blanks&quot; rows in some of the &quot;last names&quot; and &quot;email&quot; columns. ![](img3.png)
 
 ## Timeline:
 

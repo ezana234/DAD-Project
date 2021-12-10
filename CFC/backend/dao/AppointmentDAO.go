@@ -11,10 +11,10 @@ import (
 // TODO GetClinicianByAppointmentID()
 
 type AppointmentDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewAppointmentDAO(db DB.DatabaseConnection) *AppointmentDao {
+func NewAppointmentDAO(db DB.DBConnection) *AppointmentDao {
 	return &AppointmentDao{db: db}
 }
 

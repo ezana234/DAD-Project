@@ -25,7 +25,7 @@ import (
 )
 
 type Database struct {
-	database DB.DatabaseConnection
+	database DB.DBConnection
 }
 
 func accessControlMiddleware(next http.Handler) http.Handler {
@@ -45,13 +45,17 @@ func accessControlMiddleware(next http.Handler) http.Handler {
 func main() {
 
 	db := *DB.NewDatabaseConnection("ydmscaoenbipqz", "f9ac329ae1c957bdd5015e4f91bb7968850dd6eb2773105ff6f2b4efb036de47", "ec2-52-54-237-144.compute-1.amazonaws.com", "5432", "d85fspl6bklvdv")
+	err := db.Open()
+	if err != nil {
+		panic(err)
+	}
+
 	mux := mux.NewRouter()
 	dbHandler := &Database{database: db}
 	mux.Use(accessControlMiddleware)
 	//pf := Facade.NewPersonFacade(db)
-	//pNew := *model.NewPerson("clinicianuser2", "c2password", "Clinician2", "User2", "clin2@gmail.com", "123 Street", "123456789", "2", "", "04/03/2002")
+	//pNew := *model.NewPerson("dmichaels", "", "Danny", "Michaels", "dmichaels@cfc.com", "2233 West Drive Street", "123456789", "2", "", "04/03/2002")
 	//pf.CreateNewPerson(pNew)
-
 	mux.HandleFunc("/login", (&Handlers.AuthHandler{Database: db}).Login).Methods("POST")
 	mux.HandleFunc("/signUp", (&Handlers.AuthHandler{Database: db}).SignUp).Methods("POST")
 	mux.HandleFunc("/client", (&Handlers.ClientHandler{Database: db}).GetClient).Methods("GET")
@@ -104,7 +108,7 @@ func main() {
 	// Server Configurations
 	router := c.Handler(mux)
 	log.Println("Starting server on :3000")
-	err := http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
+	err = http.ListenAndServe(":3000", handlers.CORS(originsOK, headersOK, methodsOK)(router))
 	log.Fatal(err)
 }
 

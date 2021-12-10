@@ -11,7 +11,7 @@ type AppointmentFacade struct {
 	appointmentDao DAO.AppointmentDao
 }
 
-func NewAppointmentFacade(db DB.DatabaseConnection) *AppointmentFacade {
+func NewAppointmentFacade(db DB.DBConnection) *AppointmentFacade {
 	return &AppointmentFacade{appointmentDao: *DAO.NewAppointmentDAO(db)}
 }
 

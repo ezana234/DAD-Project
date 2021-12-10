@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css'
 import { Link, useHistory } from "react-router-dom";
-import { auth } from "./firebase";
 import axios from 'axios';
-import $ from 'jquery';
 import jwt from 'jwt-decode'
 
 function Login() {
@@ -14,122 +12,73 @@ function Login() {
     const [token, setToken] = useState('');
     const signIn = event => {
         event.preventDefault();
+        if(email!=''){
+            if(password!=''){
         
-        const credentials = { 'email': email, 'password':password};
+                const credentials = { 'email': email.toLowerCase(), 'password':password};
 
-        console.log('AJAX')
-        
-        console.log(credentials)
-        axios({ method: 'post', url: 'http://127.0.0.1:3000/login', data: JSON.stringify(credentials)})
-        .then((response) => {
-            console.log(response.data);
-                console.log(response.data['token'])
-                setToken(response.data['token'])
-                
-                const tokenData = jwt(response.data['token']);
-                console.log(tokenData);
-                if(tokenData.authorized){
-                    if(tokenData.role =='1'){
-                        console.log("Yes");
-                        console.log(token);
-                        console.log(response.data['token'])
-                        console.log("Second request")
-
-                        console.log("Bearer "+response.data['token'])
-
-                        let url = "http://127.0.0.1:3000/client"
-
+                axios({ method: 'post', url: 'http://127.0.0.1:3000/login', data: JSON.stringify(credentials)})
+                .then((response) => {
+                        setToken(response.data['token'])
                         
-                        const AuthStr = 'Bearer '.concat(response.data['token']);
+                        const tokenData = jwt(response.data['token']);
+                        if(tokenData.authorized){
+                            if(tokenData.role =='1'){
 
-                        axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
-                        .then((res) => {
-                                        console.log("FINAL", res)
-                                        if(res.status  == 200){
-                                            history.push({
-                                                pathname: '/clientHome',
-                                                state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
-                                            })
-                                        }
-                                    }, (error) => {
-                                        console.log("Error"+error)
-                                    }
-                                );
+                                let url = "http://127.0.0.1:3000/client"
+
+                                
+                                const AuthStr = 'Bearer '.concat(response.data['token']);
+
+                                axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                                .then((res) => {
+                                                if(res.status  == 200){
+                                                    history.push({
+                                                        pathname: '/clientHome',
+                                                        state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
+                                                    })
+                                                }
+                                            }, (error) => {
+                                                console.log("Error"+error)
+                                            }
+                                        );
+                            }
+                            else if (tokenData.role =='2'){
+                                let url = "http://127.0.0.1:3000/client"
+
+                                
+                                const AuthStr = 'Bearer '.concat(response.data['token']);
+
+                                axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + response.data['token'] } })
+                                .then((res) => {
+                                                if(res.status  == 200){
+                                                    history.push({
+                                                        pathname: '/clinicianHome',
+                                                        state: {"Data":res.data, "Token":response.data['token'], "Role":tokenData.role}
+                                                    })
+                                                }
+                                            }, (error) => {
+                                                console.log("Error"+error)
+                                            }
+                                        );
+                            }
+                        }
+                        else{
+                            alert("You are not an authorized user");
+                        }
+                    }, (error) => {
+                        alert("Could not successfully login, try again!");
+                        console.log("Error"+error)
                     }
-                    else if (tokenData.role =='2'){
-                        console.log("Clinician data", response.data)
-                        history.push({
-                            pathname: '/clinicianHome',
-                            state: {"Data":[], "Token":response.data['token'], "Role":tokenData.role}
-                        })
-                    }
-                }
-                else{
-                    alert("You are not an authorized user");
-                }
-            }, (error) => {
-                console.log("Error"+error)
+                );
             }
-        );
-        // $.ajax({
-        //     type: 'post',
-        //     url: 'http://localhost:3000/login',
-        //     data: JSON.stringify(credentials),
-        //     contentType: "application/json; charset=utf-8",
-        //     traditional: true,  
-        //     success: function (data) {
-        //         console.log(data);
-        //         console.log(data['token'])
-        //         setToken(data['token'])
-                
-        //         const tokenData = jwt(data['token']);
-        //         console.log(tokenData);
-        //         if(tokenData.authorized){
-        //             if(tokenData.role =='1'){
-        //                 console.log("Yes");
-        //                 console.log(token);
-        //                 console.log(data['token'])
-        //                 console.log("Second request")
-
-        //                 console.log("Bearer "+data['token'])
-
-        //                 let url = "http://127.0.0.1:3000/client"
-
-                        
-        //                 const AuthStr = 'Bearer '.concat(data['token']);
-
-        //                 axios({ method: 'get', url: 'http://127.0.0.1:3000/client', headers: { 'Authorization': 'Bearer ' + data['token'] } })
-        //                 .then((response) => {
-        //                                 console.log("FINAL", response)
-        //                                 if(response.status  == 200){
-        //                                     history.push({
-        //                                         pathname: '/clientHome',
-        //                                         state: {"Data":response.data, "Token":data['token'], "Role":tokenData.role}
-        //                                     })
-        //                                 }
-        //                             }, (error) => {
-        //                                 console.log("Error"+error)
-        //                             }
-        //                         );
-        //             }
-        //             else if (tokenData.role =='2'){
-        //                 console.log("Clinician data", data)
-        //                 history.push({
-        //                     pathname: '/clinicianHome',
-        //                     state: {"Data":[], "Token":data['token'], "Role":tokenData.role}
-        //                 })
-        //             }
-        //         }
-        //         else{
-        //             alert("You are not an authorized user");
-        //         }
-
-        //         },
-        //     error: function (xhr, ajaxOptions, thrownError) {
-        //         alert("Incorrect email or password!");
-        //     }
-
-        //     });
+            else{
+                alert('Please fill in password')
+            }
+        }
+        else{
+            alert('Please fill in email')
+        }
 
             
     }

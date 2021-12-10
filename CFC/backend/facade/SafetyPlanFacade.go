@@ -12,7 +12,7 @@ type SafetyPlanFacade struct {
 	auth      Auth.AuthenticationManager
 }
 
-func NewSafetyPlanFacade(db DB.DatabaseConnection) *SafetyPlanFacade {
+func NewSafetyPlanFacade(db DB.DBConnection) *SafetyPlanFacade {
 	return &SafetyPlanFacade{safetyDao: *DAO.NewSafetyPlanDao(db)}
 }
 

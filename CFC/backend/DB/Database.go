@@ -9,15 +9,7 @@ import (
 	"log"
 )
 
-type Database struct {
-	database DatabaseConnection
-}
-
-func NewDatabase(connection DatabaseConnection) *Database {
-	return &Database{database: connection}
-}
-
-type DatabaseConnection struct {
+type DBConnection struct {
 	username string
 	password string
 	hostname string
@@ -25,14 +17,16 @@ type DatabaseConnection struct {
 	dbname   string
 	dsn      string
 	psqlInfo string
+	db       *sql.DB
 }
 
-func NewDatabaseConnection(username string, password string, hostname string, port string, dbname string) *DatabaseConnection {
+func NewDatabaseConnection(username string, password string, hostname string, port string, dbname string) *DBConnection {
 	var dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, hostname, dbname)
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=require",
 		hostname, port, username, password, dbname)
-	return &DatabaseConnection{
+
+	database := DBConnection{
 		username: username,
 		password: password,
 		hostname: hostname,
@@ -40,17 +34,28 @@ func NewDatabaseConnection(username string, password string, hostname string, po
 		dsn:      dsn,
 		psqlInfo: psqlInfo,
 	}
+
+	return &database
 }
 
-func (d *DatabaseConnection) Select(query string, parameters []interface{}) ([][]string, error) {
-	var rs [][]string
-
+func (d *DBConnection) Open() error {
 	db, err := sql.Open("postgres", d.psqlInfo)
 	if err != nil {
 		println("oof")
+		return err
 	}
 
-	rows, err := db.Query(query, parameters...)
+	db.SetMaxIdleConns(40)
+	db.SetMaxOpenConns(30)
+	d.db = db
+
+	return nil
+}
+
+func (d *DBConnection) Select(query string, parameters []interface{}) ([][]string, error) {
+	var rs [][]string
+
+	rows, err := d.db.Query(query, parameters...)
 	if err != nil {
 		log.Printf("Error: %s when running query", err)
 	}
@@ -111,14 +116,8 @@ func (d *DatabaseConnection) Select(query string, parameters []interface{}) ([][
 // 	return nil
 // }
 
-func (d *DatabaseConnection) Insert(query string, parameters []interface{}) (int, error) {
-	db, err := sql.Open("postgres", d.psqlInfo)
-	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return 0, errors.New("failed to connect to DB")
-	}
-
-	result, err := db.Exec(query, parameters...)
+func (d *DBConnection) Insert(query string, parameters []interface{}) (int, error) {
+	result, err := d.db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when inserting into DB\n", err)
 		return 0, errors.New("failed to insert into database")
@@ -151,14 +150,8 @@ func (d *DatabaseConnection) Insert(query string, parameters []interface{}) (int
 //	return nil
 //}
 
-func (d *DatabaseConnection) Update(query string, parameters []interface{}) (int, error) {
-	db, err := sql.Open("postgres", d.psqlInfo)
-	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return 0, errors.New("failed to connect to DB")
-	}
-
-	result, err := db.Exec(query, parameters...)
+func (d *DBConnection) Update(query string, parameters []interface{}) (int, error) {
+	result, err := d.db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when updating DB\n", err)
 		return 0, errors.New("failed to update database")
@@ -192,14 +185,8 @@ func (d *DatabaseConnection) Update(query string, parameters []interface{}) (int
 //	return nil
 //}
 
-func (d *DatabaseConnection) Delete(query string, parameters []interface{}) (int, error) {
-	db, err := sql.Open("postgres", d.psqlInfo)
-	if err != nil {
-		log.Printf("Error %s when opening DB\n", err)
-		return 0, errors.New("failed to connect to DB")
-	}
-
-	result, err := db.Exec(query, parameters...)
+func (d *DBConnection) Delete(query string, parameters []interface{}) (int, error) {
+	result, err := d.db.Exec(query, parameters...)
 	if err != nil {
 		log.Printf("Error %s when deleting from DB\n", err)
 		return 0, errors.New("failed to delete from database")
@@ -208,8 +195,4 @@ func (d *DatabaseConnection) Delete(query string, parameters []interface{}) (int
 	rowsAffected, _ := result.RowsAffected()
 
 	return int(rowsAffected), nil
-}
-
-func (d *DatabaseConnection) StartTransaction() {
-
 }

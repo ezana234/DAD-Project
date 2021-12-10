@@ -4,32 +4,32 @@ import React from 'react';
 import {Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Header';
-import './Home2.css';
+import './Home.css';
 import {useHistory} from 'react-router-dom';
 import axios from 'axios';
+import TodoButton from './TodoButton';
+import ViewAppointments from './ViewAppointments';
 
 function Home2(props) {
-    console.log(props);
-    console.log(props.location.state);
     const token = props.location.state.Token;
     const history = useHistory();
-    var firstname = props.location.state.FirstName;
+    var firstname = props.location.state.Data.FirstName;
     const viewProfile = event => {
         event.preventDefault();
-        // history.push({
-        //     pathname: '/profile',
-        //     state: props.location.state
-        // })
+        history.push({
+            pathname: '/profile',
+            state: {"Data":props.location.state, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state, "w":0}
+
+        })
     }
     const viewClients = event => {
         event.preventDefault();
         axios({ method: 'get', url: 'http://127.0.0.1:3000/clinician/clients', headers: { 'Authorization': 'Bearer ' + token } })
                     .then((response) => {
-                    console.log("FINAL", response)
                     if(response.status  == 200){
                         history.push({
                             pathname: '/users',
-                            state: {"Data": response.data, "Token": token, "Role":props.location.state.Role}
+                            state: {"Data": response.data, "Token": token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state}
                         })
                     }
                 }, (error) => {
@@ -38,21 +38,47 @@ function Home2(props) {
             );
 
     }
+
+    const viewAppointments = event =>{
+        event.preventDefault();
+        axios({ method: 'get', url: 'http://127.0.0.1:3000/client/appointments', headers: { 'Authorization': 'Bearer ' + props.location.state.Token }})
+        .then((response) => {
+                    history.push({
+                        pathname: '/appointments',
+                        state: {"Data":response.data, "Token": props.location.state.Token, "Role":props.location.state.Role, "oldData":props.location.state, "prev":props.location.state}
+                    })
+                    }, (error) => {
+                        console.log("Error"+error)
+                    }
+                );
+    }
+
     return (
         <>
-        <Header header="Clinician's Homepage"/>
-            <br></br>
-            <br></br>
-            <br></br>
-            <br></br>
-            <div style={{textAlign:"center", marginLeft:"auto", marginRight:"auto"}}>
-                <h4>Welcome {firstname}</h4>
-                <br></br>
-                <h5>What would you like to do today?</h5>
-                <button onClick={viewProfile} class="myButton">View my profile</button>
-                <br></br>
-                <button onClick={viewClients} class="myButton">View my clients</button>
+            <Header header="Clinician's Homepage" role={props.location.state.Role} oldData={props.location.state}/>
 
+            <div className="container-center-horizontal">
+                <div className="client-home-screenscreen">
+                    <h1 className="place">
+                        {"Welcome "+firstname}
+                    </h1>
+
+                    <div className="text-1">
+                        What would you like to do today
+                    </div>
+
+                    <TodoButton onClick={viewProfile}>View my profile</TodoButton>
+
+                    <TodoButton className={"todo-button-1"} onClick={viewClients}>
+                    View Clients
+                    </TodoButton>
+                    <TodoButton className={"todo-button-1"} onClick={viewClients}>
+                    View Safety Plans
+                    </TodoButton>
+                    <TodoButton className={"todo-button-1"} onClick={viewAppointments}>
+                    View Appointments
+                    </TodoButton>
+                </div>
             </div>
         </>
     )

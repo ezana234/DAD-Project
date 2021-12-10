@@ -9,10 +9,10 @@ import (
 )
 
 type PersonHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
-func NewPersonHandler(db DB.DatabaseConnection) *PersonHandler {
+func NewPersonHandler(db DB.DBConnection) *PersonHandler {
 	return &PersonHandler{Database: db}
 }
 

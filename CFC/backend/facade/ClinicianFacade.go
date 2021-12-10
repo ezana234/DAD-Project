@@ -12,7 +12,7 @@ type ClinicianFacade struct {
 	authManager  *Auth.AuthenticationManager
 }
 
-func NewClinicianFacade(db DB.DatabaseConnection) *ClinicianFacade {
+func NewClinicianFacade(db DB.DBConnection) *ClinicianFacade {
 	return &ClinicianFacade{clinicianDao: *DAO.NewClinicianDao(db)}
 }
 

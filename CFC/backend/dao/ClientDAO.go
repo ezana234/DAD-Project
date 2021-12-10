@@ -4,13 +4,14 @@ import (
 	"CFC/backend/CFC/backend/DB"
 	Model "CFC/backend/CFC/backend/model"
 	"strconv"
+	"strings"
 )
 
 type ClientDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewClientDao(db DB.DatabaseConnection) *ClientDao {
+func NewClientDao(db DB.DBConnection) *ClientDao {
 	return &ClientDao{db: db}
 }
 
@@ -140,7 +141,7 @@ func (cd *ClientDao) GetClinicianUserByClientID(clientID int) (*Model.Person, er
 
 	var res = result[0]
 	uid, _ := strconv.ParseInt(res[0], 10, 64)
-	p := Model.NewPerson(res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10])
+	p := Model.NewPerson(res[1], res[2], res[3], res[4], strings.ToLower(res[5]), res[6], res[7], res[8], res[9], res[10])
 	p.SetUserID(int(uid))
 
 	return p, nil

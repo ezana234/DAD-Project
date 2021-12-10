@@ -12,7 +12,7 @@ import (
 )
 
 type SafetyPlanHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
 func (sph *SafetyPlanHandler) ClientGetSafetyPlan(w http.ResponseWriter, r *http.Request) {

@@ -18,7 +18,7 @@ type PersonFacade struct {
 	personDao DAO.PersonDao
 }
 
-func NewPersonFacade(db DB.DatabaseConnection) *PersonFacade {
+func NewPersonFacade(db DB.DBConnection) *PersonFacade {
 	return &PersonFacade{personDao: *DAO.NewPersonDao(db)}
 }
 

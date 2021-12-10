@@ -12,10 +12,10 @@ import (
 )
 
 type AppointmentHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
-func NewAppointmentHandler(db DB.DatabaseConnection) *AppointmentHandler {
+func NewAppointmentHandler(db DB.DBConnection) *AppointmentHandler {
 	return &AppointmentHandler{Database: db}
 }
 

@@ -9,10 +9,10 @@ import (
 )
 
 type SafetyPlanDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewSafetyPlanDao(db DB.DatabaseConnection) *SafetyPlanDao {
+func NewSafetyPlanDao(db DB.DBConnection) *SafetyPlanDao {
 	return &SafetyPlanDao{db: db}
 }
 

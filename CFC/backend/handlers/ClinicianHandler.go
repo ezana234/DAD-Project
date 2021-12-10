@@ -11,7 +11,7 @@ import (
 )
 
 type ClinicianHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
 func (ch *ClinicianHandler) GetClinicians(w http.ResponseWriter, r *http.Request) {

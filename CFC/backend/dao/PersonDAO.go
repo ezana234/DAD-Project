@@ -9,10 +9,10 @@ import (
 )
 
 type PersonDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewPersonDao(db DB.DatabaseConnection) *PersonDao {
+func NewPersonDao(db DB.DBConnection) *PersonDao {
 	return &PersonDao{db: db}
 }
 

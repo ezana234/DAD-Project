@@ -7,10 +7,10 @@ import (
 )
 
 type ClinicianDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewClinicianDao(db DB.DatabaseConnection) *ClinicianDao {
+func NewClinicianDao(db DB.DBConnection) *ClinicianDao {
 	return &ClinicianDao{db: db}
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 type AuthHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
 func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {

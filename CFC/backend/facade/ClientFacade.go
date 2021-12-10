@@ -11,7 +11,7 @@ type ClientFacade struct {
 	clientDao DAO.ClientDao
 }
 
-func NewClientFacade(db DB.DatabaseConnection) *ClientFacade {
+func NewClientFacade(db DB.DBConnection) *ClientFacade {
 	return &ClientFacade{clientDao: *DAO.NewClientDao(db)}
 }
 

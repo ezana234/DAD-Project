@@ -8,10 +8,10 @@ import (
 )
 
 type ClientDao struct {
-	db DB.DatabaseConnection
+	db DB.DBConnection
 }
 
-func NewClientDao(db DB.DatabaseConnection) *ClientDao {
+func NewClientDao(db DB.DBConnection) *ClientDao {
 	return &ClientDao{db: db}
 }
 

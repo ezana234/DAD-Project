@@ -11,7 +11,7 @@ import (
 )
 
 type ClientHandler struct {
-	Database DB.DatabaseConnection
+	Database DB.DBConnection
 }
 
 // This function gets the client from the JWT
